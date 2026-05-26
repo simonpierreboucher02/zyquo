@@ -1,0 +1,30 @@
+packages/opencode/src/session/system.ts:5:import PROMPT_ANTHROPIC from "./prompt/anthropic.txt"
+packages/opencode/src/session/system.ts:6:import PROMPT_DEFAULT from "./prompt/default.txt"
+packages/opencode/src/session/system.ts:7:import PROMPT_BEAST from "./prompt/beast.txt"
+packages/opencode/src/session/system.ts:8:import PROMPT_GEMINI from "./prompt/gemini.txt"
+packages/opencode/src/session/system.ts:9:import PROMPT_GPT from "./prompt/gpt.txt"
+packages/opencode/src/session/system.ts:10:import PROMPT_KIMI from "./prompt/kimi.txt"
+packages/opencode/src/session/system.ts:12:import PROMPT_CODEX from "./prompt/codex.txt"
+packages/opencode/src/session/system.ts:13:import PROMPT_TRINITY from "./prompt/trinity.txt"
+packages/opencode/src/session/system.ts:21:    return [PROMPT_BEAST]
+packages/opencode/src/session/system.ts:24:      return [PROMPT_CODEX]
+packages/opencode/src/session/system.ts:26:    return [PROMPT_GPT]
+packages/opencode/src/session/system.ts:28:  if (model.api.id.includes("gemini-")) return [PROMPT_GEMINI]
+packages/opencode/src/session/system.ts:29:  if (model.api.id.includes("claude")) return [PROMPT_ANTHROPIC]
+packages/opencode/src/session/system.ts:30:  if (model.api.id.toLowerCase().includes("trinity")) return [PROMPT_TRINITY]
+packages/opencode/src/session/system.ts:31:  if (model.api.id.toLowerCase().includes("kimi")) return [PROMPT_KIMI]
+packages/opencode/src/session/system.ts:32:  return [PROMPT_DEFAULT]
+packages/opencode/src/agent/agent.ts:10:import PROMPT_GENERATE from "./generate.txt"
+packages/opencode/src/agent/agent.ts:11:import PROMPT_COMPACTION from "./prompt/compaction.txt"
+packages/opencode/src/agent/agent.ts:12:import PROMPT_EXPLORE from "./prompt/explore.txt"
+packages/opencode/src/agent/agent.ts:13:import PROMPT_SCOUT from "./prompt/scout.txt"
+packages/opencode/src/agent/agent.ts:14:import PROMPT_SUMMARY from "./prompt/summary.txt"
+packages/opencode/src/agent/agent.ts:15:import PROMPT_TITLE from "./prompt/title.txt"
+packages/opencode/src/agent/agent.ts:55:  systemPrompt: Schema.String,
+packages/opencode/src/agent/agent.ts:70:      systemPrompt: string
+packages/opencode/src/agent/agent.ts:200:            prompt: PROMPT_EXPLORE,
+packages/opencode/src/agent/agent.ts:228:                  prompt: PROMPT_SCOUT,
+packages/opencode/src/agent/agent.ts:240:            prompt: PROMPT_COMPACTION,
+packages/opencode/src/agent/agent.ts:264:            prompt: PROMPT_TITLE,
+packages/opencode/src/agent/agent.ts:279:            prompt: PROMPT_SUMMARY,
+packages/opencode/src/agent/agent.ts:396:        const system = [PROMPT_GENERATE]

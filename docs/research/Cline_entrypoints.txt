@@ -1,0 +1,268 @@
+apps/vscode/src/services/tree-sitter/queries/java.ts:6:export default `
+apps/vscode/src/services/tree-sitter/queries/typescript.ts:8:export default `
+apps/vscode/src/types/picomatch.d.ts:14:	export default picomatch
+apps/vscode/src/services/tree-sitter/queries/ruby.ts:6:export default `
+apps/vscode/src/services/tree-sitter/queries/cpp.ts:9:export default `
+apps/vscode/src/services/tree-sitter/queries/c.ts:7:export default `
+apps/vscode/playwright.config.ts:6:export default defineConfig({
+apps/vscode/src/services/tree-sitter/queries/swift.ts:7:export default `
+apps/vscode/src/core/workspace/index.ts:2: * Workspace module exports for multi-workspace support
+apps/vscode/src/services/tree-sitter/queries/go.ts:6:export default `
+apps/vscode/scripts/generate-stubs.js:98:	output.push("module.exports = vscode;")
+apps/vscode/src/services/tree-sitter/queries/python.ts:5:export default `
+apps/vscode/webview-ui/src/assets/GitHubIcon.tsx:7:export default GitHubIcon
+apps/vscode/src/services/tree-sitter/queries/kotlin.ts:1:export default `
+apps/vscode/webview-ui/src/assets/ClineLogoVariable.tsx:32:export default ClineLogoVariable
+apps/vscode/src/services/tree-sitter/queries/php.ts:6:export default `
+apps/vscode/webview-ui/src/assets/ClineLogoBlack.tsx:11:export default ClineLogoBlack
+apps/vscode/webview-ui/src/components/onboarding/OnboardingView.tsx:441:export default OnboardingView
+apps/vscode/src/services/tree-sitter/queries/javascript.ts:7:export default `
+apps/vscode/webview-ui/src/assets/DiscordIcon.tsx:7:export default DiscordIcon
+apps/vscode/src/services/tree-sitter/queries/c-sharp.ts:7:export default `
+apps/vscode/webview-ui/src/assets/RedditIcon.tsx:7:export default RedditIcon
+apps/vscode/webview-ui/src/components/account/AccountView.tsx:417:export default memo(AccountView)
+apps/vscode/src/services/tree-sitter/queries/rust.ts:6:export default `
+apps/vscode/webview-ui/src/assets/ClineLogoWhite.tsx:11:export default ClineLogoWhite
+apps/vscode/webview-ui/src/components/account/CreditsHistoryTable.tsx:120:export default CreditsHistoryTable
+sdk/apps/examples/vscode/src/webview/src/Chat.tsx:678:export default function Chat() {
+apps/vscode/webview-ui/src/assets/XIcon.tsx:7:export default XIcon
+apps/vscode/src/integrations/checkpoints/CheckpointTracker.ts:511:export default CheckpointTracker
+apps/vscode/webview-ui/src/assets/LinkedInIcon.tsx:14:export default LinkedInIcon
+apps/vscode/webview-ui/src/assets/ClineLogoSanta.tsx:46:export default ClineLogoSanta
+apps/vscode/webview-ui/src/components/history/HistoryPreview.tsx:189:export default memo(HistoryPreview)
+apps/vscode/webview-ui/src/assets/ClineLogoTired.tsx:29:export default ClineLogoTired
+apps/vscode/webview-ui/src/components/history/HistoryView.tsx:549:export default memo(HistoryView)
+apps/vscode/webview-ui/src/components/history/HistoryViewItem.tsx:228:export default memo(HistoryViewItem)
+apps/vscode/webview-ui/src/components/worktrees/DeleteWorktreeModal.tsx:100:export default memo(DeleteWorktreeModal)
+apps/vscode/webview-ui/src/components/worktrees/WorktreesView.tsx:641:export default memo(WorktreesView)
+apps/vscode/webview-ui/src/components/worktrees/CreateWorktreeModal.tsx:228:export default memo(CreateWorktreeModal)
+apps/vscode/webview-ui/src/components/common/CodeBlock.tsx:166:export default CodeBlock
+apps/vscode/webview-ui/src/components/common/ViewHeader.tsx:43:export default ViewHeader
+apps/vscode/webview-ui/src/components/common/MarkdownBlock.tsx:428:export default MarkdownBlock
+sdk/apps/cli/src/cli.e2e.test.ts:602:			"export default { name: 'workspace-plugin', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/cli.e2e.test.ts:607:			"export default { name: 'user-plugin', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/cli.e2e.test.ts:612:			"export default { name: 'docs-plugin', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/cli.e2e.test.ts:765:				"export default {",
+apps/vscode/webview-ui/src/components/common/VSCodeButtonLink.tsx:23:export default VSCodeButtonLink
+apps/vscode/webview-ui/src/components/common/Thumbnails.tsx:187:export default memo(Thumbnails)
+apps/vscode/webview-ui/src/components/common/WhatsNewItems.tsx:65:export default WhatsNewItems
+sdk/apps/cli/vitest.e2e.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/common/PopupModalContainer.tsx:56:export default PopupModalContainer
+sdk/apps/cli/vitest.interactive.e2e.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/common/CodeAccordian.tsx:109:export default memo(CodeAccordian)
+apps/vscode/webview-ui/src/components/common/TelemetryBanner.tsx:50:export default TelemetryBanner
+apps/vscode/webview-ui/src/components/common/WhatsNewModal.tsx:130:export default WhatsNewModal
+apps/vscode/webview-ui/src/components/common/ScreenReaderAnnounce.tsx:35:export default ScreenReaderAnnounce
+sdk/examples/hooks/PreToolUse_InjectContext.py:75:def main():
+sdk/apps/cli/src/commands/plugin.test.ts:151:				"export default { name: 'remote-weather', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:200:				"export default { name: 'remote-weather', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:275:			"export default { name: 'plugin-package', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:280:			"export default { name: 'noise', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:344:				"printf '%s\\n' \"export default { name: 'published-plugin', manifest: { capabilities: ['tools'] } };\" > \"$prefix/node_modules/published-plugin/index.ts\"",
+sdk/apps/cli/src/commands/plugin.test.ts:371:			"export default { name: 'replace', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:402:			"export default { name: 'installed-v1', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:413:			"export default { name: 'installed-v2', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:435:			"export default { name: 'json', manifest: { capabilities: ['tools'] } };",
+sdk/apps/cli/src/commands/plugin.test.ts:465:			"export default { name: 'workspace', manifest: { capabilities: ['tools'] } };",
+apps/vscode/webview-ui/src/components/common/LightMarkdown.tsx:166:export default React.memo(LightMarkdown)
+apps/vscode/webview-ui/src/components/common/UnsafeImage.tsx:39:export default UnsafeImage
+sdk/examples/hooks/PostToolUse.py:26:def main():
+apps/vscode/webview-ui/src/components/common/ChecklistRenderer.tsx:121:export default ChecklistRenderer
+sdk/examples/hooks/custom-compaction-hook.example.ts:246:export default plugin;
+apps/vscode/webview-ui/src/components/common/SuccessButton.tsx:25:export default SuccessButtonTW
+apps/vscode/webview-ui/src/components/common/BannerCarousel.tsx:220:export default BannerCarousel
+sdk/examples/hooks/PreToolUse.py:11:def main():
+apps/vscode/webview-ui/src/components/common/Demo.tsx:123:export default Demo
+apps/vscode/webview-ui/src/components/common/MarkdownBlock.stories.tsx:74:export default meta
+apps/vscode/webview-ui/src/components/common/MermaidBlock.tsx:83:export default function MermaidBlock({ code }: MermaidBlockProps) {
+sdk/examples/plugins/weather-metrics.ts:151:export default plugin;
+apps/vscode/webview-ui/src/components/browser/BrowserSettingsMenu.tsx:207:export default BrowserSettingsMenu
+sdk/examples/plugins/background-terminal.ts:430:export default plugin;
+sdk/examples/plugins/gitignore-read-files-guard.ts:270:export default plugin;
+sdk/examples/plugins/typescript-lsp/index.ts:298:export default plugin;
+sdk/examples/plugins/custom-compaction.ts:225:export default plugin;
+apps/vscode/webview-ui/src/components/welcome/WelcomeView.tsx:94:export default WelcomeView
+sdk/examples/plugins/web-search.ts:324:export default plugin;
+sdk/apps/examples/vscode/src/webview/src/components/TeamTasks.tsx:201:export default function TeamTasks({
+apps/vscode/webview-ui/src/components/welcome/QuickWinCard.tsx:50:export default QuickWinCard
+sdk/vitest.workspace.ts:1:export default [
+sdk/examples/plugins/agents-squad/index.ts:810:export default plugin;
+apps/vscode/webview-ui/src/components/welcome/HomeHeader.tsx:51:export default HomeHeader
+apps/vscode/src/core/prompts/loadMcpDocumentation.ts:33:        "type": "module", // added by default, uses ES module syntax (import/export) rather than CommonJS (require/module.exports) (Important to know if you create additional scripts in this server repository like a get-refresh-token.js script)
+sdk/examples/plugins/automation-events.ts:91:export default plugin;
+sdk/examples/plugins/mac-notify.ts:67:export default plugin;
+apps/vscode/webview-ui/src/components/mcp/chat-display/McpResponseDisplay.stories.tsx:23:export default meta
+apps/vscode/webview-ui/src/components/mcp/chat-display/ImagePreview.tsx:336:export default ImagePreviewWithErrorBoundary
+apps/vscode/webview-ui/src/components/mcp/chat-display/McpResponseDisplay.tsx:283:export default McpResponseDisplayWithErrorBoundary
+sdk/apps/cli/src/utils/plugin-chat-commands.test.ts:25:				"export default {",
+apps/vscode/webview-ui/src/components/mcp/chat-display/McpDisplayModeDropdown.tsx:29:export default McpDisplayModeDropdown
+sdk/packages/llms/vitest.config.ts:7:export default defineConfig({
+sdk/apps/examples/vscode/src/webview/src/App.tsx:8:export default App;
+apps/vscode/webview-ui/src/components/mcp/chat-display/LinkPreview.tsx:412:export default LinkPreviewWithErrorBoundary
+sdk/apps/examples/vscode/src/webview/vite.config.ts:6:export default defineConfig({
+sdk/apps/examples/vscode/src/webview/eslint.config.js:8:export default defineConfig([
+apps/vscode/webview-ui/src/components/mcp/configuration/McpConfigurationView.tsx:154:export default McpConfigurationView
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:62:				"export default {",
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:328:				"export default {",
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:337:		await writeFile(invalidPluginPath, "export default {};\n", "utf8");
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:429:		await writeFile(pluginPath, "export default {};\n");
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:486:		await writeFile(pluginPath, "export default {};\n");
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/add-server/AddRemoteServerForm.tsx:143:export default AddRemoteServerForm
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/add-server/AddLocalServerForm.tsx:43:export default AddLocalServerForm
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/ServersToggleList.tsx:36:export default ServersToggleList
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/server-row/ServerRow.tsx:416:export default ServerRow
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/server-row/McpResourceRow.tsx:59:export default McpResourceRow
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/server-row/McpToolRow.tsx:141:export default McpToolRow
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/server-row/McpPromptRow.tsx:94:export default McpPromptRow
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/installed/ConfigureServersView.tsx:71:export default ConfigureServersView
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/marketplace/McpMarketplaceView.tsx:298:export default McpMarketplaceView
+apps/vscode/webview-ui/src/App.stories.tsx:84:export default meta
+apps/vscode/webview-ui/src/App.stories.tsx:1044:-export default login
+apps/vscode/webview-ui/src/App.stories.tsx:1052:-module.exports = { deprecatedHelper }
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/marketplace/McpMarketplaceCard.tsx:319:export default McpMarketplaceCard
+apps/vscode/webview-ui/src/components/mcp/configuration/tabs/marketplace/McpSubmitCard.tsx:45:export default McpSubmitCard
+sdk/apps/cli/src/tests/tui-test.config.ts:3:export default defineConfig({
+sdk/apps/cli/vitest.config.ts:7:export default defineConfig({
+apps/vscode/webview-ui/src/components/chat/PlanCompletionOutputRow.tsx:43:export default PlanCompletionOutputRow
+apps/vscode/webview-ui/src/App.tsx:100:export default App
+apps/vscode/webview-ui/vite.config.ts:40:export default defineConfig({
+apps/vscode/webview-ui/src/components/chat/QuotedMessagePreview.tsx:89:export default QuotedMessagePreview
+apps/vscode/webview-ui/src/components/chat/SearchResultsDisplay.tsx:198:export default SearchResultsDisplay
+apps/vscode/webview-ui/src/components/chat/ChatErrorBoundary.tsx:130:export default ChatErrorBoundary
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:22:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:34:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:53:			"export default { name: 'plugin-a', manifest: { capabilities: ['tools'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:58:			"export default { name: 'plugin-b', manifest: { capabilities: ['commands'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:65:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:93:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:121:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:135:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:160:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:185:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:220:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:230:			"export default { name: 'invalid-plugin' };",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:236:			"export default { name: 'duplicate-plugin', manifest: { capabilities: ['tools'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:241:			"export default { name: 'duplicate-plugin', manifest: { capabilities: ['commands'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:247:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-loader.test.ts:360:				"export default {",
+apps/vscode/webview-ui/src/components/chat/ExpandHandle.tsx:28:export default ExpandHandle
+apps/vscode/standalone/runtime-files/vscode/stub-utils.js:19:module.exports = { createStub }
+apps/vscode/standalone/runtime-files/vscode/index.js:4:module.exports = {
+apps/vscode/webview-ui/src/components/chat/TypewriterText.stories.tsx:62:export default meta
+apps/vscode/webview-ui/src/components/chat/ChatRow.tsx:133:export default ChatRow
+apps/vscode/standalone/runtime-files/vscode/vscode-stubs.js:1331:module.exports = vscode
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:74:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:94:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:116:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:133:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:150:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:186:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:222:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:250:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:263:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:275:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:294:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:307:			"export default { name: 'sandbox-duplicate', manifest: { capabilities: ['tools'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:312:			"export default { name: 'sandbox-duplicate', manifest: { capabilities: ['commands'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:318:				"export default {",
+sdk/packages/core/src/extensions/plugin/plugin-sandbox.test.ts:396:					"export default {",
+apps/vscode/webview-ui/src/components/chat/QuoteButton.tsx:42:export default QuoteButton
+apps/vscode/webview-ui/src/components/chat/ChatTextArea.tsx:1648:export default ChatTextArea
+apps/vscode/webview-ui/src/components/chat/HookMessage.tsx:291:export default HookMessage
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:31:			await writeFile(join(root, "a.js"), "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:32:			await writeFile(join(nested, "b.ts"), "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:35:				"export default {}",
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:56:			await writeFile(filePath, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:57:			await writeFile(dirPluginPath, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:97:			await writeFile(declaredEntry, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:98:			await writeFile(ignoredEntry, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:132:			await writeFile(workspacePlugin, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:133:			await writeFile(userPlugin, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:134:			await writeFile(documentsPlugin, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:161:			await writeFile(enabledPlugin, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:162:			await writeFile(disabledPlugin, "export default {}", "utf8");
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:190:				"export default { name: 'duplicate-plugin', manifest: { capabilities: ['tools'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:195:				"export default { name: 'duplicate-plugin', manifest: { capabilities: ['commands'] } };",
+sdk/packages/core/src/extensions/plugin/plugin-config-loader.test.ts:198:			await writeFile(invalid, "export default { name: 'broken' };", "utf8");
+apps/vscode/webview-ui/src/components/chat/NewTaskPreview.tsx:17:export default NewTaskPreview
+apps/vscode/webview-ui/src/components/chat/SlashCommandMenu.tsx:160:export default SlashCommandMenu
+apps/vscode/webview-ui/src/components/chat/ContextMenu.tsx:366:export default ContextMenu
+apps/vscode/webview-ui/src/components/chat/TaskFeedbackButtons.tsx:127:export default TaskFeedbackButtons
+apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.tsx:189:export default memo(ContextWindow)
+apps/vscode/webview-ui/src/components/chat/ChatView.tsx:399:export default ChatView
+apps/vscode/webview-ui/src/components/chat/UserMessage.tsx:197:export default UserMessage
+apps/vscode/webview-ui/src/components/chat/task-header/TaskHeader.stories.tsx:30:export default meta
+apps/vscode/webview-ui/src/components/chat/ServersToggleModal.tsx:97:export default ServersToggleModal
+apps/vscode/webview-ui/src/components/chat/task-header/TaskHeader.tsx:238:export default TaskHeader
+apps/vscode/webview-ui/src/components/chat/BrowserSessionRow.tsx:629:export default BrowserSessionRow
+apps/vscode/webview-ui/src/components/chat/task-header/buttons/DeleteTaskButton.tsx:34:export default DeleteTaskButton
+apps/vscode/webview-ui/src/components/chat/ReportBugPreview.tsx:84:export default ReportBugPreview
+apps/vscode/webview-ui/src/components/chat/task-header/buttons/CopyTaskButton.tsx:44:export default CopyTaskButton
+apps/vscode/webview-ui/src/components/chat/ErrorRow.stories.tsx:61:export default meta
+apps/vscode/webview-ui/src/components/chat/task-header/buttons/OpenDiskConversationHistoryButton.tsx:43:export default OpenDiskConversationHistoryButton
+apps/vscode/webview-ui/src/components/chat/SubagentStatusRow.tsx:180:export default function SubagentStatusRow({ message, isLast, lastModifiedMessage }: SubagentStatusRowProps) {
+apps/vscode/webview-ui/src/components/chat/task-header/buttons/CompactTaskButton.tsx:31:export default CompactTaskButton
+apps/vscode/webview-ui/src/components/chat/CreditLimitError.tsx:95:export default CreditLimitError
+apps/vscode/webview-ui/src/components/chat/task-header/buttons/NewTaskButton.tsx:30:export default NewTaskButton
+apps/vscode/webview-ui/src/components/chat/auto-approve-menu/AutoApproveModal.tsx:143:export default AutoApproveModal
+apps/vscode/webview-ui/src/components/cline-rules/RulesToggleList.tsx:65:export default RulesToggleList
+apps/vscode/webview-ui/src/components/chat/auto-approve-menu/AutoApproveBar.tsx:178:export default AutoApproveBar
+sdk/packages/core/vitest.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/cline-rules/NewRuleRow.tsx:267:export default NewRuleRow
+apps/vscode/webview-ui/src/components/chat/auto-approve-menu/AutoApproveMenuItem.tsx:63:export default AutoApproveMenuItem
+sdk/packages/core/src/extensions/tools/executors/apply-patch.test.ts:23:				"export default function Page() {",
+sdk/packages/core/src/extensions/tools/executors/apply-patch.test.ts:40:					" export default function Page() {",
+apps/vscode/webview-ui/src/components/cline-rules/HookRow.tsx:92:export default HookRow
+apps/vscode/webview-ui/src/components/chat/ErrorRow.tsx:170:export default ErrorRow
+apps/vscode/webview-ui/src/components/cline-rules/RuleRow.tsx:189:export default RuleRow
+sdk/packages/core/vitest.e2e.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/cline-rules/ClineRulesToggleModal.tsx:889:export default ClineRulesToggleModal
+apps/vscode/webview-ui/src/components/chat/SpendLimitError.tsx:145:export default SpendLimitError
+apps/vscode/webview-ui/src/components/settings/TerminalOutputLineLimitSlider.tsx:39:export default TerminalOutputLineLimitSlider
+apps/vscode/webview-ui/src/components/settings/ThinkingBudgetSlider.tsx:175:export default memo(ThinkingBudgetSlider)
+apps/vscode/webview-ui/src/components/settings/VercelModelPicker.tsx:334:export default VercelModelPicker
+apps/vscode/webview-ui/src/components/settings/OllamaModelPicker.tsx:190:export default memo(OllamaModelPicker)
+sdk/apps/examples/desktop-app/webview/app/page.tsx:72:export default function Home() {
+apps/vscode/webview-ui/src/components/settings/ClineModelPicker.tsx:599:export default ClineModelPicker
+sdk/apps/examples/desktop-app/webview/app/layout.tsx:28:export default function RootLayout({
+apps/vscode/webview-ui/src/components/settings/PreferredLanguageSetting.tsx:49:export default React.memo(PreferredLanguageSetting)
+apps/vscode/webview-ui/src/components/settings/RequestyModelPicker.tsx:280:export default RequestyModelPicker
+apps/vscode/webview-ui/src/components/settings/ReasoningEffortSelector.tsx:64:export default memo(ReasoningEffortSelector)
+apps/vscode/webview-ui/src/components/settings/SapAiCoreModelPicker.tsx:178:export default memo(SapAiCoreModelPicker)
+apps/vscode/webview-ui/src/components/settings/BasetenModelPicker.tsx:281:export default BasetenModelPicker
+sdk/packages/shared/vitest.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/settings/SectionHeader.tsx:18:export default SectionHeader
+apps/vscode/webview-ui/src/components/settings/providers/OcaProvider.tsx:480:export default OcaProvider
+apps/vscode/webview-ui/src/components/settings/ApiOptions.tsx:549:export default ApiOptions
+sdk/packages/agents/vitest.config.ts:3:export default defineConfig({
+apps/vscode/webview-ui/src/components/settings/SettingsSlider.tsx:43:export default SettingsSlider
+apps/vscode/webview-ui/src/components/settings/OpenRouterModelPicker.tsx:419:export default OpenRouterModelPicker
+sdk/packages/core/src/services/workspace/file-indexer.test.ts:46:				"module.exports = {}\n",
+apps/vscode/webview-ui/src/components/ui/item.stories.tsx:31:export default meta
+apps/vscode/webview-ui/src/components/settings/FeaturedModelCard.tsx:65:export default FeaturedModelCard
+apps/vscode/webview-ui/src/components/ui/dialog.stories.tsx:28:export default meta
+apps/vscode/webview-ui/src/components/settings/providers/OcaModelPicker.tsx:234:export default OcaModelPicker
+apps/vscode/webview-ui/src/components/ui/tooltip.stories.tsx:19:export default meta
+apps/vscode/webview-ui/src/components/ui/alert.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/settings/sections/ApiConfigurationSection.tsx:93:export default ApiConfigurationSection
+apps/vscode/webview-ui/src/components/ui/badge.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/settings/HicapModelPicker.tsx:245:export default HicapModelPicker
+apps/vscode/webview-ui/src/components/settings/sections/BrowserSettingsSection.tsx:404:export default BrowserSettingsSection
+apps/vscode/webview-ui/src/components/ui/switch.stories.tsx:17:export default meta
+apps/vscode/webview-ui/src/components/settings/UseCustomPromptCheckbox.tsx:38:export default UseCustomPromptCheckbox
+apps/vscode/webview-ui/src/components/settings/sections/FeatureSettingsSection.tsx:404:export default memo(FeatureSettingsSection)
+apps/vscode/webview-ui/src/components/ui/popover.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/settings/Section.tsx:9:export default Section
+apps/vscode/webview-ui/src/components/settings/SettingsView.tsx:277:export default SettingsView
+apps/vscode/webview-ui/src/components/settings/CollapsibleContent.tsx:16:export default CollapsibleContent
+apps/vscode/webview-ui/src/components/settings/sections/TerminalSettingsSection.tsx:193:export default TerminalSettingsSection
+apps/vscode/webview-ui/src/components/ui/separator.stories.tsx:17:export default meta
+apps/vscode/webview-ui/src/components/ui/progress.stories.tsx:17:export default meta
+apps/vscode/webview-ui/src/components/ui/input.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/ui/hover-card.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/settings/sections/DebugSection.tsx:42:export default DebugSection
+apps/vscode/webview-ui/src/components/settings/sections/AboutSection.tsx:54:export default AboutSection
+apps/vscode/webview-ui/src/components/ui/button.stories.tsx:18:export default meta
+apps/vscode/webview-ui/src/components/settings/GroqModelPicker.tsx:278:export default GroqModelPicker
+apps/vscode/webview-ui/src/components/ui/select.stories.tsx:27:export default meta
+apps/vscode/webview-ui/src/components/settings/sections/GeneralSettingsSection.tsx:68:export default GeneralSettingsSection

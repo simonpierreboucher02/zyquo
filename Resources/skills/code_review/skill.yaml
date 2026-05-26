@@ -1,0 +1,26 @@
+id: code_review
+version: 0.1.0
+title: Review staged changes for correctness
+description: >
+  Perform a thorough code review of staged git changes, checking for
+  correctness bugs, style violations, security issues, and test coverage
+  gaps. Produces structured findings with severity levels.
+authors:
+  - zyquo
+inputs:
+  - { name: scope, type: string, required: false, default: "staged", description: "What to review: staged, unstaged, or a commit range" }
+  - { name: focus, type: string, required: false, description: "Optional area to focus on: security, performance, style" }
+tools_allowed:
+  - file.read
+  - file.search
+  - file.list
+  - file.diff
+  - git.status
+  - git.diff
+  - git.log
+  - git.show
+prompt: ./prompt.md
+budget:
+  max_steps: 20
+  max_cost_usd: 1.00
+risk_ceiling: SAFE

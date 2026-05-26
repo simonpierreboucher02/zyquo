@@ -1,0 +1,30 @@
+name = "high-contrast"
+truecolor = true
+
+[colors]
+bg            = "#000000"
+bg_panel      = "#0A0A0A"
+fg            = "#FFFFFF"
+fg_muted      = "#BBBBBB"
+border        = "#FFFFFF"
+accent        = "#00DDFF"
+accent_strong = "#00AAFF"
+ok            = "#00FF00"
+warn          = "#FFFF00"
+risk          = "#FF4444"
+critical      = "#FF0000"
+
+[syntax]
+keyword  = "#FF77FF"
+string   = "#00FF77"
+number   = "#FFAA00"
+comment  = "#888888"
+type     = "#00FFFF"
+function = "#FFFF00"
+
+[diff]
+added      = "#003300"
+added_fg   = "#00FF00"
+removed    = "#330000"
+removed_fg = "#FF0000"
+context    = "#BBBBBB"

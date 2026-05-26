@@ -1,0 +1,6 @@
+--indent 4
+--allman false
+--wraparguments before-first
+--wrapcollections before-first
+--maxwidth 120
+--swiftversion 5.10

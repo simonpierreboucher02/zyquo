@@ -1,0 +1,200 @@
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:15:const systemPrompt = `You are a helpful assistant in an interactive terminal chat.
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:132:			systemPrompt,
+sdk/packages/agents/src/agent-runtime.ts:144:	let textChars = request.systemPrompt?.length ?? 0;
+sdk/packages/agents/src/agent-runtime.ts:178:		systemPromptChars: request.systemPrompt?.length ?? 0,
+sdk/packages/agents/src/agent-runtime.ts:180:			systemPrompt: request.systemPrompt,
+sdk/packages/agents/src/agent-runtime.ts:468:				systemPrompt: this.config.systemPrompt,
+sdk/packages/agents/src/agent-runtime.ts:730:			systemPrompt: this.config.systemPrompt,
+sdk/packages/agents/src/agent-runtime.ts:973:			systemPrompt: request.systemPrompt,
+sdk/packages/agents/src/agent-runtime.ts:999:		if (result.systemPrompt !== undefined) {
+sdk/packages/agents/src/agent-runtime.ts:1000:			next = { ...next, systemPrompt: result.systemPrompt };
+sdk/packages/llms/src/tests/provider-vcr.test.ts:17:const SYSTEM_PROMPT = "You are a concise assistant.";
+sdk/packages/llms/src/tests/provider-vcr.test.ts:218:	for await (const chunk of handler.createMessage(SYSTEM_PROMPT, [
+sdk/examples/plugins/agents-squad/index.ts:116:	systemPrompt: string;
+sdk/examples/plugins/agents-squad/index.ts:243:				systemPrompt: entry.body,
+sdk/examples/plugins/agents-squad/index.ts:537:							def?.systemPrompt?.trim(),
+sdk/examples/plugins/agents-squad/index.ts:558:								systemPrompt: prompt,
+sdk/apps/cli/src/session/session.ts:187:				systemPrompt:
+sdk/apps/cli/src/session/session.ts:188:					typeof row.metadata?.systemPrompt === "string"
+sdk/apps/cli/src/session/session.ts:189:						? row.metadata.systemPrompt
+sdk/apps/examples/cli-agent/src/index.ts:9:	systemPrompt: "You are a helpful assistant in a terminal chat. Be concise.",
+sdk/packages/agents/src/agent-runtime.test.ts:923:				systemPrompt: "compacted system",
+sdk/packages/agents/src/agent-runtime.test.ts:927:			expect(request.systemPrompt).toBe("compacted system");
+sdk/packages/agents/src/agent-runtime.test.ts:933:				expect(request.systemPrompt).toBe("compacted system");
+sdk/packages/agents/src/agent-runtime.test.ts:943:			systemPrompt: "original system",
+sdk/packages/agents/src/agent-runtime.test.ts:963:	it("preserves the existing system prompt when prepareTurn returns only messages", async () => {
+sdk/packages/agents/src/agent-runtime.test.ts:972:				expect(request.systemPrompt).toBe("original system");
+sdk/packages/agents/src/agent-runtime.test.ts:982:			systemPrompt: "original system",
+sdk/packages/agents/src/agent-runtime.test.ts:1380:			systemPrompt: undefined,
+sdk/apps/cli/src/session/export.ts:13:	systemPrompt?: string;
+sdk/apps/cli/src/session/export.ts:14:	system_prompt?: string;
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:24:	systemPrompt: string;
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:39:const DEFAULT_SYSTEM_PROMPT = "You are a concise assistant.";
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:46:	systemPrompt?: unknown;
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:104:		systemPrompt:
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:105:			typeof entry?.systemPrompt === "string"
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:106:				? entry.systemPrompt
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:107:				: DEFAULT_SYSTEM_PROMPT,
+sdk/packages/llms/src/tests/provider-live-reasoning.test.ts:219:		const stream = handler.createMessage(target.systemPrompt, [
+sdk/packages/shared/src/session/runtime-config.ts:52:	systemPrompt?: string;
+sdk/packages/llms/src/tests/provider-live.test.ts:24:	systemPrompt: string;
+sdk/packages/llms/src/tests/provider-live.test.ts:39:const DEFAULT_SYSTEM_PROMPT = "You are a concise assistant.";
+sdk/packages/llms/src/tests/provider-live.test.ts:63:	systemPrompt?: unknown;
+sdk/packages/llms/src/tests/provider-live.test.ts:138:		systemPrompt:
+sdk/packages/llms/src/tests/provider-live.test.ts:139:			typeof entry?.systemPrompt === "string"
+sdk/packages/llms/src/tests/provider-live.test.ts:140:				? entry.systemPrompt
+sdk/packages/llms/src/tests/provider-live.test.ts:141:				: DEFAULT_SYSTEM_PROMPT,
+sdk/packages/llms/src/tests/provider-live.test.ts:266:		const stream = handler.createMessage(target.systemPrompt, [
+sdk/apps/cli/src/main.test.ts:51:	resolveSystemPrompt: vi.fn(async () => "system prompt"),
+sdk/apps/cli/src/main.test.ts:165:	resolveSystemPrompt: promptMocks.resolveSystemPrompt,
+sdk/apps/examples/vscode/src/hub-daemon.ts:18:	systemPrompt: string;
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:24:	systemPrompt: string;
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:34:	systemPrompt?: unknown;
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:54:const DEFAULT_SYSTEM_PROMPT = "You are a tool-using assistant.";
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:96:		systemPrompt:
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:97:			typeof entry?.systemPrompt === "string"
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:98:				? entry.systemPrompt
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:99:				: DEFAULT_SYSTEM_PROMPT,
+sdk/packages/llms/src/tests/provider-live-tools.test.ts:197:			target.systemPrompt,
+sdk/apps/cli/src/runtime/run-agent.test.ts:163:					systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:235:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:312:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:384:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:450:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:488:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:554:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:623:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:685:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:746:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/run-agent.test.ts:817:				systemPrompt: "system",
+sdk/apps/cli/src/runtime/prompt.ts:6:	mergeRulesForSystemPrompt,
+sdk/apps/cli/src/runtime/prompt.ts:9:import { type AgentMode, buildClineSystemPrompt } from "@cline/shared";
+sdk/apps/cli/src/runtime/prompt.ts:25:export async function resolveSystemPrompt(input: {
+sdk/apps/cli/src/runtime/prompt.ts:27:	explicitSystemPrompt?: string;
+sdk/apps/cli/src/runtime/prompt.ts:33:	let rules = mergeRulesForSystemPrompt(undefined, input.rules);
+sdk/apps/cli/src/runtime/prompt.ts:39:	return buildClineSystemPrompt({
+sdk/apps/cli/src/runtime/prompt.ts:47:		overridePrompt: input.explicitSystemPrompt,
+sdk/packages/llms/src/providers/ai-sdk.ts:50:	systemPrompt?: string,
+sdk/packages/llms/src/providers/ai-sdk.ts:52:	const aiMessages = toAiSdkMessages(request.messages, systemPrompt) as Array<
+sdk/packages/llms/src/providers/ai-sdk.ts:87:	systemPrompt?: string,
+sdk/packages/llms/src/providers/ai-sdk.ts:178:	return formatMessagesForAiSdk(systemPrompt, normalizedMessages, {
+sdk/packages/llms/src/providers/ai-sdk.ts:278:function resolveAiSdkSystemPrompt(
+sdk/packages/llms/src/providers/ai-sdk.ts:283:		: request.systemPrompt;
+sdk/packages/llms/src/providers/ai-sdk.ts:879:				const systemPrompt = resolveAiSdkSystemPrompt(request);
+sdk/packages/llms/src/providers/ai-sdk.ts:881:					typeof systemPrompt === "string" && systemPrompt.trim().length > 0;
+sdk/packages/llms/src/providers/ai-sdk.ts:882:				const messagesSystemPrompt = useSystemOption ? undefined : systemPrompt;
+sdk/packages/llms/src/providers/ai-sdk.ts:886:						? buildCachedAiSdkMessages(request, context, messagesSystemPrompt)
+sdk/packages/llms/src/providers/ai-sdk.ts:887:						: toAiSdkMessages(request.messages, messagesSystemPrompt)) as never,
+sdk/packages/llms/src/providers/ai-sdk.ts:888:					...(useSystemOption ? { system: systemPrompt } : {}),
+sdk/apps/cli/src/connectors/session-runtime.test.ts:6:	mockResolveSystemPrompt,
+sdk/apps/cli/src/connectors/session-runtime.test.ts:11:	mockResolveSystemPrompt: vi.fn(),
+sdk/apps/cli/src/connectors/session-runtime.test.ts:39:	resolveSystemPrompt: mockResolveSystemPrompt,
+sdk/apps/cli/src/connectors/session-runtime.test.ts:74:		mockResolveSystemPrompt.mockResolvedValue("system");
+sdk/packages/llms/src/providers/gateway.ts:86:			systemPrompt: request.systemPrompt,
+sdk/packages/llms/src/providers/gateway.ts:133:	request: Pick<GatewayStreamRequest, "systemPrompt" | "messages" | "tools">,
+sdk/packages/llms/src/providers/gateway.ts:138:			systemPrompt: request.systemPrompt,
+sdk/packages/llms/src/providers/gateway.ts:144:			safeStringify(request.systemPrompt),
+sdk/packages/shared/src/cron/cron-spec-types.ts:32:	systemPrompt?: string;
+sdk/packages/core/src/session/services/file-session-service.ts:29:	systemPrompt?: string;
+sdk/packages/core/src/session/services/file-session-service.ts:235:		systemPrompt?: string;
+sdk/packages/core/src/session/services/file-session-service.ts:243:			systemPrompt: input.systemPrompt,
+sdk/apps/cli/src/runtime/interactive/session-runtime.test.ts:66:		systemPrompt: "",
+sdk/apps/examples/vscode/src/webview/src/Chat.tsx:699:	const [systemPrompt, setSystemPrompt] = useState("");
+sdk/apps/examples/vscode/src/webview/src/Chat.tsx:1233:								systemPrompt: systemPrompt.trim() || undefined,
+sdk/apps/examples/vscode/src/webview/src/Chat.tsx:1238:					onSystemPromptChange={setSystemPrompt}
+sdk/apps/examples/vscode/src/webview/src/Chat.tsx:1244:					systemPrompt={systemPrompt}
+sdk/packages/shared/src/index.browser.ts:159:export type { ClineSystemPromptOptions } from "./prompt/cline";
+sdk/packages/shared/src/index.browser.ts:160:export { buildClineSystemPrompt } from "./prompt/cline";
+sdk/packages/llms/src/providers/compat.ts:410:	systemPrompt: string,
+sdk/packages/llms/src/providers/compat.ts:418:		systemPrompt,
+sdk/packages/llms/src/providers/compat.ts:567:	getMessages(systemPrompt: string, messages: Message[]): unknown {
+sdk/packages/llms/src/providers/compat.ts:570:			systemPrompt,
+sdk/packages/llms/src/providers/compat.ts:578:		systemPrompt: string,
+sdk/packages/llms/src/providers/compat.ts:595:			systemPrompt,
+sdk/packages/llms/src/providers/compat.ts:645:			systemPrompt: string,
+sdk/packages/llms/src/providers/compat.ts:651:				systemPrompt,
+sdk/packages/core/src/session/services/persistence-service.test.ts:251:				systemPrompt: "You are a worker.",
+sdk/apps/cli/src/connectors/adapters/gchat.ts:315:			systemPrompt: opts.system,
+sdk/apps/cli/src/connectors/adapters/gchat.ts:601:						explicitSystemPrompt: options.systemPrompt?.trim() || undefined,
+apps/vscode/src/integrations/claude-code/run.ts:13:	systemPrompt: string
+apps/vscode/src/integrations/claude-code/run.ts:31:export const MAX_SYSTEM_PROMPT_LENGTH = 65536
+apps/vscode/src/integrations/claude-code/run.ts:34:	const isSystemPromptTooLong = options.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH
+apps/vscode/src/integrations/claude-code/run.ts:36:	const tempFilePath = path.join(os.tmpdir(), `cline-system-prompt-${uniqueId}.txt`)
+apps/vscode/src/integrations/claude-code/run.ts:37:	if (os.platform() === "win32" || isSystemPromptTooLong) {
+apps/vscode/src/integrations/claude-code/run.ts:40:		await fs.writeFile(tempFilePath, options.systemPrompt, "utf8")
+apps/vscode/src/integrations/claude-code/run.ts:41:		options.systemPrompt = tempFilePath
+apps/vscode/src/integrations/claude-code/run.ts:103:		if (processState.stderrLogs.includes("unknown option '--system-prompt-file'")) {
+apps/vscode/src/integrations/claude-code/run.ts:120:					`Executing Claude Code failed due to a long system prompt. The maximum argument length is 131072 bytes. 
+apps/vscode/src/integrations/claude-code/run.ts:121:Rules and workflows contribute to a longer system prompt, consider disabling some of them temporarily to reduce the length.
+apps/vscode/src/integrations/claude-code/run.ts:130:					`Executing Claude Code failed due to a long system prompt. Windows has a limit of 8191 characters, which makes the integration with Cline not work properly.
+apps/vscode/src/integrations/claude-code/run.ts:138:			// When the command fails, execa throws an error with the arguments, which include the whole system prompt.
+apps/vscode/src/integrations/claude-code/run.ts:198:	{ systemPrompt, messages, path, modelId, thinkingBudgetTokens, shouldUseFile }: ClaudeCodeOptions,
+apps/vscode/src/integrations/claude-code/run.ts:204:		shouldUseFile ? "--system-prompt-file" : "--system-prompt",
+apps/vscode/src/integrations/claude-code/run.ts:205:		systemPrompt,
+sdk/packages/llms/src/providers/handler.ts:29:	 * @param systemPrompt - The system prompt to use
+sdk/packages/llms/src/providers/handler.ts:33:	getMessages(systemPrompt: string, messages: Message[]): unknown;
+sdk/packages/llms/src/providers/handler.ts:38:	 * @param systemPrompt - The system prompt to use
+sdk/packages/llms/src/providers/handler.ts:44:		systemPrompt: string,
+sdk/apps/cli/src/connectors/adapters/whatsapp.ts:62:	getConnectorSystemPrompt,
+sdk/apps/cli/src/connectors/adapters/whatsapp.ts:363:			systemPrompt: opts.system,
+sdk/apps/cli/src/connectors/adapters/whatsapp.ts:608:						explicitSystemPrompt:
+sdk/apps/cli/src/connectors/adapters/whatsapp.ts:609:							options.systemPrompt?.trim() ||
+sdk/apps/cli/src/connectors/adapters/whatsapp.ts:610:							getConnectorSystemPrompt("WhatsApp"),
+sdk/apps/cli/src/acp/acpAgent.ts:33:import { resolveSystemPrompt } from "../runtime/prompt";
+sdk/apps/cli/src/acp/acpAgent.ts:517:		const systemPrompt = await resolveSystemPrompt({
+sdk/apps/cli/src/acp/acpAgent.ts:527:			systemPrompt,
+apps/vscode/src/integrations/claude-code/run.test.ts:62:const { MAX_SYSTEM_PROMPT_LENGTH, runClaudeCode } = proxyquire("./run", {
+apps/vscode/src/integrations/claude-code/run.test.ts:84:	const itCallsTheScriptWithAFile = (systemPrompt: string) => {
+apps/vscode/src/integrations/claude-code/run.test.ts:87:				systemPrompt,
+apps/vscode/src/integrations/claude-code/run.test.ts:103:			expect(params.includes("--system-prompt-file")).to.be.true
+apps/vscode/src/integrations/claude-code/run.test.ts:104:			expect(params.includes("--system-prompt")).to.be.false
+apps/vscode/src/integrations/claude-code/run.test.ts:113:		describe("when the system prompt is longer than the MAX_SYSTEM_PROMPT_LENGTH", () => {
+apps/vscode/src/integrations/claude-code/run.test.ts:114:			const SYSTEM_PROMPT = "a".repeat(MAX_SYSTEM_PROMPT_LENGTH * 1.2)
+apps/vscode/src/integrations/claude-code/run.test.ts:116:			itCallsTheScriptWithAFile(SYSTEM_PROMPT)
+apps/vscode/src/integrations/claude-code/run.test.ts:119:		describe("when the system prompt is shorter than the MAX_SYSTEM_PROMPT_LENGTH", () => {
+apps/vscode/src/integrations/claude-code/run.test.ts:120:			const SYSTEM_PROMPT = "a".repeat(MAX_SYSTEM_PROMPT_LENGTH / 2)
+apps/vscode/src/integrations/claude-code/run.test.ts:122:			itCallsTheScriptWithAFile(SYSTEM_PROMPT)
+apps/vscode/src/integrations/claude-code/run.test.ts:131:		describe("when the system prompt is longer than the MAX_SYSTEM_PROMPT_LENGTH", () => {
+apps/vscode/src/integrations/claude-code/run.test.ts:132:			const SYSTEM_PROMPT = "a".repeat(MAX_SYSTEM_PROMPT_LENGTH * 1.2)
+apps/vscode/src/integrations/claude-code/run.test.ts:134:			itCallsTheScriptWithAFile(SYSTEM_PROMPT)
+apps/vscode/src/integrations/claude-code/run.test.ts:137:		describe("when the system prompt is shorter than the MAX_SYSTEM_PROMPT_LENGTH", () => {
+apps/vscode/src/integrations/claude-code/run.test.ts:138:			const SYSTEM_PROMPT = "a".repeat(MAX_SYSTEM_PROMPT_LENGTH / 2)
+apps/vscode/src/integrations/claude-code/run.test.ts:142:					systemPrompt: SYSTEM_PROMPT,
+apps/vscode/src/integrations/claude-code/run.test.ts:158:				expect(params.includes("--system-prompt-file")).to.be.false
+apps/vscode/src/integrations/claude-code/run.test.ts:159:				expect(params.includes("--system-prompt")).to.be.true
+sdk/apps/cli/src/runtime/interactive/config-data.test.ts:22:		systemPrompt: "",
+sdk/packages/core/src/session/services/persistence-service.ts:311:		systemPrompt?: string,
+sdk/packages/core/src/session/services/persistence-service.ts:319:			systemPrompt,
+sdk/apps/cli/src/connectors/adapters/linear.ts:56:import { getConnectorSystemPrompt } from "./prompts";
+sdk/apps/cli/src/connectors/adapters/linear.ts:395:			systemPrompt: opts.system,
+sdk/apps/cli/src/connectors/adapters/linear.ts:636:						explicitSystemPrompt:
+sdk/apps/cli/src/connectors/adapters/linear.ts:637:							options.systemPrompt?.trim() ||
+sdk/apps/cli/src/connectors/adapters/linear.ts:638:							getConnectorSystemPrompt("Linear"),
+sdk/packages/llms/src/providers/routing/provider-options.test.ts:108:		systemPrompt: overrides.systemPrompt,
+sdk/packages/llms/src/providers/routing/provider-options.test.ts:1391:				systemPrompt: "you are helpful",
+sdk/apps/cli/src/runtime/interactive/approvals.test.ts:16:		systemPrompt: "",
+sdk/packages/core/src/session/services/session-service.ts:227:		systemPrompt?: string;
+sdk/packages/core/src/session/services/session-service.ts:230:			`INSERT INTO subagent_spawn_queue (root_session_id, parent_agent_id, task, system_prompt, created_at, consumed_at)
+sdk/packages/core/src/session/services/session-service.ts:236:				input.systemPrompt ?? null,
+sdk/apps/cli/src/connectors/adapters/telegram.ts:58:	getConnectorSystemPrompt,
+sdk/apps/cli/src/connectors/adapters/telegram.ts:475:			systemPrompt: opts.system,
+sdk/apps/cli/src/connectors/adapters/telegram.ts:768:						explicitSystemPrompt:
+sdk/apps/cli/src/connectors/adapters/telegram.ts:769:							options.systemPrompt?.trim() ||
+sdk/apps/cli/src/connectors/adapters/telegram.ts:770:							getConnectorSystemPrompt("Telegram"),
+sdk/apps/cli/src/connectors/adapters/discord.ts:64:	getConnectorSystemPrompt,
+sdk/apps/cli/src/connectors/adapters/discord.ts:353:			systemPrompt: opts.system,
+sdk/apps/cli/src/connectors/adapters/discord.ts:597:						explicitSystemPrompt:
+sdk/apps/cli/src/connectors/adapters/discord.ts:598:							options.systemPrompt?.trim() ||
+sdk/apps/cli/src/connectors/adapters/discord.ts:599:							getConnectorSystemPrompt("discord"),
+sdk/apps/cli/src/commands/program.ts:51:				"-s, --system <system-prompt>",
+sdk/apps/cli/src/commands/program.ts:52:				"Override the default system prompt",
+sdk/apps/cli/src/commands/program.ts:227:	if (opts.system !== undefined) result.systemPrompt = opts.system;
+sdk/apps/cli/src/wizards/connect/index.ts:168:		systemPrompt: () =>
+sdk/apps/cli/src/wizards/connect/index.ts:195:	if (advanced.systemPrompt?.trim()) {
+sdk/apps/cli/src/wizards/connect/index.ts:196:		args.push("--system", advanced.systemPrompt.trim());
+sdk/packages/llms/src/providers/routing/provider-option-rules.ts:149:			instructions: input.request.systemPrompt,
+sdk/apps/cli/src/runtime/interactive/mode.ts:3:import { resolveSystemPrompt } from "../prompt";
+sdk/apps/cli/src/runtime/interactive/mode.ts:42:	input.config.systemPrompt = await resolveSystemPrompt({
+sdk/apps/cli/src/connectors/adapters/prompts.ts:1:const CONNECTOR_SYSTEM_PROMPT = `You are a helpful assistant running in a secure environment, connected and integrated into a {{CONNECTOR_ID}} session while running in the environment that the user has set you up in. You have access to tools that are integrated into this {{CONNECTOR_ID}} session and can use them to help you answer user's questions. Always try to use the tools when necessary instead of making assumptions or fabricating information.
+sdk/apps/cli/src/connectors/adapters/prompts.ts:11:export function getConnectorSystemPrompt(connectorId: string) {
+sdk/apps/cli/src/connectors/adapters/prompts.ts:12:	return CONNECTOR_SYSTEM_PROMPT.replace(/{{CONNECTOR_ID}}/g, connectorId);

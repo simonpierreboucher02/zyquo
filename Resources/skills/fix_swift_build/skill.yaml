@@ -1,0 +1,30 @@
+id: fix_swift_build
+version: 0.1.0
+title: Fix a failing Swift build
+description: >
+  Diagnose and fix Swift build failures by inspecting compiler errors,
+  analyzing dependencies, and applying minimal patches to restore a
+  successful build.
+authors:
+  - zyquo
+inputs:
+  - { name: package_path, type: path, required: true, description: "Path to the Swift package root" }
+  - { name: test_filter, type: string, required: false, description: "Optional test filter pattern" }
+tools_allowed:
+  - shell.run
+  - file.read
+  - file.search
+  - file.patch
+  - file.list
+  - git.status
+  - git.diff
+  - test.run
+  - build.run
+prompt: ./prompt.md
+verify:
+  command: "swift test"
+  expect_exit_code: 0
+budget:
+  max_steps: 25
+  max_cost_usd: 1.50
+risk_ceiling: MODERATE

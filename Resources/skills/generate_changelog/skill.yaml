@@ -1,0 +1,26 @@
+id: generate_changelog
+version: 0.1.0
+title: Generate CHANGELOG from git log
+description: >
+  Generate a structured CHANGELOG entry from git commit history since
+  the last tag or a specified reference. Groups commits by category
+  (features, fixes, breaking changes, etc.).
+authors:
+  - zyquo
+inputs:
+  - { name: since, type: string, required: false, description: "Git ref to start from (default: last tag)" }
+  - { name: version, type: string, required: false, description: "Version label for this entry" }
+  - { name: format, type: string, required: false, default: "keepachangelog", description: "Output format: keepachangelog or conventional" }
+tools_allowed:
+  - file.read
+  - file.write
+  - file.patch
+  - git.log
+  - git.diff
+  - git.status
+  - git.show
+prompt: ./prompt.md
+budget:
+  max_steps: 15
+  max_cost_usd: 0.75
+risk_ceiling: MODERATE

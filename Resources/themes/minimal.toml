@@ -1,0 +1,30 @@
+name = "minimal"
+truecolor = false
+
+[colors]
+bg            = "#000000"
+bg_panel      = "#000000"
+fg            = "#CCCCCC"
+fg_muted      = "#666666"
+border        = "#444444"
+accent        = "#CCCCCC"
+accent_strong = "#FFFFFF"
+ok            = "#00CC00"
+warn          = "#CCCC00"
+risk          = "#CC0000"
+critical      = "#FF0000"
+
+[syntax]
+keyword  = "#00CCCC"
+string   = "#00CC00"
+number   = "#CC00CC"
+comment  = "#666666"
+type     = "#CCCC00"
+function = "#0000CC"
+
+[diff]
+added      = "#000000"
+added_fg   = "#00CC00"
+removed    = "#000000"
+removed_fg = "#CC0000"
+context    = "#666666"

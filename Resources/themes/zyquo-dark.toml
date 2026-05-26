@@ -1,0 +1,30 @@
+name = "zyquo-dark"
+truecolor = true
+
+[colors]
+bg            = "#0B0F14"
+bg_panel      = "#0F141B"
+fg            = "#D7DEE7"
+fg_muted      = "#7A8693"
+border        = "#1F2A37"
+accent        = "#5BA8FF"
+accent_strong = "#2F80ED"
+ok            = "#4ADE80"
+warn          = "#F59E0B"
+risk          = "#EF4444"
+critical      = "#B91C1C"
+
+[syntax]
+keyword  = "#9D7CFF"
+string   = "#7DD3FC"
+number   = "#F0ABFC"
+comment  = "#566677"
+type     = "#5EEAD4"
+function = "#FBBF24"
+
+[diff]
+added      = "#163E2F"
+added_fg   = "#A7F3D0"
+removed    = "#3B1418"
+removed_fg = "#FCA5A5"
+context    = "#7A8693"

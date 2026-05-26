@@ -1,0 +1,10 @@
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/__tests__/utils/system-message-adapter.test.ts:10:    system_prompt: {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/__tests__/utils/system-message-adapter.test.ts:28:  it("should correctly adapt the v1 system_prompt event structure", () => {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/__tests__/components/context-menu/tools-context-menu.test.tsx:14:    system_prompt: {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:164:  "system_prompt" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:166:  typeof event.system_prompt === "object" &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/system-event.ts:14:  system_prompt: TextContent;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/utils/system-message-adapter.ts:35:      content: v1SystemPromptEvent.system_prompt.text,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1063:            overrides['system_prompt_filename'] = 'system_prompt_planning.j2'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1064:            overrides['system_prompt_kwargs'] = {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1068:            overrides['system_prompt_kwargs'] = {'cli_mode': False}

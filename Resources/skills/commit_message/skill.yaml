@@ -1,0 +1,21 @@
+id: commit_message
+version: 0.1.0
+title: Draft a commit message from staged diff
+description: >
+  Analyze the staged git diff and produce a well-structured commit
+  message following conventional commit format or the project's
+  established conventions.
+authors:
+  - zyquo
+inputs:
+  - { name: style, type: string, required: false, default: "conventional", description: "Message style: conventional, descriptive, or brief" }
+tools_allowed:
+  - file.read
+  - git.status
+  - git.diff
+  - git.log
+prompt: ./prompt.md
+budget:
+  max_steps: 10
+  max_cost_usd: 0.50
+risk_ceiling: SAFE

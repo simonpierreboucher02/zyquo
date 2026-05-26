@@ -1,0 +1,189 @@
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/__init__.py:2:# (We need to do this to support dependencies openhands-sdk, openhands-tools and openhands-agent-server
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:14:from openhands import tools  # type: ignore[attr-defined]
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:235:    """Use a session api key for validation, and get a sandbox. Subsequent actions
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:314:    # If the conversation is being deleted, no action is required...
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:507:def _import_all_tools():
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:508:    """We need to import all tools so that they are available for deserialization in webhooks."""
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:509:    for _, name, is_pkg in pkgutil.walk_packages(tools.__path__, tools.__name__ + '.'):
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event_callback/webhook_router.py:517:_import_all_tools()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/utils/environment.py:5:from functools import lru_cache
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/utils/logger.py:299:        # Apply SDK redaction utils to catch API key literals (e.g. sk_live_,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/utils/logger.py:591:    """Returns a uvicorn log config dict with URL-param redaction.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/utils/logger.py:707:    """Replicates uvicorn's default LOGGING_CONFIG with URL-param redaction."""
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/utils/import_utils.py:2:from functools import lru_cache
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:71:        # Mount under 'tavily' namespace so tools are accessible as tavily_*
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:99:    user_id: str | None, conversation_id: str, tool_result: str
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:119:        # Check if the tool_result contains the PR number
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:121:        match_pull = re.search(pull_pattern, tool_result)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:122:        match_merge_request = re.search(merge_request_pattern, tool_result)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:123:        match_pull_requests = re.search(pull_requests_pattern, tool_result)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:147:@mcp_server.tool()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:215:@mcp_server.tool()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:289:@mcp_server.tool()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:356:@mcp_server.tool()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/mcp/mcp_router.py:423:@mcp_server.tool()
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:46:        COMMENTED actions — the same approach used by the resolver interface.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:66:                if activity.get('action') == 'COMMENTED':
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:159:    async def add_comment_reaction(
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:167:        """Post a reaction emoticon on a Bitbucket Data Center PR comment.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:169:        BBDC comment reactions live in the *comment-likes* plugin, NOT the
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:173:                /pull-requests/{pr}/comments/{id}/reactions/{emoticon}
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:178:        versions return 404 on this endpoint and a missing reaction must not
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/resolver.py:185:            f'/reactions/{emoticon}'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/bitbucket_data_center/service/webhooks.py:132:        any *real* authorization problem with an actionable BBDC error.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/work_items.py:127:    async def add_work_item_reaction(
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/work_items.py:128:        self, repository: str, work_item_id: int, reaction_type: str = ':thumbsup:'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/work_items.py:130:        comment_text = f'{reaction_type} OpenHands is processing this work item...'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/prs.py:316:    async def add_pr_reaction(
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/prs.py:317:        self, repository: str, pr_number: int, reaction_type: str = ':thumbsup:'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/integrations/azure_devops/service/prs.py:320:        comment_text = f'{reaction_type} OpenHands is processing this PR...'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/sandbox/sandbox_spec_service.py:97:        # Auto-forwarding (no action needed):
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/sandbox/process_sandbox_service.py:71:    action execution server, with each process:
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_lifespan/alembic/env.py:91:    with context.begin_transaction():
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_lifespan/alembic/env.py:110:        with context.begin_transaction():
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/app_conversation_models.py:302:    event_type: str  # e.g., 'stop', 'pre_tool_use', 'post_tool_use'
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/app_conversation_router.py:1250:                'pre_tool_use',
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/app_conversation_router.py:1251:                'post_tool_use',
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/event/google_cloud_event_service.py:6:from functools import lru_cache
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:110:from openhands.tools.preset.default import (
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:111:    get_default_tools,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:114:from openhands.tools.preset.planning import (
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:116:    get_planning_tools,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1235:        Resolves LLM, MCP, tools, secrets and agent context, then
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1334:        # --- tools ----------------------------------------------------------
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1340:            tools = get_planning_tools(plan_path=plan_path)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1343:            tools = get_default_tools(
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1356:                'tools': tools,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1815:        # Check if we have the required SQL implementation for transactional deletion
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1820:                f'Cannot delete V1 conversation {conversation_id}: SQL implementation required for transactional deletion',
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/app_server/app_conversation/live_status_app_conversation_service.py:1932:        # No need for explicit transaction management here
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/analytics/analytics_context.py:8:User lookup is performed via the AnalyticsUserProvider abstraction, which follows
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/openhands/analytics/analytics_constants.py:3:Naming convention: PostHog recommended object-action, lowercase with spaces.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/observation-type.tsx:35:  // A MCP tool call observation
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/action-type.tsx:8:  // Represents a system message for an agent, including the system prompt and available tools.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/action-type.tsx:36:  // use the finish action to stop working.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/action-type.tsx:46:  MCP = "call_tool_mcp",
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/message.tsx:11:  // The action to be taken
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/message.tsx:12:  action: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/message.tsx:14:  // The arguments for the action
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/message.tsx:38:  tool_call_metadata?: {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/openhands-event.ts:25:  // Core action and observation events
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/openhands-event.ts:32:  // ACP sub-agent tool call events
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/hook-execution-event.ts:47:   * Whether the hook blocked the action
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/hook-execution-event.ts:62:   * Name of the tool (for PreToolUse/PostToolUse hooks)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/hook-execution-event.ts:64:  tool_name: string | null;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/hook-execution-event.ts:67:   * ID of the related action event (for tool hooks)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/hook-execution-event.ts:69:  action_id: string | null;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:15:import { ActionEvent } from "./core/events/action-event";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:25:import { ACPToolCallEvent } from "./core/events/acp-tool-call-event";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:60:  "action_id" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:73:  "tool_name" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:74:  "tool_call_id" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:76:  typeof event.tool_name === "string" &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:77:  typeof event.tool_call_id === "string" &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:99: * Type guard function to check if an event is an action event
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:103:  "action" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:104:  event.action !== null &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:105:  typeof event.action === "object" &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:106:  "kind" in event.action &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:107:  "tool_name" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:108:  "tool_call_id" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:109:  typeof event.tool_name === "string" &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:110:  typeof event.tool_call_id === "string";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:113: * Type guard function to check if an action event is an ExecuteBashAction
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:119:  (event.action.kind === "ExecuteBashAction" ||
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:120:    event.action.kind === "TerminalAction");
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:150: * Type guard function to check if an action event is a BrowserNavigateAction
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:155:  isActionEvent(event) && event.action.kind === "BrowserNavigateAction";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:165:  "tools" in event &&
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:167:  Array.isArray(event.tools);
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:222: * Type guard function to check if an event is an ACP tool call event
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:261:  // V0 events have numeric IDs and either 'action' or 'observation' properties
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/type-guards.ts:265:    ("action" in event || "observation" in event)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:1:import { Action } from "../base/action";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:13:   * The thought process of the agent before taking this action
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:28:   * Single action (tool call) returned by LLM
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:30:  action: T;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:33:   * The name of the tool being called
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:35:  tool_name: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:38:   * The unique id returned by LLM API for this tool call
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:40:  tool_call_id: ToolCallID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:43:   * The tool call received from the LLM response. We keep a copy of it
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:45:   * This could be different from `action`: e.g., `tool_call` may contain
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:47:   * while `action` does not.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:49:  tool_call: ChatCompletionMessageToolCall;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:52:   * Groups related actions from same LLM response. This helps in tracking
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:59:   * The LLM's assessment of the safety risk of this action
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:64:   * Optional critic evaluation of this action and preceding history.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/action-event.ts:69:   * Optional LLM-generated summary used to label the tool call in the UI.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/system-event.ts:17:   * List of tools in OpenAI tool format
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/system-event.ts:19:  tools: ChatCompletionToolParam[];
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/index.ts:2:export * from "./acp-tool-call-event";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/index.ts:3:export * from "./action-event";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:13:   * The tool name that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:15:  tool_name: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:18:   * The tool call id that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:20:  tool_call_id: ToolCallID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:28:   * The observation (tool call) sent to LLM
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:33:   * The action id that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:35:  action_id: EventID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:41:   * Reason for rejecting the action
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:46:   * The action id that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:48:  action_id: EventID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:59:   * The tool name that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:61:  tool_name: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:64:   * The tool call id that this observation is responding to
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/observation-event.ts:66:  tool_call_id: ToolCallID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/critic.ts:38: * Result of a critic evaluation on an agent's actions.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/common.ts:51:// Type aliases for event and tool call IDs
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/event.ts:29:  role: "user" | "system" | "assistant" | "tool";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/event.ts:33:  tool_calls?: ChatCompletionMessageToolCall[];
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/event.ts:37:  tool_call_id?: ToolCallID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:11: * Status of an ACP tool call. Future ACP streaming (software-agent-sdk#2866)
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:12: * will emit multiple events for the same ``tool_call_id`` as the status
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:28: * ACPToolCallEvent — surfaces a tool call executed by an ACP subprocess
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:30: * way those tools' native UIs do.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:44:   * Stable id assigned by the ACP server for this tool call. Multiple
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:45:   * events may share the same ``tool_call_id`` as the call progresses.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:47:  tool_call_id: ToolCallID;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:63:   * Category of tool: execute (shell), edit, read, fetch or other.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:65:  tool_kind: ACPToolKind | null;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:69:   * ``tool_kind`` — e.g. ``{ command }`` for execute, ``{ path, content }``
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:75:   * Raw output payload — typically a string for execute / read tools,
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:81:   * Optional ACP content blocks associated with the tool call output.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/events/acp-tool-call-event.ts:86:   * True if the ACP server reported this tool call as an error, even
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/index.ts:2:export * from "./action";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:11:   * Content returned from the MCP tool converted to LLM Ready TextContent or ImageContent
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:19:   * Name of the tool that was called
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:21:  tool_name: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:26:   * Content returned from the finish action as a list of TextContent/ImageContent objects.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:30:   * Whether the finish action resulted in an error
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:59:   * Content returned from the tool as a list of TextContent/ImageContent objects.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:117:   * The output message from the tool for the LLM to see.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:149:   * The output message from the tool for the LLM to see.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:191:   * Content returned from the tool as a list of TextContent/ImageContent objects.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:222:   * Content returned from the tool as a list of TextContent/ImageContent objects.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/observation.ts:249:   * Content returned from the tool as a list of TextContent/ImageContent objects.
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/actions.ts:17:    tools: Array<Record<string, unknown>> | null;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/actions.ts:93:    browser_actions: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/actions.ts:154:export interface MCPAction extends OpenHandsActionEvent<"call_tool_mcp"> {
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/base.ts:20:  | "call_tool_mcp"
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/base.ts:36:  action: T;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/variances.ts:15:  action: "initialize";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/variances.ts:29:  action: "message";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/index.ts:1:import { OpenHandsAction } from "./actions";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/action.ts:6:   * Dynamic data fields from the tool call
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/action.ts:195:  // No additional properties - this action has no parameters
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/v1/core/base/action.ts:199:  // No additional properties - this action has no parameters
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:10:} from "./actions";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:33:): event is OpenHandsAction => "action" in event;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:44:  event.action === "message";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:51:  (event.action === "message" || event.action === "finish");
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:60:): event is CommandAction => isOpenHandsAction(event) && event.action === "run";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:75:  isOpenHandsAction(event) && event.action === "finish";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:80:  isOpenHandsAction(event) && event.action === "system";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/guards.ts:95:  isOpenHandsAction(event) && event.action === "task_tracking";
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/observations.ts:47:    last_browser_action: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/observations.ts:48:    last_browser_action_error: unknown;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/observations.ts:64:    last_browser_action: string;
+/Users/simon-pierreboucher/Desktop/zyquo/research/repos/OpenHands/frontend/src/types/core/observations.ts:65:    last_browser_action_error: unknown;

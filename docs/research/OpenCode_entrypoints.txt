@@ -1,0 +1,15 @@
+packages/opencode/src/cli/cmd/db.ts:13:  command: "$0 [query]",
+packages/opencode/src/cli/cmd/tui/thread.ts:80:  command: "$0 [project]",
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/todo.tsx:49:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/mcp.tsx:97:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/footer.tsx:94:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/lsp.tsx:65:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/files.tsx:63:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/system/plugins.tsx:269:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/context.tsx:65:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/system/diff-viewer.tsx:956:export default {
+packages/opencode/src/cli/cmd/tui/feature-plugins/home/footer.tsx:94:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/home/tips.tsx:59:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/system/session-v2.tsx:1195:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/system/notifications.ts:94:export default plugin
+packages/opencode/src/cli/cmd/tui/feature-plugins/system/which-key.tsx:608:export default plugin

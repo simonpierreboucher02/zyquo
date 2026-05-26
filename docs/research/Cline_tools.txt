@@ -1,0 +1,500 @@
+apps/vscode/src/services/banner/BannerService.ts:452:		return banner.actions ?? []
+apps/vscode/src/services/banner/BannerService.ts:456:		const actions = this.getBannerActions(banner)
+apps/vscode/src/services/banner/BannerService.ts:458:		// Validate all actions have valid types
+apps/vscode/src/services/banner/BannerService.ts:459:		for (const action of actions) {
+apps/vscode/src/services/banner/BannerService.ts:460:			if (!action.action || !this.validActionTypes.has(action.action) || !action.title) {
+apps/vscode/src/services/banner/BannerService.ts:461:				Logger.error(`[BannerService] Invalid action type (${action.action}) for banner ${banner.id}`)
+apps/vscode/src/services/banner/BannerService.ts:471:			actions: actions.map((a) => ({
+apps/vscode/src/services/banner/BannerService.ts:473:				action: a.action as BannerActionType,
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:599:		it("should convert banner with valid action types", async () => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:604:							id: "bnr_valid_actions",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:606:							bodyMd: "Has valid actions",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:611:							actions: [
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:612:								{ title: "Link", action: "link", arg: "https://example.com" },
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:613:								{ title: "Settings", action: "show-api-settings" },
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:631:				expect(banners[0].id).to.equal("bnr_valid_actions")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:633:				expect(banners[0].description).to.equal("Has valid actions")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:635:				expect(banners[0].actions).to.have.lengthOf(2)
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:636:				expect(banners[0].actions![0].title).to.equal("Link")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:637:				expect(banners[0].actions![0].action).to.equal("link")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:638:				expect(banners[0].actions![0].arg).to.equal("https://example.com")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:639:				expect(banners[0].actions![1].title).to.equal("Settings")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:640:				expect(banners[0].actions![1].action).to.equal("show-api-settings")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:644:		it("should drop banner with invalid action type and log error", async () => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:649:							id: "bnr_invalid_action",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:651:							bodyMd: "Has invalid action type",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:655:							actions: [{ title: "Invalid", action: "unknown-action-type", arg: "test" }],
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:686:							actions: [{ title: "Link", action: "link", arg: "https://example.com" }],
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:691:							bodyMd: "This one has invalid action",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:695:							actions: [{ title: "Bad", action: "not-a-real-action" }],
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:725:		it("should convert banner with no actions", async () => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:730:							id: "bnr_no_actions",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:732:							bodyMd: "Has no actions",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:752:				expect(banners[0].id).to.equal("bnr_no_actions")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:753:				expect(banners[0].actions).to.have.lengthOf(0)
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:757:		it("should convert banner with empty actions array", async () => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:762:							id: "bnr_empty_actions",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:764:							bodyMd: "Has empty actions array",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:768:							actions: [],
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:785:				expect(banners[0].id).to.equal("bnr_empty_actions")
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:786:				expect(banners[0].actions).to.have.lengthOf(0)
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:790:		it("should drop banner when action has undefined action type", async () => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:795:							id: "bnr_undefined_action",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:801:							actions: [{ title: "Just a label" }],
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:837:							bodyMd: "Has all valid action types",
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:841:							actions: validActionTypes.map((type, index) => ({
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:843:								action: type,
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:862:				expect(banners[0].actions).to.have.lengthOf(validActionTypes.length)
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:863:				banners[0].actions!.forEach((action, index) => {
+apps/vscode/src/services/banner/__tests__/BannerService.test.ts:864:					expect(action.action).to.equal(validActionTypes[index])
+apps/vscode/src/shared/Patch.ts:21: * Domains of patch actions
+apps/vscode/src/shared/Patch.ts:25:	DELETE = "delete", // TODO: Implement delete action in diff editor.
+apps/vscode/src/shared/Patch.ts:56:	actions: Record<string, PatchAction>
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:149:    $toolData = $null
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:151:        $toolData = $inputData.postToolUse
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:155:        event = "tool_executed"
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:159:            tool_name = if ($toolData) { $toolData.toolName } else { $null }
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:160:            parameters = if ($toolData -and $null -ne $toolData.parameters) { $toolData.parameters } else { @{} }
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:161:            success = if ($toolData) { [bool]$toolData.success } else { $false }
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:162:            execution_time_ms = if ($toolData) { $toolData.executionTimeMs } else { $null }
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:301:  event: "tool_executed",
+apps/vscode/src/services/lg-cns-integration/webhook-hooks.ts:305:    tool_name: input.postToolUse?.toolName ?? null,
+apps/vscode/src/services/account/ClineAccountService.ts:5:	OrganizationUsageTransaction,
+apps/vscode/src/services/account/ClineAccountService.ts:6:	PaymentTransaction,
+apps/vscode/src/services/account/ClineAccountService.ts:7:	UsageTransaction,
+apps/vscode/src/services/account/ClineAccountService.ts:112:				Logger.error("Failed to fetch user ID for usage transactions")
+apps/vscode/src/services/account/ClineAccountService.ts:124:	 * RPC variant that fetches the user's usage transactions without posting to webview
+apps/vscode/src/services/account/ClineAccountService.ts:125:	 * @returns Usage transactions or undefined if failed
+apps/vscode/src/services/account/ClineAccountService.ts:127:	async fetchUsageTransactionsRPC(): Promise<UsageTransaction[] | undefined> {
+apps/vscode/src/services/account/ClineAccountService.ts:131:				Logger.error("Failed to fetch user ID for usage transactions")
+apps/vscode/src/services/account/ClineAccountService.ts:134:			const data = await this.authenticatedRequest<{ items: UsageTransaction[] }>(`/api/v1/users/${me.uid}/usages`)
+apps/vscode/src/services/account/ClineAccountService.ts:137:			Logger.error("Failed to fetch usage transactions (RPC):", error)
+apps/vscode/src/services/account/ClineAccountService.ts:143:	 * RPC variant that fetches the user's payment transactions without posting to webview
+apps/vscode/src/services/account/ClineAccountService.ts:144:	 * @returns Payment transactions or undefined if failed
+apps/vscode/src/services/account/ClineAccountService.ts:146:	async fetchPaymentTransactionsRPC(): Promise<PaymentTransaction[] | undefined> {
+apps/vscode/src/services/account/ClineAccountService.ts:150:				Logger.error("Failed to fetch user ID for usage transactions")
+apps/vscode/src/services/account/ClineAccountService.ts:153:			const data = await this.authenticatedRequest<{ paymentTransactions: PaymentTransaction[] }>(
+apps/vscode/src/services/account/ClineAccountService.ts:156:			return data.paymentTransactions
+apps/vscode/src/services/account/ClineAccountService.ts:158:			Logger.error("Failed to fetch payment transactions (RPC):", error)
+apps/vscode/src/services/account/ClineAccountService.ts:226:	 * Fetches the current user's organization transactions
+apps/vscode/src/services/account/ClineAccountService.ts:227:	 * @returns {Promise<OrganizationUsageTransaction[]>} A promise that resolves to the active organization transactions.
+apps/vscode/src/services/account/ClineAccountService.ts:229:	async fetchOrganizationUsageTransactionsRPC(organizationId: string): Promise<OrganizationUsageTransaction[] | undefined> {
+apps/vscode/src/services/account/ClineAccountService.ts:238:				Logger.error("Failed to find member ID for active organization transactions")
+apps/vscode/src/services/account/ClineAccountService.ts:241:			const data = await this.authenticatedRequest<{ items: OrganizationUsageTransaction[] }>(
+apps/vscode/src/services/account/ClineAccountService.ts:246:			Logger.error("Failed to fetch active organization transactions (RPC):", error)
+apps/vscode/src/core/mentions/index.ts:74:			// For workspace-prefixed mentions, include the workspace name in the same format the model uses for tool calls
+apps/vscode/src/core/mentions/index.ts:113:		// Safety guard: skip a bare "/" mention. This can surface from parsed strings or tool output and would resolve to the
+apps/vscode/src/core/api/transform/ollama-format.ts:21:				const { nonToolMessages, toolMessages } = anthropicMessage.content.reduce<{
+apps/vscode/src/core/api/transform/ollama-format.ts:23:					toolMessages: ClineUserToolResultContentBlock[]
+apps/vscode/src/core/api/transform/ollama-format.ts:26:						if (part.type === "tool_result") {
+apps/vscode/src/core/api/transform/ollama-format.ts:27:							acc.toolMessages.push(part)
+apps/vscode/src/core/api/transform/ollama-format.ts:33:					{ nonToolMessages: [], toolMessages: [] },
+apps/vscode/src/core/api/transform/ollama-format.ts:36:				// Process tool result messages FIRST since they must follow the tool use messages
+apps/vscode/src/core/api/transform/ollama-format.ts:37:				const toolResultImages: string[] = []
+apps/vscode/src/core/api/transform/ollama-format.ts:38:				toolMessages.forEach((toolMessage) => {
+apps/vscode/src/core/api/transform/ollama-format.ts:39:					// The Anthropic SDK allows tool results to be a string or an array of text and image blocks, enabling rich and structured content. In contrast, the Ollama SDK only supports tool results as a single string, so we map the Anthropic tool result parts into one concatenated string to maintain compatibility.
+apps/vscode/src/core/api/transform/ollama-format.ts:42:					if (typeof toolMessage.content === "string") {
+apps/vscode/src/core/api/transform/ollama-format.ts:43:						content = toolMessage.content
+apps/vscode/src/core/api/transform/ollama-format.ts:46:							toolMessage.content
+apps/vscode/src/core/api/transform/ollama-format.ts:49:										toolResultImages.push(`data:${part.source.media_type};base64,${part.source.data}`)
+apps/vscode/src/core/api/transform/ollama-format.ts:58:						images: toolResultImages.length > 0 ? toolResultImages : undefined,
+apps/vscode/src/core/api/transform/ollama-format.ts:63:				// Process non-tool messages
+apps/vscode/src/core/api/transform/ollama-format.ts:78:				const { nonToolMessages, toolMessages } = anthropicMessage.content.reduce<{
+apps/vscode/src/core/api/transform/ollama-format.ts:80:					toolMessages: ClineAssistantToolUseBlock[]
+apps/vscode/src/core/api/transform/ollama-format.ts:83:						if (part.type === "tool_use") {
+apps/vscode/src/core/api/transform/ollama-format.ts:84:							acc.toolMessages.push(part)
+apps/vscode/src/core/api/transform/ollama-format.ts:87:						} // assistant cannot send tool_result messages
+apps/vscode/src/core/api/transform/ollama-format.ts:90:					{ nonToolMessages: [], toolMessages: [] },
+apps/vscode/src/core/api/transform/ollama-format.ts:93:				// Process non-tool messages
+apps/vscode/src/core/api/transform/openrouter-stream.ts:24:import { getOpenAIToolParams } from "./tool-call-processor"
+apps/vscode/src/core/api/transform/openrouter-stream.ts:49:	tools?: Array<ChatCompletionTool>,
+apps/vscode/src/core/api/transform/openrouter-stream.ts:69:	// Sanitize messages for Gemini models (removes tool_calls without reasoning_details)
+apps/vscode/src/core/api/transform/openrouter-stream.ts:207:		...getOpenAIToolParams(tools, !!enableParallelToolCalling),
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:1:import { ClineDefaultTool, getToolUseNames } from "@shared/tools"
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:3:import { AssistantMessageContent, TextStreamContent, ToolParamName, ToolUse, toolParamNames } from "." // Assuming types are defined in index.ts or a similar file
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:9: * Parses an assistant message string potentially containing mixed text and tool usage blocks
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:14: * *ending* at `i` matches any known opening or closing tags for tools or parameters using `startsWith`
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:16: * It uses pre-computed Maps (`toolUseOpenTags`, `toolParamOpenTags`) for quick tag lookups.
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:19: * Slicing is used to extract content only when a block (text, parameter, or tool use) is completed.
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:32:	let currentToolUseStart = 0 // Index *after* the opening tag of the current tool use
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:38:	const toolUseOpenTags = new Map<string, string>()
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:39:	const toolParamOpenTags = new Map<string, ToolParamName>()
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:41:		toolUseOpenTags.set(`<${name}>`, name)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:43:	for (const name of toolParamNames) {
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:44:		toolParamOpenTags.set(`<${name}>`, name)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:70:				currentParamName = undefined // Go back to parsing tool content
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:71:				// We don't continue loop here, need to check for tool close or other params at index i
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:82:			for (const [tag, paramName] of toolParamOpenTags.entries()) {
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:94:			// Check if closing the current tool use
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:95:			const toolCloseTag = `</${currentToolUse.name}>`
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:97:				currentCharIndex >= toolCloseTag.length - 1 &&
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:98:				assistantMessage.startsWith(toolCloseTag, currentCharIndex - toolCloseTag.length + 1)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:100:				// End of the tool use found
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:101:				// Special handling for content params *before* finalizing the tool
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:102:				const toolContentSlice = assistantMessage.slice(
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:103:					currentToolUseStart, // From after the tool opening tag
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:104:					currentCharIndex - toolCloseTag.length + 1, // To before the tool closing tag
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:109:				// (e.g., if content is empty or parsing logic prioritizes tool close)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:113:					toolContentSlice.includes(`<${contentParamName}>`)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:117:					const contentStart = toolContentSlice.indexOf(contentStartTag)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:119:					const contentEnd = toolContentSlice.lastIndexOf(contentEndTag)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:122:						const contentValue = toolContentSlice.slice(contentStart + contentStartTag.length, contentEnd).trim()
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:133:			// If not starting a param and not closing the tool, continue accumulating tool content implicitly
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:139:			// Check if starting a new tool use
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:141:			for (const [tag, toolName] of toolUseOpenTags.entries()) {
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:148:								currentCharIndex - tag.length + 1, // To before the tool tag starts
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:151:						currentTextContent.partial = false // Ended because tool started
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:161:								currentCharIndex - tag.length + 1, // To before the tool tag starts
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:173:					// Start the new tool use
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:175:						type: "tool_use",
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:176:						name: toolName as ClineDefaultTool,
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:189:				continue // Handled start of tool, move to next char
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:192:			// If not starting a tool, it must be text content
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:204:					content: "", // Will be determined by slicing at the end or when a tool starts
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:214:	// Finalize any open parameter within an open tool use
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:222:	// Finalize any open tool use (which might contain the finalized partial param)
+apps/vscode/src/core/assistant-message/parse-assistant-message.ts:228:	// Only possible if a tool use wasn't open at the very end
+apps/vscode/src/core/api/transform/mistral-format.ts:4:import { ToolMessage } from "@mistralai/mistralai/models/components/toolmessage"
+apps/vscode/src/core/api/transform/mistral-format.ts:11:	| (ToolMessage & { role: "tool" })
+apps/vscode/src/core/assistant-message/index.ts:1:import { ClineDefaultTool } from "@shared/tools"
+apps/vscode/src/core/assistant-message/index.ts:13:export const toolParamNames = [
+apps/vscode/src/core/assistant-message/index.ts:23:	"action",
+apps/vscode/src/core/assistant-message/index.ts:32:	"tool_name",
+apps/vscode/src/core/assistant-message/index.ts:61:export type ToolParamName = (typeof toolParamNames)[number]
+apps/vscode/src/core/assistant-message/index.ts:64:	type: "tool_use"
+apps/vscode/src/core/assistant-message/index.ts:65:	name: ClineDefaultTool // id of the tool being used
+apps/vscode/src/core/assistant-message/index.ts:70:	 * Whether this tool use was initiated by a native tool call
+apps/vscode/src/core/assistant-message/index.ts:74:	 * The call / response ID this tool use is associated with.
+apps/vscode/src/core/assistant-message/index.ts:76:	call_id?: string // optional call ID for tracking tool use calls
+apps/vscode/src/core/assistant-message/index.ts:78:	 * Thought signature associated with this tool use, used by Gemini
+apps/vscode/src/services/browser/BrowserSession.ts:149:	 * @param ulid The task ID to associate with browser actions
+apps/vscode/src/services/browser/BrowserSession.ts:175:				// Send telemetry for browser tool start
+apps/vscode/src/services/browser/BrowserSession.ts:206:		// Send telemetry for browser tool start
+apps/vscode/src/services/browser/BrowserSession.ts:342:			// Send telemetry for browser tool end if we have a task ID and session was started
+apps/vscode/src/services/browser/BrowserSession.ts:346:					actionCount: this.browserActions.length,
+apps/vscode/src/services/browser/BrowserSession.ts:348:					actions: this.browserActions,
+apps/vscode/src/services/browser/BrowserSession.ts:378:	async doAction(action: (page: Page) => Promise<void>): Promise<BrowserActionResult> {
+apps/vscode/src/services/browser/BrowserSession.ts:381:				"Browser is not launched. This may occur if the browser was automatically closed by a non-`browser_action` tool.",
+apps/vscode/src/services/browser/BrowserSession.ts:407:			await action(this.page)
+apps/vscode/src/services/browser/BrowserSession.ts:416:					telemetryService.captureBrowserError(this.ulid, "browser_action_error", errorMessage, {
+apps/vscode/src/services/browser/BrowserSession.ts:418:						action: this.browserActions[this.browserActions.length - 1],
+apps/vscode/src/services/browser/BrowserSession.ts:463:					action: this.browserActions[this.browserActions.length - 1],
+apps/vscode/src/core/api/transform/r1-format.ts:14: * Per DeepSeek API: reasoning_content should be passed back during tool calling in the same turn,
+apps/vscode/src/shared/services/Session.ts:30:	toolTimeMs: number
+apps/vscode/src/shared/services/Session.ts:38: * Used by CLI to display interaction summary.
+apps/vscode/src/shared/services/Session.ts:45:	private toolCalls: ToolCallRecord[] = []
+apps/vscode/src/shared/services/Session.ts:47:	private toolTimeMs: number = 0
+apps/vscode/src/shared/services/Session.ts:136:	 * Update a tool call - starts tracking if new, updates lastUpdateTime if existing.
+apps/vscode/src/shared/services/Session.ts:137:	 * @param callId - Unique identifier for this tool call
+apps/vscode/src/shared/services/Session.ts:138:	 * @param toolName - The name of the tool (required when starting a new call)
+apps/vscode/src/shared/services/Session.ts:141:	updateToolCall(callId: string, toolName: string, success?: boolean): void {
+apps/vscode/src/shared/services/Session.ts:146:			// Update existing tool call
+apps/vscode/src/shared/services/Session.ts:154:		// Start tracking new tool call
+apps/vscode/src/shared/services/Session.ts:156:			name: toolName,
+apps/vscode/src/shared/services/Session.ts:170:	 * Finalize a request - moves all in-flight tool calls to completed and calculates durations.
+apps/vscode/src/shared/services/Session.ts:171:	 * Call this when an API request completes to close out all pending tool calls.
+apps/vscode/src/shared/services/Session.ts:176:			this.toolTimeMs += duration
+apps/vscode/src/shared/services/Session.ts:177:			this.toolCalls.push({
+apps/vscode/src/shared/services/Session.ts:189:	 * Includes in-flight tool calls in the totals using their lastUpdateTime as end time.
+apps/vscode/src/shared/services/Session.ts:195:		const allToolCalls = this.toolCalls
+apps/vscode/src/shared/services/Session.ts:206:			toolTimeMs: this.toolTimeMs,
+apps/vscode/src/shared/services/Session.ts:246:	 * Get the agent active time (API time + tool time) in milliseconds.
+apps/vscode/src/shared/services/Session.ts:247:	 * Includes in-flight tool calls.
+apps/vscode/src/shared/services/Session.ts:251:		return this.apiTimeMs + stats.toolTimeMs
+apps/vscode/src/shared/services/Session.ts:256:	 * Includes in-flight tool calls.
+apps/vscode/src/services/telemetry/TelemetryService.ts:53: * Enum for terminal user intervention actions
+apps/vscode/src/services/telemetry/TelemetryService.ts:159:			CALLS_TOTAL: "cline.tool.calls.total",
+apps/vscode/src/services/telemetry/TelemetryService.ts:160:			CALLS_PER_TASK: "cline.tool.calls.per_task",
+apps/vscode/src/services/telemetry/TelemetryService.ts:197:	// Event constants for tracking user interactions and system events
+apps/vscode/src/services/telemetry/TelemetryService.ts:247:			// Tracks when tools (like file operations, commands) are used
+apps/vscode/src/services/telemetry/TelemetryService.ts:248:			TOOL_USED: "task.tool_used",
+apps/vscode/src/services/telemetry/TelemetryService.ts:249:			// Tracks when MCP tools are used
+apps/vscode/src/services/telemetry/TelemetryService.ts:250:			MCP_TOOL_CALLED: "task.mcp_tool_called",
+apps/vscode/src/services/telemetry/TelemetryService.ts:257:			// Tracks when the browser tool is started
+apps/vscode/src/services/telemetry/TelemetryService.ts:258:			BROWSER_TOOL_START: "task.browser_tool_start",
+apps/vscode/src/services/telemetry/TelemetryService.ts:259:			// Tracks when the browser tool is completed
+apps/vscode/src/services/telemetry/TelemetryService.ts:260:			BROWSER_TOOL_END: "task.browser_tool_end",
+apps/vscode/src/services/telemetry/TelemetryService.ts:281:			// Tracks when the context window is auto-condensed with the summarize_task tool call
+apps/vscode/src/services/telemetry/TelemetryService.ts:293:			// Tracks when Cline web tools setting is toggled on/off
+apps/vscode/src/services/telemetry/TelemetryService.ts:294:			CLINE_WEB_TOOLS_TOGGLED: "task.cline_web_tools_toggled",
+apps/vscode/src/services/telemetry/TelemetryService.ts:316:		// UI interaction events for tracking user engagement
+apps/vscode/src/services/telemetry/TelemetryService.ts:428:	 * Should only be called on explicit user action, not on init/sync.
+apps/vscode/src/services/telemetry/TelemetryService.ts:436:	 * Should only be called on explicit user action, not on init/sync.
+apps/vscode/src/services/telemetry/TelemetryService.ts:625:	 * @param reason The reason for logout (user action, cross-window sync, error, etc.)
+apps/vscode/src/services/telemetry/TelemetryService.ts:701:	 * Records when cline calls the task completion_result tool signifying that cline is done with the task
+apps/vscode/src/services/telemetry/TelemetryService.ts:964:	 * Records when a tool is used during task execution
+apps/vscode/src/services/telemetry/TelemetryService.ts:966:	 * @param tool Name of the tool being used
+apps/vscode/src/services/telemetry/TelemetryService.ts:969:	 * @param autoApproved Whether the tool was auto-approved based on settings
+apps/vscode/src/services/telemetry/TelemetryService.ts:970:	 * @param success Whether the tool execution was successful
+apps/vscode/src/services/telemetry/TelemetryService.ts:975:		tool: string,
+apps/vscode/src/services/telemetry/TelemetryService.ts:992:				tool,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1008:		const toolAttributes = {
+apps/vscode/src/services/telemetry/TelemetryService.ts:1010:			tool,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1015:		const toolCallCount = this.incrementTaskCounter(this.taskToolCallCounts, ulid)
+apps/vscode/src/services/telemetry/TelemetryService.ts:1016:		this.recordCounter(TelemetryService.METRICS.TOOLS.CALLS_TOTAL, 1, toolAttributes)
+apps/vscode/src/services/telemetry/TelemetryService.ts:1017:		this.recordHistogram(TelemetryService.METRICS.TOOLS.CALLS_PER_TASK, toolCallCount, toolAttributes)
+apps/vscode/src/services/telemetry/TelemetryService.ts:1057:	 * Records when an MCP tool is called.
+apps/vscode/src/services/telemetry/TelemetryService.ts:1058:	 * This telemetry event is designed to monitor the usage and performance of MCP tools
+apps/vscode/src/services/telemetry/TelemetryService.ts:1059:	 * without compromising user privacy. It captures the tool's metadata (server, name, and arguments)
+apps/vscode/src/services/telemetry/TelemetryService.ts:1064:	 * @param toolName The name of the tool being called.
+apps/vscode/src/services/telemetry/TelemetryService.ts:1065:	 * @param status The status of the tool call.
+apps/vscode/src/services/telemetry/TelemetryService.ts:1067:	 * @param argumentKeys Optional array of argument keys for the tool.
+apps/vscode/src/services/telemetry/TelemetryService.ts:1072:		toolName: string,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1083:				toolName,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1093:	 * Records interactions with the git-based checkpoint system
+apps/vscode/src/services/telemetry/TelemetryService.ts:1095:	 * @param action The type of checkpoint action
+apps/vscode/src/services/telemetry/TelemetryService.ts:1100:		action: "shadow_git_initialized" | "commit_created" | "restored" | "diff_generated",
+apps/vscode/src/services/telemetry/TelemetryService.ts:1111:				action,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1123:	 * @param isNativeToolCall Whether the diff edit was invoked by a native tool call
+apps/vscode/src/services/telemetry/TelemetryService.ts:1156:	 * Records when the browser tool is started
+apps/vscode/src/services/telemetry/TelemetryService.ts:1178:	 * Records when the browser tool is completed
+apps/vscode/src/services/telemetry/TelemetryService.ts:1185:			actionCount: number
+apps/vscode/src/services/telemetry/TelemetryService.ts:1187:			actions?: string[]
+apps/vscode/src/services/telemetry/TelemetryService.ts:1198:				actionCount: stats.actionCount,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1200:				actions: stats.actions,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1218:			action?: string
+apps/vscode/src/services/telemetry/TelemetryService.ts:1621:	 * Records when Cline web tools are enabled/disabled by the user
+apps/vscode/src/services/telemetry/TelemetryService.ts:1623:	 * @param enabled Whether Cline web tools are enabled (true) or disabled (false)
+apps/vscode/src/services/telemetry/TelemetryService.ts:1724:	 * @param action The user action
+apps/vscode/src/services/telemetry/TelemetryService.ts:1727:	public captureTerminalUserIntervention(action: TerminalUserInterventionAction, terminalType: TerminalType = "vscode") {
+apps/vscode/src/services/telemetry/TelemetryService.ts:1731:				action,
+apps/vscode/src/services/telemetry/TelemetryService.ts:1811:	 * @param action Type of checkpoint action
+apps/vscode/src/services/telemetry/TelemetryService.ts:1819:		action: "initialized" | "committed" | "restored",
+apps/vscode/src/services/telemetry/TelemetryService.ts:1829:				action,
+apps/vscode/src/services/telemetry/TelemetryService.ts:2120:	public captureOnboardingProgress(args: { step: number; action?: string; model?: string; completed?: boolean }) {
+apps/vscode/src/services/telemetry/TelemetryService.ts:2166:			toolName?: string
+apps/vscode/src/services/telemetry/TelemetryService.ts:2186:			...(metadata?.toolName && { toolName: metadata.toolName }),
+apps/vscode/src/services/telemetry/TelemetryService.ts:2210:			...(metadata?.toolName && { toolName: metadata.toolName }),
+apps/vscode/src/services/telemetry/TelemetryService.ts:2267:		tool: string
+apps/vscode/src/services/telemetry/TelemetryService.ts:2282:				tool: args.tool,
+apps/vscode/src/services/telemetry/TelemetryService.ts:2295:		const attrs = { ulid: args.ulid, tool: args.tool, provider: args.provider, model: args.model, source: args.source }
+apps/vscode/src/services/telemetry/TelemetryService.ts:2318:		tool: string
+apps/vscode/src/services/telemetry/TelemetryService.ts:2333:				tool: args.tool,
+apps/vscode/src/services/telemetry/TelemetryService.ts:2346:		const attrs = { ulid: args.ulid, tool: args.tool, provider: args.provider, model: args.model, source: args.source }
+apps/vscode/src/services/telemetry/TelemetryService.ts:2404:	 * - Hook execution (during tool execution)
+apps/vscode/src/services/uri/SharedUriHandler.ts:112:						"Start by reading that file from disk. If context compaction happens later, re-read the same file path so you can continue tracking progress against the original requirements.",
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:16:Be concise. You can use built-in tools to inspect files, search the workspace, and run shell commands when helpful.`;
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:43:			if (event.contentType === "tool" && event.toolName) {
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:45:					`\n[tool] ${event.toolName}(${JSON.stringify(event.input ?? {})})`,
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:50:			if (event.contentType === "tool" && event.toolName) {
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:52:					`[update] ${event.toolName}: ${formatToolValue(event.update)}`,
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:57:			if (event.contentType === "tool" && event.toolName) {
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:59:					console.log(`[error] ${event.toolName}: ${event.error}`);
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:106:	console.log(`\n[approval] ${request.toolName} wants to run:`);
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:112:		...(approved ? {} : { reason: "User denied tool execution" }),
+sdk/apps/examples/cline-core-cli-agent/src/index.ts:139:		toolPolicies: {
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:8: * - Provider API errors (e.g., Gemini requires reasoning_details for tool calls)
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:156:		it("should drop tool_calls without reasoning_details for Gemini models", () => {
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:160:					content: "I'll use a tool",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:161:					tool_calls: [{ id: "call_123", type: "function", function: { name: "read_file", arguments: "{}" } }],
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:165:					role: "tool",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:166:					tool_call_id: "call_123",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:177:			msg.content.should.equal("I'll use a tool")
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:178:			;(msg.tool_calls === undefined).should.be.true()
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:181:		it("should preserve tool_calls with reasoning_details for Gemini models", () => {
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:186:					tool_calls: [{ id: "call_123", type: "function", function: { name: "read_file", arguments: "{}" } }],
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:197:					role: "tool",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:198:					tool_call_id: "call_123",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:206:			;(result[0] as any).tool_calls.should.have.length(1)
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:213:					content: "Using tool",
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:214:					tool_calls: [{ id: "call_123", type: "function", function: { name: "test", arguments: "{}" } }],
+apps/vscode/src/core/api/transform/__tests__/thinking-traces.test.ts:222:			;(result[0] as any).tool_calls.should.have.length(1)
+apps/vscode/src/services/telemetry/TelemetryService.test.ts:166:			assert.ok(recordCounterSpy.called, "recordCounter should be called for tool usage")
+apps/vscode/src/integrations/editor/FileEditProvider.ts:101:	 * This is exposed for use by tools that need to read the document state.
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:2:import { getOpenAIToolParams, ToolCallProcessor } from "../tool-call-processor"
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:5:	it("should preserve tool call id/name for interleaved parallel deltas", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:39:		// order because id/name/arguments are matched by tool call index.
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:40:		const firstToolCall = secondResult[0]!.tool_call as any
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:41:		const secondToolCall = secondResult[1]!.tool_call as any
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:93:	it("should include parallel_tool_calls when enabled", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:94:		const tools = [
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:97:		const params = getOpenAIToolParams(tools, true) as any
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:99:		params.parallel_tool_calls.should.equal(true)
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:102:	it("should include parallel_tool_calls=false when disabled by default", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:103:		const tools = [
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:106:		const params = getOpenAIToolParams(tools, false) as any
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:108:		params.parallel_tool_calls.should.equal(false)
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:111:	it("should not include parallel_tool_calls when tools are absent", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-call-processor.test.ts:114:		params.should.not.have.property("parallel_tool_calls")
+apps/vscode/src/shared/services/feature-flags/feature-flags.ts:4:	WEBTOOLS = "webtools",
+apps/vscode/src/services/test/GitHelper.ts:204: * Calculates the tool success rate based on calls and failures
+apps/vscode/src/services/test/GitHelper.ts:205: * @param toolCalls Record of tool calls by name
+apps/vscode/src/services/test/GitHelper.ts:206: * @param toolFailures Record of tool failures by name
+apps/vscode/src/services/test/GitHelper.ts:209:export function calculateToolSuccessRate(toolCalls: Record<string, number>, toolFailures: Record<string, number>): number {
+apps/vscode/src/services/test/GitHelper.ts:210:	const totalCalls = Object.values(toolCalls).reduce((a, b) => a + b, 0)
+apps/vscode/src/services/test/GitHelper.ts:211:	const totalFailures = Object.values(toolFailures).reduce((a, b) => a + b, 0)
+sdk/apps/examples/cli-agent/src/index.ts:11:	tools: [
+sdk/apps/examples/cli-agent/src/index.ts:37:		case "tool-started":
+sdk/apps/examples/cli-agent/src/index.ts:39:				`\n[tool] ${event.toolCall.toolName}(${JSON.stringify(event.toolCall.input)})`,
+sdk/apps/examples/cli-agent/src/index.ts:42:		case "tool-finished": {
+sdk/apps/examples/cli-agent/src/index.ts:44:				(p) => p.type === "tool-result",
+sdk/apps/examples/cli-agent/src/index.ts:46:			if (result && result.type === "tool-result") {
+apps/vscode/src/services/test/TestServer.ts:17: * Creates a tracker to monitor tool calls and failures during task execution
+apps/vscode/src/services/test/TestServer.ts:18: * @returns Object tracking tool calls and failures
+apps/vscode/src/services/test/TestServer.ts:21:	toolCalls: Record<string, number>
+apps/vscode/src/services/test/TestServer.ts:22:	toolFailures: Record<string, number>
+apps/vscode/src/services/test/TestServer.ts:25:		toolCalls: {} as Record<string, number>,
+apps/vscode/src/services/test/TestServer.ts:26:		toolFailures: {} as Record<string, number>,
+apps/vscode/src/services/test/TestServer.ts:46: * Updates the auto approval settings to enable all actions
+apps/vscode/src/services/test/TestServer.ts:54:		// Enable all actions
+apps/vscode/src/services/test/TestServer.ts:57:			actions: {
+apps/vscode/src/services/test/TestServer.ts:242:					// Initialize tool call tracker
+apps/vscode/src/services/test/TestServer.ts:243:					const toolTracker = createToolCallTracker()
+apps/vscode/src/services/test/TestServer.ts:368:						// Get tool metrics
+apps/vscode/src/services/test/TestServer.ts:369:						const toolMetrics = {
+apps/vscode/src/services/test/TestServer.ts:370:							toolCalls: toolTracker.toolCalls,
+apps/vscode/src/services/test/TestServer.ts:371:							toolFailures: toolTracker.toolFailures,
+apps/vscode/src/services/test/TestServer.ts:372:							totalToolCalls: Object.values(toolTracker.toolCalls).reduce((a, b) => a + b, 0),
+apps/vscode/src/services/test/TestServer.ts:373:							totalToolFailures: Object.values(toolTracker.toolFailures).reduce((a, b) => a + b, 0),
+apps/vscode/src/services/test/TestServer.ts:374:							toolSuccessRate: calculateToolSuccessRate(toolTracker.toolCalls, toolTracker.toolFailures),
+apps/vscode/src/services/test/TestServer.ts:392:									...toolMetrics,
+apps/vscode/src/services/telemetry/providers/posthog/PostHogTelemetryProvider.ts:179:		// No action needed here - events already capture these values
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:2: * Contract tests for tool call parsing and transformation.
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:4: * These tests verify that tool calls are correctly parsed and transformed
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:6: * because incorrect tool parsing can cause:
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:8: * - Mismatched tool_call_id causing API errors
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:9: * - Lost tool results breaking conversation flow
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:25:		it("should convert Anthropic tool_use to OpenAI tool_calls format", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:31:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:32:							id: "toolu_abc123",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:45:			msg.tool_calls.should.have.length(1)
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:46:			msg.tool_calls[0].type.should.equal("function")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:47:			msg.tool_calls[0].function.name.should.equal("read_file")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:48:			JSON.parse(msg.tool_calls[0].function.arguments).should.deepEqual({ path: "/test/file.ts" })
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:51:		it("should truncate long tool IDs to 40 characters", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:58:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:60:							name: "test_tool",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:70:			msg.tool_calls[0].id.length.should.be.belowOrEqual(40)
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:73:		it("should transform OpenAI Responses API tool IDs (fc_ prefix)", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:81:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:83:							name: "test_tool",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:94:			msg.tool_calls[0].id.should.startWith("call_")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:95:			msg.tool_calls[0].id.length.should.be.belowOrEqual(40)
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:98:		it("should match tool_call_id with tool_calls id for tool results", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:99:			const toolId = "toolu_abc123"
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:105:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:106:							id: toolId,
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:116:							type: "tool_result",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:117:							tool_use_id: toolId,
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:128:			// Get the transformed tool_call id from assistant message
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:130:			const transformedId = assistantMsg.tool_calls![0].id
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:132:			// The tool result should have the same transformed id
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:133:			const toolMsg = result[1] as OpenAI.Chat.ChatCompletionToolMessageParam
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:134:			toolMsg.tool_call_id.should.equal(transformedId)
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:137:		it("should handle multiple tool calls in a single message", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:147:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:148:							id: "tool_1",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:153:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:154:							id: "tool_2",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:166:			msg.tool_calls.should.have.length(2)
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:167:			msg.tool_calls[0].function.name.should.equal("read_file")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:168:			msg.tool_calls[1].function.name.should.equal("read_file")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:171:		it("should handle tool results with array content", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:177:							type: "tool_result",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:178:							tool_use_id: "tool_123",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:192:			msg.role.should.equal("tool")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:196:		it("should set content to null when only tool_calls present", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:202:							type: "tool_use",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:203:							id: "tool_1",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:259:		it("should convert OpenAI tool_calls to Anthropic tool_use blocks", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:271:							tool_calls: [
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:283:						finish_reason: "tool_calls",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:291:			result.stop_reason!.should.equal("tool_use")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:294:			content.should.have.length(2) // text block + tool_use block
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:296:			const toolUse = content.find((b) => b.type === "tool_use")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:297:			toolUse.should.not.be.undefined
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:298:			toolUse.id.should.equal("call_abc")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:299:			toolUse.name.should.equal("read_file")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:300:			toolUse.input.should.deepEqual({ path: "/test.ts" })
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:303:		it("should handle malformed tool arguments gracefully", () => {
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:315:							tool_calls: [
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:320:										name: "test_tool",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:327:						finish_reason: "tool_calls",
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:337:			const toolUse = content.find((b) => b.type === "tool_use")
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:338:			toolUse.input.should.deepEqual({})
+apps/vscode/src/core/api/transform/__tests__/tool-parsing.test.ts:345:				{ finish_reason: "tool_calls", expected: "tool_use" },
+apps/vscode/src/core/webview/WebviewProvider.ts:96:		- 'unsafe-inline' is required for styles due to vscode-webview-toolkit's dynamic style injection
+apps/vscode/src/core/api/transform/stream.ts:35:	type: "tool_calls"
+apps/vscode/src/core/api/transform/stream.ts:37:	 * The tool call information
+apps/vscode/src/core/api/transform/stream.ts:39:	tool_call: ApiStreamToolCall
+apps/vscode/src/core/api/transform/stream.ts:52:	 * The call ID associated with this tool call
+apps/vscode/src/core/api/transform/stream.ts:55:	// Information about the tool being called
+apps/vscode/src/core/api/transform/stream.ts:58:		 * The tool call ID
+apps/vscode/src/core/api/transform/stream.ts:62:		 * Name of the tool
+apps/vscode/src/core/api/transform/stream.ts:66:		 * The arguments passed to the tool execution
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:9: * Focuses on the fix: `arguments: toolArguments ?? {}` ensuring that
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:10: * undefined toolArguments are sent as an empty object `{}` to comply
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:85:		it("should pass empty object {} when toolArguments is undefined", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:95:		it("should pass the provided arguments object when toolArguments is defined", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:106:		it("should pass empty object {} when toolArguments is explicitly passed as undefined", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:141:		it("should always include method 'tools/call' in the request", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:144:			await hub.callTool("test-server", "any_tool", undefined, "ulid-006")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:147:			requestArgs.method.should.equal("tools/call")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:150:		it("should set the tool name in params.name", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:162:			await hub.callTool("test-server", "slow_tool", { query: "test" }, "ulid-008")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:179:				await hub.callTool("nonexistent-server", "some_tool", undefined, "ulid-009")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:192:				await hub.callTool("test-server", "some_tool", undefined, "ulid-010")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:207:				await hub.callTool("test-server", "failing_tool", { key: "value" }, "ulid-011")
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:239:		it("should report undefined for argument keys when toolArguments is undefined", async () => {
+apps/vscode/src/services/mcp/__tests__/McpHub.callTool.test.ts:252:		it("should report argument keys when toolArguments is provided", async () => {
+apps/vscode/src/core/api/transform/o1-format.ts:12:You must respond to the user's request by using at least one tool call. When formulating your response, follow these guidelines:
+apps/vscode/src/core/api/transform/o1-format.ts:14:1. Begin your response with normal text, explaining your thoughts, analysis, or plan of action.
+apps/vscode/src/core/api/transform/o1-format.ts:15:2. If you need to use any tools, place ALL tool calls at the END of your message, after your normal text explanation.
+apps/vscode/src/core/api/transform/o1-format.ts:16:3. You can use multiple tool calls if needed, but they should all be grouped together at the end of your message.
+apps/vscode/src/core/api/transform/o1-format.ts:17:4. After placing the tool calls, do not add any additional normal text. The tool calls should be the final content in your message.
+apps/vscode/src/core/api/transform/o1-format.ts:22:[Your normal text response explaining your thoughts and actions]
+apps/vscode/src/core/api/transform/o1-format.ts:31:- Choose the most appropriate tool(s) based on the task and the tool descriptions provided.
+apps/vscode/src/core/api/transform/o1-format.ts:32:- Formulate your tool calls using the XML format specified for each tool.
+apps/vscode/src/core/api/transform/o1-format.ts:33:- Provide clear explanations in your normal text about what actions you're taking and why you're using particular tools.
+apps/vscode/src/core/api/transform/o1-format.ts:34:- Act as if the tool calls will be executed immediately after your message, and your next response will have access to their results.
+apps/vscode/src/core/api/transform/o1-format.ts:55:Description: Lists definition names (classes, functions, methods, etc.) used in source code files at the top level of the specified directory. This tool provides insights into the codebase structure and important constructs, encapsulating high-level concepts and relationships that are crucial for understanding the overall architecture.
+apps/vscode/src/core/api/transform/o1-format.ts:63:Description: Perform a regex search across files in a specified directory, providing context-rich results. This tool searches for patterns or specific content across multiple files, displaying each match with encapsulating context.
+apps/vscode/src/core/api/transform/o1-format.ts:78:Description: Write content to a file at the specified path. If the file exists, it will be overwritten with the provided content. If the file doesn't exist, it will be created. Always provide the full intended content of the file, without any truncation. This tool will automatically create any directories needed to write the file.
+apps/vscode/src/core/api/transform/o1-format.ts:84:Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
+apps/vscode/src/core/api/transform/o1-format.ts:93:Description: Once you've completed the task, use this tool to present the result to the user. They may respond with feedback if they are not satisfied with the result, which you can use to make improvements and try again.
+apps/vscode/src/core/api/transform/o1-format.ts:97:Here are some examples of how to structure your responses with tool calls:
+apps/vscode/src/core/api/transform/o1-format.ts:99:Example 1: Using a single tool
+apps/vscode/src/core/api/transform/o1-format.ts:107:Example 2: Using multiple tools
+apps/vscode/src/core/api/transform/o1-format.ts:173:	const toolsReplaced = openAiMessages.reduce((acc, message) => {
+apps/vscode/src/core/api/transform/o1-format.ts:174:		if (message.role === "tool") {
+apps/vscode/src/core/api/transform/o1-format.ts:175:			// Convert tool messages to user messages
+apps/vscode/src/core/api/transform/o1-format.ts:180:		} else if (message.role === "assistant" && message.tool_calls) {
+apps/vscode/src/core/api/transform/o1-format.ts:181:			// Convert tool calls to content and remove tool_calls
+apps/vscode/src/core/api/transform/o1-format.ts:183:			message.tool_calls.forEach((toolCall) => {
+apps/vscode/src/core/api/transform/o1-format.ts:184:				if (toolCall.type === "function") {
+apps/vscode/src/core/api/transform/o1-format.ts:185:					content += `\nTool Call: ${toolCall.function.name}\nArguments: ${toolCall.function.arguments}`
+apps/vscode/src/core/api/transform/o1-format.ts:191:				tool_calls: undefined,
+apps/vscode/src/core/api/transform/o1-format.ts:201:	// const lastAssistantIndex = findLastIndex(toolsReplaced, (message) => message.role === "assistant")
+apps/vscode/src/core/api/transform/o1-format.ts:209:		...toolsReplaced,
+apps/vscode/src/core/api/transform/o1-format.ts:233:	tool: string
+apps/vscode/src/core/api/transform/o1-format.ts:234:	tool_input: Record<string, string>
+apps/vscode/src/core/api/transform/o1-format.ts:237:const toolNames = [
+apps/vscode/src/core/api/transform/o1-format.ts:250:	toolCalls: ToolCall[]
+apps/vscode/src/core/api/transform/o1-format.ts:252:	// Create a regex pattern to match any tool call opening tag
+apps/vscode/src/core/api/transform/o1-format.ts:253:	const toolCallPattern = new RegExp(`<(${toolNames.join("|")})`, "i")
+apps/vscode/src/core/api/transform/o1-format.ts:254:	const match = response.match(toolCallPattern)
+apps/vscode/src/core/api/transform/o1-format.ts:257:		// No tool calls found
+apps/vscode/src/core/api/transform/o1-format.ts:258:		return { normalText: response.trim(), toolCalls: [] }
+apps/vscode/src/core/api/transform/o1-format.ts:261:	const toolCallStart = match.index!
+apps/vscode/src/core/api/transform/o1-format.ts:262:	const normalText = response.slice(0, toolCallStart).trim()
+apps/vscode/src/core/api/transform/o1-format.ts:263:	const toolCallsText = response.slice(toolCallStart)
+apps/vscode/src/core/api/transform/o1-format.ts:265:	const toolCalls = parseToolCalls(toolCallsText)
+apps/vscode/src/core/api/transform/o1-format.ts:267:	return { normalText, toolCalls }
+apps/vscode/src/core/api/transform/o1-format.ts:270:function parseToolCalls(toolCallsText: string): ToolCall[] {
+apps/vscode/src/core/api/transform/o1-format.ts:271:	const toolCalls: ToolCall[] = []
+apps/vscode/src/core/api/transform/o1-format.ts:273:	let remainingText = toolCallsText
+apps/vscode/src/core/api/transform/o1-format.ts:276:		const toolMatch = toolNames.find((tool) => new RegExp(`<${tool}`, "i").test(remainingText))
+apps/vscode/src/core/api/transform/o1-format.ts:278:		if (!toolMatch) {
+apps/vscode/src/core/api/transform/o1-format.ts:279:			break // No more tool calls found
+apps/vscode/src/core/api/transform/o1-format.ts:282:		const startTag = `<${toolMatch}`
+apps/vscode/src/core/api/transform/o1-format.ts:283:		const endTag = `</${toolMatch}>`
+apps/vscode/src/core/api/transform/o1-format.ts:291:		const toolCallContent = remainingText.slice(startIndex, endIndex + endTag.length)
+apps/vscode/src/core/api/transform/o1-format.ts:294:		const toolCall = parseToolCall(toolMatch, toolCallContent)
+apps/vscode/src/core/api/transform/o1-format.ts:295:		if (toolCall) {
+apps/vscode/src/core/api/transform/o1-format.ts:296:			toolCalls.push(toolCall)
+apps/vscode/src/core/api/transform/o1-format.ts:300:	return toolCalls
+apps/vscode/src/core/api/transform/o1-format.ts:303:function parseToolCall(toolName: string, content: string): ToolCall | null {
+apps/vscode/src/core/api/transform/o1-format.ts:304:	const tool_input: Record<string, string> = {}
+apps/vscode/src/core/api/transform/o1-format.ts:306:	// Remove the outer tool tags
+apps/vscode/src/core/api/transform/o1-format.ts:307:	const innerContent = content.replace(new RegExp(`^<${toolName}>|</${toolName}>$`, "g"), "").trim()
+apps/vscode/src/core/api/transform/o1-format.ts:316:		tool_input[paramName] = paramValue.replace(/^\s+|\s+$/g, "")

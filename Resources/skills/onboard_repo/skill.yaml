@@ -1,0 +1,29 @@
+id: onboard_repo
+version: 0.1.0
+title: First-time deep tour of an unfamiliar repo
+description: >
+  Analyze a repository from scratch to understand its architecture,
+  key modules, entry points, test strategy, and conventions. Produces
+  a structured summary suitable for project memory.
+authors:
+  - zyquo
+inputs:
+  - { name: repo_path, type: path, required: false, default: ".", description: "Path to the repository root" }
+  - { name: depth, type: string, required: false, default: "full", description: "Analysis depth: quick or full" }
+tools_allowed:
+  - file.read
+  - file.list
+  - file.tree
+  - file.search
+  - file.glob
+  - git.status
+  - git.log
+  - workspace.detect
+  - workspace.summary
+  - workspace.docs.find
+  - memory.write
+prompt: ./prompt.md
+budget:
+  max_steps: 30
+  max_cost_usd: 2.00
+risk_ceiling: SAFE

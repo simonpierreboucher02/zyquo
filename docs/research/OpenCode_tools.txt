@@ -1,0 +1,47 @@
+packages/opencode/src/tool/read.ts:39:export const ReadTool = Tool.define(
+packages/opencode/src/tool/read.ts:337:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/tool.ts:61:  execute(args: Schema.Schema.Type<Parameters>, ctx: Context): Effect.Effect<ExecuteResult<M>>
+packages/opencode/src/tool/tool.ts:111:      toolInfo.execute = (args, ctx) => {
+packages/opencode/src/tool/tool.ts:128:          const result = yield* execute(decoded as Schema.Schema.Type<Parameters>, ctx)
+packages/opencode/src/tool/webfetch.ts:24:export const WebFetchTool = Tool.define(
+packages/opencode/src/tool/webfetch.ts:33:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/glob.ts:19:export const GlobTool = Tool.define(
+packages/opencode/src/tool/glob.ts:29:      execute: (params: { pattern: string; path?: string }, ctx: Tool.Context) =>
+packages/opencode/src/tool/todo.ts:25:export const TodoWriteTool = Tool.define<typeof Parameters, Metadata, Todo.Service>(
+packages/opencode/src/tool/todo.ts:33:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context<Metadata>) =>
+packages/opencode/src/tool/websearch.ts:99:export const WebSearchTool = Tool.define(
+packages/opencode/src/tool/websearch.ts:110:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/repo_overview.ts:101:export const RepoOverviewTool = Tool.define<typeof Parameters, Metadata, AppFileSystem.Service | Git.Service>(
+packages/opencode/src/tool/repo_overview.ts:179:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context<Metadata>) =>
+packages/opencode/src/tool/shell.ts:334:export const ShellTool = Tool.define(
+packages/opencode/src/tool/shell.ts:610:          execute: (params: Parameters, ctx: Tool.Context) =>
+packages/opencode/src/tool/edit.ts:58:export const EditTool = Tool.define(
+packages/opencode/src/tool/edit.ts:69:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/lsp.ts:37:export const LspTool = Tool.define(
+packages/opencode/src/tool/lsp.ts:45:      execute: (args: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/grep.ts:24:export const GrepTool = Tool.define(
+packages/opencode/src/tool/grep.ts:34:      execute: (params: { pattern: string; path?: string; include?: string }, ctx: Tool.Context) =>
+packages/opencode/src/tool/write.ts:27:export const WriteTool = Tool.define(
+packages/opencode/src/tool/write.ts:38:      execute: (params: { content: string; filePath: string }, ctx: Tool.Context) =>
+packages/opencode/src/tool/registry.ts:80:export class Service extends Context.Service<Service, Interface>()("@opencode/ToolRegistry") {}
+packages/opencode/src/tool/registry.ts:138:      Effect.fn("ToolRegistry.state")(function* (ctx) {
+packages/opencode/src/tool/registry.ts:273:    const all: Interface["all"] = Effect.fn("ToolRegistry.all")(function* () {
+packages/opencode/src/tool/registry.ts:278:    const ids: Interface["ids"] = Effect.fn("ToolRegistry.ids")(function* () {
+packages/opencode/src/tool/registry.ts:282:    const describeSkill = Effect.fn("ToolRegistry.describeSkill")(function* (agent: Agent.Info) {
+packages/opencode/src/tool/registry.ts:301:    const describeTask = Effect.fn("ToolRegistry.describeTask")(function* (agent: Agent.Info) {
+packages/opencode/src/tool/registry.ts:316:    const tools: Interface["tools"] = Effect.fn("ToolRegistry.tools")(function* (input) {
+packages/opencode/src/tool/registry.ts:363:    const named: Interface["named"] = Effect.fn("ToolRegistry.named")(function* () {
+packages/opencode/src/tool/registry.ts:475:export * as ToolRegistry from "./registry"
+packages/opencode/src/tool/question.ts:14:export const QuestionTool = Tool.define<typeof Parameters, Metadata, Question.Service>(
+packages/opencode/src/tool/question.ts:22:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context<Metadata>) =>
+packages/opencode/src/tool/invalid.ts:9:export const InvalidTool = Tool.define(
+packages/opencode/src/tool/apply_patch.ts:22:export const ApplyPatchTool = Tool.define(
+packages/opencode/src/tool/apply_patch.ts:309:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/repo_clone.ts:29:export const RepoCloneTool = Tool.define<typeof Parameters, Metadata, RepositoryCache.Service>(
+packages/opencode/src/tool/repo_clone.ts:37:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context<Metadata>) =>
+packages/opencode/src/tool/skill.ts:14:export const SkillTool = Tool.define(
+packages/opencode/src/tool/skill.ts:23:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+packages/opencode/src/tool/plan.ts:14:export const PlanExitTool = Tool.define(
+packages/opencode/src/tool/plan.ts:24:      execute: (_params: {}, ctx: Tool.Context) =>
+packages/opencode/src/tool/task.ts:96:export const TaskTool = Tool.define(
+packages/opencode/src/tool/task.ts:297:      execute: (params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
