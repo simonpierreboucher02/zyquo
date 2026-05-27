@@ -15,7 +15,6 @@ struct AskCommand: AsyncParsableCommand {
     func run() async throws {
         Bootstrap.setupSignalHandlers()
         let container = AppContainer(flags: globals.flags)
-        container.logger.info("Ask mode", metadata: ["question": "\(question)"])
 
         let noColor = container.config.ui.noColor
         let providerId = container.config.providers.resolvedProvider
@@ -35,13 +34,9 @@ struct AskCommand: AsyncParsableCommand {
 
         let descriptor = ModelCatalog.find(id: modelId) ?? ModelCatalog.claudeSonnet4_6
 
-        if !container.config.ui.noColor {
-            print("\u{1B}[2mProvider: \(provider.displayName) | Model: \(descriptor.displayName)\u{1B}[0m")
-            print()
-        } else {
-            print("Provider: \(provider.displayName) | Model: \(descriptor.displayName)")
-            print()
-        }
+        let co = CommandOutput(noColor: noColor)
+        co.header(title: "Zyquo Ask", subtitle: question)
+        co.blank()
 
         let request = LLMRequest(
             model: modelId,
@@ -56,6 +51,7 @@ struct AskCommand: AsyncParsableCommand {
 
         let stream = provider.send(request: request, cancellation: nil)
 
+        co.streamStart()
         do {
             for try await event in stream {
                 switch event {
@@ -76,7 +72,7 @@ struct AskCommand: AsyncParsableCommand {
                 }
             }
         } catch {
-            print()
+            co.streamEnd()
             if let ze = error as? ZyquoError {
                 print("Error: \(ze.description)")
             } else {
@@ -84,17 +80,15 @@ struct AskCommand: AsyncParsableCommand {
             }
             throw ExitCode.failure
         }
-
-        print()
+        co.streamEnd()
 
         if let usage = lastUsage {
             cost.record(usage: usage, model: descriptor)
-            print()
-            if !noColor {
-                print("\u{1B}[2m\(cost.summary)\u{1B}[0m")
-            } else {
-                print(cost.summary)
-            }
+            co.footer(items: [
+                ("Model", descriptor.displayName),
+                ("Tokens", "\(usage.inputTokens) in \u{00B7} \(usage.outputTokens) out"),
+                ("Cost", cost.formattedCost),
+            ])
         }
     }
 }

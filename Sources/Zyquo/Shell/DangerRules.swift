@@ -81,6 +81,12 @@ public enum DangerRuleCatalog {
                    pattern: #"\bpip3?\s+install\b(?!.*--user)(?!.*-t\s)(?!.*--target)"#),
         DangerRule(tier: .critical, label: "eval of shell content",
                    pattern: #"\beval\s+"#),
+        DangerRule(tier: .critical, label: "osascript with shell script",
+                   pattern: #"\bosascript\b.*do shell script"#),
+        DangerRule(tier: .critical, label: "osascript with sudo/admin",
+                   pattern: #"\bosascript\b.*(?:sudo|administrator privileges)"#),
+        DangerRule(tier: .critical, label: "osascript shutdown/restart",
+                   pattern: #"\bosascript\b.*(?:shut down|restart|sleep)"#),
     ]
 
     // MARK: DANGEROUS
@@ -149,6 +155,8 @@ public enum DangerRuleCatalog {
                    pattern: #"\bmkdir\b"#),
         DangerRule(tier: .moderate, label: "cp command",
                    pattern: #"\bcp\b"#),
+        DangerRule(tier: .moderate, label: "osascript execution",
+                   pattern: #"\bosascript\b"#),
     ]
 
     // MARK: All Rules

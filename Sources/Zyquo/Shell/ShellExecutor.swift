@@ -210,6 +210,14 @@ public actor ShellExecutor {
             "cwd": "\(cwd.path)",
         ])
 
+        // Bridge process termination to Swift Concurrency without blocking
+        // the cooperative thread pool. The handler is set BEFORE process.run()
+        // so no termination event can be missed.
+        let processExitSignal = _ProcessExitSignal()
+        process.terminationHandler = { _ in
+            processExitSignal.signal()
+        }
+
         // Launch the process
         do {
             try process.run()
@@ -263,9 +271,10 @@ public actor ShellExecutor {
                 }
             }
 
-            // Waiter task -- uses DispatchSemaphore to avoid blocking actor
+            // Async-safe process exit waiter. Uses terminationHandler
+            // (set before launch) instead of the blocking waitUntilExit().
             group.addTask {
-                process.waitUntilExit()
+                await processExitSignal.wait()
             }
 
             // Wait for all tasks (readers complete when pipes close after exit)
@@ -344,5 +353,47 @@ private final class _TimedOutFlag: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         _value = true
+    }
+}
+
+/// Bridges `Process.terminationHandler` (callback-based) to Swift Concurrency
+/// without blocking the cooperative thread pool.
+///
+/// The handler calls `signal()` from the termination callback;
+/// `wait()` suspends the caller until that signal arrives.
+/// Safe against the race where `signal()` fires before `wait()` is called.
+private final class _ProcessExitSignal: @unchecked Sendable {
+    private let lock = NSLock()
+    private var signaled = false
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    /// Called from `Process.terminationHandler`.
+    func signal() {
+        lock.lock()
+        if let cont = continuation {
+            continuation = nil
+            lock.unlock()
+            cont.resume()
+        } else {
+            signaled = true
+            lock.unlock()
+        }
+    }
+
+    /// Suspends until `signal()` is called. Safe to call before or after
+    /// the process terminates.
+    func wait() async {
+        // All lock operations happen inside the synchronous closure
+        // passed to withCheckedContinuation, avoiding NSLock in async context.
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            if signaled {
+                lock.unlock()
+                cont.resume()
+            } else {
+                continuation = cont
+                lock.unlock()
+            }
+        }
     }
 }

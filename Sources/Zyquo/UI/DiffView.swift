@@ -1,5 +1,10 @@
 import Foundation
 
+public enum DiffDisplayMode: Sendable {
+    case unified
+    case sideBySide
+}
+
 public struct DiffHunk: Sendable {
     public let header: String
     public let lines: [DiffLine]
@@ -61,10 +66,12 @@ public struct DiffSummary: Sendable {
 public struct DiffView: Renderable, Sendable {
     public let files: [DiffFile]
     public let workspacePath: String?
+    public let displayMode: DiffDisplayMode
 
-    public init(files: [DiffFile], workspacePath: String? = nil) {
+    public init(files: [DiffFile], workspacePath: String? = nil, displayMode: DiffDisplayMode = .unified) {
         self.files = files
         self.workspacePath = workspacePath
+        self.displayMode = displayMode
     }
 
     public func sizeThatFits(_ available: Size) -> Size {
@@ -80,6 +87,17 @@ public struct DiffView: Renderable, Sendable {
     }
 
     public func render(in region: Region, theme: Theme) -> CellBuffer {
+        // Force unified mode if region is too narrow for side-by-side
+        let effectiveMode = region.width < 80 ? .unified : displayMode
+        switch effectiveMode {
+        case .unified:
+            return renderUnified(in: region, theme: theme)
+        case .sideBySide:
+            return renderSideBySide(in: region, theme: theme)
+        }
+    }
+
+    private func renderUnified(in region: Region, theme: Theme) -> CellBuffer {
         var buf = CellBuffer(width: region.width, height: region.height)
         guard region.width >= 10, region.height >= 3 else { return buf }
 
@@ -125,6 +143,184 @@ public struct DiffView: Renderable, Sendable {
         }
 
         return buf
+    }
+
+    private func renderSideBySide(in region: Region, theme: Theme) -> CellBuffer {
+        var buf = CellBuffer(width: region.width, height: region.height)
+        guard region.width >= 10, region.height >= 3 else { return buf }
+
+        let leftWidth = (region.width - 1) / 2
+        let rightWidth = region.width - leftWidth - 1
+        let gutterX = leftWidth
+
+        var row = 0
+        let summary = DiffSummary(files: files)
+        let sumText = summary.summaryText
+        buf.write(sumText, x: 0, y: row, fg: theme.colors.fg, bold: true)
+        row += 1
+
+        for file in files {
+            guard row < region.height else { break }
+
+            // File header border
+            let borderCell = Cell(character: "─", fg: theme.colors.border, bg: .default, bold: false, italic: false, underline: false)
+            for col in 0..<region.width {
+                buf[col, row] = borderCell
+            }
+
+            var headerParts = file.path
+            if let ws = workspacePath {
+                headerParts += "  \u{00B7}  \(ws)"
+            }
+            buf.write(String(headerParts.prefix(region.width - 4)), x: 2, y: row, fg: theme.colors.accent, bold: true)
+            row += 1
+
+            for hunk in file.hunks {
+                guard row < region.height else { break }
+                buf.write(String(hunk.header.prefix(region.width - 2)), x: 1, y: row, fg: theme.colors.fgMuted)
+                row += 1
+
+                // Build paired lines for side-by-side display
+                let pairedLines = buildSideBySidePairs(from: hunk.lines)
+
+                for pair in pairedLines {
+                    guard row < region.height else { break }
+
+                    // Render left side (removed / context)
+                    renderSideBySideHalf(
+                        pair.left, into: &buf, row: row,
+                        startX: 0, halfWidth: leftWidth, theme: theme, side: .left
+                    )
+
+                    // Render center gutter
+                    buf[gutterX, row] = Cell(
+                        character: "\u{2502}", fg: theme.colors.border,
+                        bg: .default, bold: false, italic: false, underline: false
+                    )
+
+                    // Render right side (added / context)
+                    renderSideBySideHalf(
+                        pair.right, into: &buf, row: row,
+                        startX: gutterX + 1, halfWidth: rightWidth, theme: theme, side: .right
+                    )
+
+                    row += 1
+                }
+            }
+
+            if row < region.height {
+                let fileSum = "\u{2500}\u{2500} \(file.hunks.count) hunk\(file.hunks.count == 1 ? "" : "s") \u{00B7} \u{2212}\(file.linesRemoved) / +\(file.linesAdded) lines"
+                buf.write(String(fileSum.prefix(region.width)), x: 0, y: row, fg: theme.colors.fgMuted)
+                row += 1
+            }
+        }
+
+        return buf
+    }
+
+    private struct SideBySidePair {
+        let left: SideBySideEntry?
+        let right: SideBySideEntry?
+    }
+
+    private struct SideBySideEntry {
+        let text: String
+        let lineNumber: Int?
+        let kind: DiffLine.Kind
+    }
+
+    private enum SideBySideSide {
+        case left
+        case right
+    }
+
+    private func buildSideBySidePairs(from lines: [DiffLine]) -> [SideBySidePair] {
+        var pairs: [SideBySidePair] = []
+        var removedQueue: [DiffLine] = []
+        var addedQueue: [DiffLine] = []
+
+        func flushQueues() {
+            let count = max(removedQueue.count, addedQueue.count)
+            for i in 0..<count {
+                let left = i < removedQueue.count
+                    ? SideBySideEntry(text: removedQueue[i].text, lineNumber: removedQueue[i].lineNumber, kind: .removed)
+                    : nil
+                let right = i < addedQueue.count
+                    ? SideBySideEntry(text: addedQueue[i].text, lineNumber: addedQueue[i].lineNumber, kind: .added)
+                    : nil
+                pairs.append(SideBySidePair(left: left, right: right))
+            }
+            removedQueue.removeAll()
+            addedQueue.removeAll()
+        }
+
+        for line in lines {
+            switch line.kind {
+            case .context:
+                flushQueues()
+                let entry = SideBySideEntry(text: line.text, lineNumber: line.lineNumber, kind: .context)
+                pairs.append(SideBySidePair(left: entry, right: entry))
+            case .removed:
+                removedQueue.append(line)
+            case .added:
+                addedQueue.append(line)
+            }
+        }
+        flushQueues()
+
+        return pairs
+    }
+
+    private func renderSideBySideHalf(
+        _ entry: SideBySideEntry?, into buf: inout CellBuffer,
+        row: Int, startX: Int, halfWidth: Int,
+        theme: Theme, side: SideBySideSide
+    ) {
+        guard let entry else {
+            // Empty half -- leave blank
+            return
+        }
+
+        let fg: ANSIColor
+        let bg: ANSIColor
+        let lineNumWidth = 4
+
+        switch entry.kind {
+        case .context:
+            fg = theme.diff.context
+            bg = .default
+        case .added:
+            fg = theme.diff.addedFg
+            bg = theme.diff.added
+        case .removed:
+            fg = theme.diff.removedFg
+            bg = theme.diff.removed
+        }
+
+        // Fill background for added/removed lines
+        if entry.kind != .context {
+            for col in startX..<min(startX + halfWidth, buf.width) {
+                buf[col, row] = Cell(character: " ", fg: .default, bg: bg, bold: false, italic: false, underline: false)
+            }
+        }
+
+        // Line number
+        if let num = entry.lineNumber {
+            let numStr = String(num).padding(toLength: lineNumWidth - 1, withPad: " ", startingAt: 0)
+            buf.write(numStr, x: startX, y: row, fg: theme.colors.fgMuted, bg: bg)
+        }
+
+        // Text content
+        let textStart = startX + lineNumWidth
+        let maxTextW = halfWidth - lineNumWidth
+        if maxTextW > 0 {
+            let displayText = String(entry.text.prefix(maxTextW))
+            for (i, ch) in displayText.enumerated() {
+                let col = textStart + i
+                guard col < startX + halfWidth, col < buf.width else { break }
+                buf[col, row] = Cell(character: ch, fg: fg, bg: bg, bold: false, italic: false, underline: false)
+            }
+        }
     }
 
     private func renderDiffLine(_ line: DiffLine, into buf: inout CellBuffer, row: Int, width: Int, theme: Theme) {

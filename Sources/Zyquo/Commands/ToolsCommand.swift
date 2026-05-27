@@ -90,5 +90,8 @@ func registerBuiltinTools(in registry: ToolRegistry) {
         HttpRequestTool(),
         DatabaseTool(),
         DocSearchTool(),
+        AppleScriptTool(),
+        AppleScriptQueryTool(),
+        AppleScriptInfoTool(),
     ])
 }

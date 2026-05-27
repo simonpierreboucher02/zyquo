@@ -1,0 +1,30 @@
+name = "solarized-dark"
+truecolor = true
+
+[colors]
+bg            = "#002B36"
+bg_panel      = "#073642"
+fg            = "#839496"
+fg_muted      = "#586E75"
+border        = "#586E75"
+accent        = "#268BD2"
+accent_strong = "#6C71C4"
+ok            = "#859900"
+warn          = "#B58900"
+risk          = "#DC322F"
+critical      = "#CB4B16"
+
+[syntax]
+keyword  = "#859900"
+string   = "#2AA198"
+number   = "#D33682"
+comment  = "#586E75"
+type     = "#B58900"
+function = "#268BD2"
+
+[diff]
+added      = "#073642"
+added_fg   = "#859900"
+removed    = "#073642"
+removed_fg = "#DC322F"
+context    = "#586E75"

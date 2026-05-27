@@ -4,28 +4,31 @@ public enum ModelCatalog {
     public static let claudeOpus4_7 = ModelDescriptor(
         id: "claude-opus-4-7",
         displayName: "Claude Opus 4.7",
-        contextWindow: 200_000,
-        maxOutputTokens: 32_000,
-        inputPricePerMToken: 15.0,
-        outputPricePerMToken: 75.0
+        contextWindow: 1_000_000,
+        maxOutputTokens: 128_000,
+        inputPricePerMToken: 5.0,
+        outputPricePerMToken: 25.0,
+        supportsThinking: .adaptive
     )
 
     public static let claudeSonnet4_6 = ModelDescriptor(
         id: "claude-sonnet-4-6",
         displayName: "Claude Sonnet 4.6",
-        contextWindow: 200_000,
-        maxOutputTokens: 16_000,
+        contextWindow: 1_000_000,
+        maxOutputTokens: 64_000,
         inputPricePerMToken: 3.0,
-        outputPricePerMToken: 15.0
+        outputPricePerMToken: 15.0,
+        supportsThinking: .extended
     )
 
     public static let claudeHaiku4_5 = ModelDescriptor(
         id: "claude-haiku-4-5-20251001",
         displayName: "Claude Haiku 4.5",
         contextWindow: 200_000,
-        maxOutputTokens: 8_192,
-        inputPricePerMToken: 0.80,
-        outputPricePerMToken: 4.0
+        maxOutputTokens: 64_000,
+        inputPricePerMToken: 1.0,
+        outputPricePerMToken: 5.0,
+        supportsThinking: .extended
     )
 
     public static let allModels: [ModelDescriptor] = [

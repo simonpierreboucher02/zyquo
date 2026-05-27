@@ -7,7 +7,8 @@ public final class AppContainer: Sendable {
 
     public init(flags: CommandFlags = .init()) {
         let workspaceRoot = flags.workspace.map { URL(fileURLWithPath: $0) }
-            ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            ?? Self.currentDirectory
+        self.workspaceRoot = workspaceRoot
 
         let workspaceConfigPath = workspaceRoot
             .appendingPathComponent(".zyquo")
@@ -25,11 +26,9 @@ public final class AppContainer: Sendable {
         self.logger = ZyquoLogger.shared
     }
 
-    public var workspaceRoot: URL {
-        config.providers.resolvedProvider == "" ? currentDirectory : currentDirectory
-    }
+    public let workspaceRoot: URL
 
-    private var currentDirectory: URL {
+    private static var currentDirectory: URL {
         URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     }
 }

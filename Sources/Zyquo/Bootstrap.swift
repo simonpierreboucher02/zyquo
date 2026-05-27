@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 enum Bootstrap {
     static func setupSignalHandlers() {
@@ -43,12 +44,13 @@ extension Notification.Name {
 }
 
 enum Terminal {
-    nonisolated(unsafe) private static var originalTermios: termios?
+    private static let originalTermios = OSAllocatedUnfairLock<termios?>(initialState: nil)
 
     static func enableRawMode() {
         var raw = termios()
         tcgetattr(STDIN_FILENO, &raw)
-        originalTermios = raw
+        let saved = raw
+        originalTermios.withLock { $0 = saved }
         cfmakeraw(&raw)
         raw.c_cc.16 = 1  // VMIN
         raw.c_cc.17 = 0  // VTIME
@@ -56,9 +58,9 @@ enum Terminal {
     }
 
     static func restore() {
-        if var original = originalTermios {
+        if var original = originalTermios.withLock({ $0 }) {
             tcsetattr(STDIN_FILENO, TCSAFLUSH, &original)
-            originalTermios = nil
+            originalTermios.withLock { $0 = nil }
         }
         print("\u{1B}[?25h", terminator: "") // show cursor
         fflush(stdout)

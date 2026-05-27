@@ -1,5 +1,64 @@
 import Foundation
 
+public enum BoxBorderStyle: Sendable {
+    case rounded    // ╭─╮│╰╯
+    case square     // ┌─┐│└┘
+    case double     // ╔═╗║╚╝
+    case heavy      // ┏━┓┃┗┛
+
+    public var topLeft: Character {
+        switch self {
+        case .rounded: return "╭"
+        case .square:  return "┌"
+        case .double:  return "╔"
+        case .heavy:   return "┏"
+        }
+    }
+
+    public var topRight: Character {
+        switch self {
+        case .rounded: return "╮"
+        case .square:  return "┐"
+        case .double:  return "╗"
+        case .heavy:   return "┓"
+        }
+    }
+
+    public var bottomLeft: Character {
+        switch self {
+        case .rounded: return "╰"
+        case .square:  return "└"
+        case .double:  return "╚"
+        case .heavy:   return "┗"
+        }
+    }
+
+    public var bottomRight: Character {
+        switch self {
+        case .rounded: return "╯"
+        case .square:  return "┘"
+        case .double:  return "╝"
+        case .heavy:   return "┛"
+        }
+    }
+
+    public var horizontal: Character {
+        switch self {
+        case .rounded, .square: return "─"
+        case .double:           return "═"
+        case .heavy:            return "━"
+        }
+    }
+
+    public var vertical: Character {
+        switch self {
+        case .rounded, .square: return "│"
+        case .double:           return "║"
+        case .heavy:            return "┃"
+        }
+    }
+}
+
 public struct Cell: Sendable, Equatable {
     public var character: Character
     public var fg: ANSIColor
@@ -77,10 +136,15 @@ public struct CellBuffer: Sendable {
         }
     }
 
-    public mutating func drawBox(x: Int, y: Int, width w: Int, height h: Int, fg: ANSIColor = .default, rounded: Bool = true) {
+    @available(*, deprecated, message: "Use drawBox(x:y:width:height:fg:style:) instead")
+    public mutating func drawBox(x: Int, y: Int, width w: Int, height h: Int, fg: ANSIColor = .default, rounded: Bool) {
+        drawBox(x: x, y: y, width: w, height: h, fg: fg, style: rounded ? .rounded : .square)
+    }
+
+    public mutating func drawBox(x: Int, y: Int, width w: Int, height h: Int, fg: ANSIColor = .default, style: BoxBorderStyle = .rounded) {
         guard w >= 2, h >= 2 else {
             if h == 1, w >= 2 {
-                let hz: Character = "─"
+                let hz = style.horizontal
                 let cell = { (c: Character) in Cell(character: c, fg: fg, bg: .default, bold: false, italic: false, underline: false) }
                 for col in x..<(x + w) {
                     self[col, y] = cell(hz)
@@ -89,27 +153,20 @@ public struct CellBuffer: Sendable {
             return
         }
 
-        let tl: Character = rounded ? "╭" : "┌"
-        let tr: Character = rounded ? "╮" : "┐"
-        let bl: Character = rounded ? "╰" : "└"
-        let br: Character = rounded ? "╯" : "┘"
-        let hz: Character = "─"
-        let vt: Character = "│"
-
         let cell = { (c: Character) in Cell(character: c, fg: fg, bg: .default, bold: false, italic: false, underline: false) }
 
-        self[x, y] = cell(tl)
-        self[x + w - 1, y] = cell(tr)
-        self[x, y + h - 1] = cell(bl)
-        self[x + w - 1, y + h - 1] = cell(br)
+        self[x, y] = cell(style.topLeft)
+        self[x + w - 1, y] = cell(style.topRight)
+        self[x, y + h - 1] = cell(style.bottomLeft)
+        self[x + w - 1, y + h - 1] = cell(style.bottomRight)
 
         for col in (x + 1)..<(x + w - 1) {
-            self[col, y] = cell(hz)
-            self[col, y + h - 1] = cell(hz)
+            self[col, y] = cell(style.horizontal)
+            self[col, y + h - 1] = cell(style.horizontal)
         }
         for row in (y + 1)..<(y + h - 1) {
-            self[x, row] = cell(vt)
-            self[x + w - 1, row] = cell(vt)
+            self[x, row] = cell(style.vertical)
+            self[x + w - 1, row] = cell(style.vertical)
         }
     }
 }

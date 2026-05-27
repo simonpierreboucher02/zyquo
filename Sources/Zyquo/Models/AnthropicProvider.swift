@@ -77,13 +77,18 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
         urlRequest.setValue("text/event-stream", forHTTPHeaderField: "accept")
         urlRequest.timeoutInterval = requestTimeout
 
+        let betaFeatures = buildBetaFeatures(request)
+        if !betaFeatures.isEmpty {
+            urlRequest.setValue(betaFeatures.joined(separator: ","), forHTTPHeaderField: "anthropic-beta")
+        }
+
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = requestTimeout
         config.timeoutIntervalForResource = requestTimeout * 2
         let session = URLSession(configuration: config)
         defer { session.invalidateAndCancel() }
 
-        logger.debug("Anthropic request: model=\(request.model) maxTokens=\(request.maxTokens)")
+        logger.debug("Anthropic request: model=\(request.model) maxTokens=\(request.maxTokens) thinking=\(String(describing: request.thinking))")
 
         let (bytes, response) = try await session.bytes(for: urlRequest)
 
@@ -91,7 +96,10 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
             throw ZyquoError.provider(.networkError(URLError(.badServerResponse)))
         }
 
-        try handleHTTPStatus(httpResponse.statusCode)
+        if httpResponse.statusCode != 200 {
+            let errorBody = try await collectErrorBody(bytes: bytes)
+            throw buildHTTPError(status: httpResponse.statusCode, body: errorBody)
+        }
 
         let decoder = SSEDecoder()
         var hasEmittedMessageStart = false
@@ -101,7 +109,8 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
 
             let events = decoder.decode(Data([byte]))
             for sseEvent in events {
-                if let llmEvent = AnthropicEventParser.parse(event: sseEvent) {
+                let llmEvents = AnthropicEventParser.parseAll(event: sseEvent)
+                for llmEvent in llmEvents {
                     if case .messageStart = llmEvent { hasEmittedMessageStart = true }
                     continuation.yield(llmEvent)
                 }
@@ -115,6 +124,18 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
         continuation.finish()
     }
 
+    // MARK: - Beta Features
+
+    private func buildBetaFeatures(_ request: LLMRequest) -> [String] {
+        var features: [String] = []
+        if request.enableCaching {
+            features.append("prompt-caching-2024-07-31")
+        }
+        return features
+    }
+
+    // MARK: - Request Body
+
     private func buildRequestBody(_ request: LLMRequest) -> [String: Any] {
         var body: [String: Any] = [
             "model": request.model,
@@ -123,11 +144,31 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
         ]
 
         if let system = request.systemPrompt {
-            body["system"] = system
+            if request.enableCaching {
+                body["system"] = [
+                    [
+                        "type": "text",
+                        "text": system,
+                        "cache_control": ["type": "ephemeral"],
+                    ] as [String: Any]
+                ]
+            } else {
+                body["system"] = system
+            }
         }
 
-        if let temp = request.temperature {
-            body["temperature"] = temp
+        switch request.thinking {
+        case .disabled:
+            if let temp = request.temperature {
+                body["temperature"] = temp
+            }
+        case .adaptive:
+            body["thinking"] = ["type": "adaptive"] as [String: Any]
+        case .enabled(let budget):
+            body["thinking"] = [
+                "type": "enabled",
+                "budget_tokens": budget,
+            ] as [String: Any]
         }
 
         body["messages"] = request.messages.map { encodeMessage($0) }
@@ -159,6 +200,8 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
         switch block {
         case .text(let text):
             return ["type": "text", "text": text]
+        case .thinking(let text):
+            return ["type": "thinking", "thinking": text]
         case .toolUse(let id, let name, let input):
             var encoded: [String: Any] = ["type": "tool_use", "id": id, "name": name]
             encoded["input"] = jsonValueToAny(input)
@@ -206,40 +249,76 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
         }
     }
 
-    private func handleHTTPStatus(_ status: Int) throws {
+    // MARK: - Error Handling
+
+    private func collectErrorBody(bytes: URLSession.AsyncBytes) async throws -> String {
+        var collected = Data()
+        let limit = 4096
+        for try await byte in bytes {
+            collected.append(byte)
+            if collected.count >= limit { break }
+        }
+        return String(data: collected, encoding: .utf8) ?? ""
+    }
+
+    private func buildHTTPError(status: Int, body: String) -> ZyquoError {
+        let parsed = parseErrorBody(body)
+
         switch status {
-        case 200: return
         case 401:
-            throw ZyquoError.provider(ProviderError(
+            return .provider(ProviderError(
                 code: "provider.auth_invalid",
-                description: "Invalid Anthropic API key",
+                description: parsed ?? "Invalid Anthropic API key",
                 remediation: "Run `zyquo provider login anthropic` to update your API key"
             ))
+        case 400:
+            return .provider(ProviderError(
+                code: "provider.bad_request",
+                description: parsed ?? "Bad request to Anthropic API",
+                remediation: "Check request parameters — model, max_tokens, and message format"
+            ))
+        case 403:
+            return .provider(ProviderError(
+                code: "provider.forbidden",
+                description: parsed ?? "Access denied by Anthropic",
+                remediation: "Check your API key permissions and organization settings"
+            ))
         case 429:
-            throw ZyquoError.provider(ProviderError(
+            return .provider(ProviderError(
                 code: "provider.rate_limited",
-                description: "Rate limited by Anthropic",
+                description: parsed ?? "Rate limited by Anthropic",
                 remediation: "Wait and retry, or switch provider with `--provider openrouter`"
             ))
         case 529:
-            throw ZyquoError.provider(ProviderError(
+            return .provider(ProviderError(
                 code: "provider.server_error",
-                description: "Anthropic API overloaded (529)",
+                description: parsed ?? "Anthropic API overloaded (529)",
                 remediation: "Wait and retry"
             ))
         case 500...599:
-            throw ZyquoError.provider(ProviderError(
+            return .provider(ProviderError(
                 code: "provider.server_error",
-                description: "Anthropic server error (\(status))",
+                description: parsed ?? "Anthropic server error (\(status))",
                 remediation: "Wait and retry"
             ))
         default:
-            throw ZyquoError.provider(ProviderError(
+            return .provider(ProviderError(
                 code: "provider.http_\(status)",
-                description: "Unexpected HTTP status \(status) from Anthropic",
+                description: parsed ?? "Unexpected HTTP status \(status) from Anthropic",
                 remediation: "Check the Anthropic API documentation"
             ))
         }
+    }
+
+    private func parseErrorBody(_ body: String) -> String? {
+        guard let data = body.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let error = json["error"] as? [String: Any],
+              let message = error["message"] as? String else {
+            return nil
+        }
+        let type = error["type"] as? String ?? "api_error"
+        return "\(type): \(message)"
     }
 
     private func retryDelay(attempt: Int) -> TimeInterval {

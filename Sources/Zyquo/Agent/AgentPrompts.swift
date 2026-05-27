@@ -51,6 +51,10 @@ public enum AgentPrompts {
     - Prefer shell.run for commands, file.read for reading, file.list for listing.
     - Keep commands simple and focused.
     - Never run destructive commands without explicit user request.
+    - For macOS automation (controlling apps, system settings, notifications), \
+    use the applescript.* tools. Use applescript.query for read-only operations \
+    and applescript.run for actions that modify state. Call applescript.info first \
+    to check available commands for an unfamiliar app.
     """
 
     // MARK: - Verifier System Prompt

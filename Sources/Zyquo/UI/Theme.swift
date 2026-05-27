@@ -201,7 +201,40 @@ extension Theme {
         )
     )
 
-    public static let builtInThemes: [Theme] = [.zyquoDark, .minimal, .highContrast]
+    public static let solarizedDark = Theme(
+        name: "solarized-dark",
+        truecolor: true,
+        colors: ThemeColors(
+            bg: .fromHex("#002B36"),
+            bgPanel: .fromHex("#073642"),
+            fg: .fromHex("#839496"),
+            fgMuted: .fromHex("#586E75"),
+            border: .fromHex("#586E75"),
+            accent: .fromHex("#268BD2"),
+            accentStrong: .fromHex("#6C71C4"),
+            ok: .fromHex("#859900"),
+            warn: .fromHex("#B58900"),
+            risk: .fromHex("#DC322F"),
+            critical: .fromHex("#CB4B16")
+        ),
+        syntax: SyntaxColors(
+            keyword: .fromHex("#859900"),
+            string: .fromHex("#2AA198"),
+            number: .fromHex("#D33682"),
+            comment: .fromHex("#586E75"),
+            type: .fromHex("#B58900"),
+            function: .fromHex("#268BD2")
+        ),
+        diff: DiffColors(
+            added: .fromHex("#073642"),
+            addedFg: .fromHex("#859900"),
+            removed: .fromHex("#073642"),
+            removedFg: .fromHex("#DC322F"),
+            context: .fromHex("#586E75")
+        )
+    )
+
+    public static let builtInThemes: [Theme] = [.zyquoDark, .minimal, .highContrast, .solarizedDark]
 
     public static func builtIn(named name: String) -> Theme? {
         builtInThemes.first { $0.name == name }

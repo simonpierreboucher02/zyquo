@@ -30,7 +30,7 @@ public struct Config: Sendable {
             .appendingPathComponent("config.toml")
     }()
 
-    private static func loadWorkspaceConfig(at path: URL?) -> [String: Any] {
+    static func loadWorkspaceConfig(at path: URL?) -> [String: Any] {
         guard let path, let data = try? Data(contentsOf: path),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return [:]
@@ -38,7 +38,7 @@ public struct Config: Sendable {
         return json
     }
 
-    private static func loadUserConfig(at path: URL) -> [String: Any] {
+    static func loadUserConfig(at path: URL) -> [String: Any] {
         guard let content = try? String(contentsOf: path, encoding: .utf8) else { return [:] }
         guard let table = try? TOMLTable(string: content) else { return [:] }
         return Self.tomlToDict(table)

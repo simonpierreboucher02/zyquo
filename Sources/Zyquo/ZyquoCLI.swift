@@ -7,6 +7,28 @@ struct ZyquoCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "zyquo",
         abstract: "Native macOS AI terminal agent runtime",
+        discussion: """
+        GLOBAL OPTIONS (available on all subcommands):
+          --workspace <path>    Override workspace root
+          --no-color            Disable ANSI color output
+          --json                Machine-readable JSON output
+          -y, --yes             Auto-approve SAFE-tier actions
+          --dry-run             Plan but never execute
+          --model <model>       Override session model (opus, sonnet, haiku)
+          --provider <id>       Override session provider (anthropic, openrouter)
+          --max-steps <n>       Hard cap on agent steps
+          --max-cost <usd>      Hard cap on session cost (USD)
+          -v, --verbose         Increase log verbosity
+          -q, --quiet           Suppress non-essential output
+          --log-file <path>     Mirror logs to file
+
+        QUICK START:
+          zyquo provider login anthropic    Store your API key
+          zyquo doctor                      Check setup
+          zyquo ask "explain this repo"     Single-shot question
+          zyquo run "fix failing tests"     Agentic run with tools
+          zyquo                             Interactive REPL
+        """,
         version: ZyquoInfo.versionString,
         subcommands: [
             InteractiveCommand.self,

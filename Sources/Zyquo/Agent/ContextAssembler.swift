@@ -261,13 +261,14 @@ public struct ContextAssembler: Sendable {
                 switch block {
                 case .text(let s):
                     total += Self.estimateStringTokens(s)
+                case .thinking(let s):
+                    total += Self.estimateStringTokens(s)
                 case .toolUse(_, let name, let input):
                     total += Self.estimateStringTokens(name)
                     total += Self.estimateStringTokens(String(describing: input))
                 case .toolResult(_, let content, _):
                     total += Self.estimateStringTokens(content)
                 case .image(_, let data):
-                    // Images are roughly 85 tokens per tile (Anthropic)
                     total += max(85, data.count / 750)
                 }
             }

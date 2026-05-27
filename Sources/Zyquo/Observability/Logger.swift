@@ -1,13 +1,14 @@
 import Foundation
 import Logging
+import os
 
 public enum ZyquoLogger {
-    nonisolated(unsafe) private static var _logger: Logging.Logger?
+    private static let _logger = OSAllocatedUnfairLock<Logging.Logger?>(initialState: nil)
 
     public static var shared: Logging.Logger {
-        if let existing = _logger { return existing }
+        if let existing = _logger.withLock({ $0 }) { return existing }
         let logger = Logging.Logger(label: "dev.zyquo.cli")
-        _logger = logger
+        _logger.withLock { $0 = logger }
         return logger
     }
 
@@ -28,8 +29,11 @@ public enum ZyquoLogger {
             return MultiplexLogHandler(handlers)
         }
 
-        _logger = Logging.Logger(label: "dev.zyquo.cli")
-        _logger?.logLevel = verbose ? .debug : .info
+        _logger.withLock {
+            var logger = Logging.Logger(label: "dev.zyquo.cli")
+            logger.logLevel = verbose ? .debug : .warning
+            $0 = logger
+        }
     }
 }
 

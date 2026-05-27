@@ -15,6 +15,14 @@ public protocol LLMProvider: Sendable {
 
 // MARK: - Request
 
+// MARK: - Thinking Configuration
+
+public enum ThinkingConfig: Sendable, Equatable {
+    case disabled
+    case adaptive
+    case enabled(budgetTokens: Int)
+}
+
 public struct LLMRequest: Sendable {
     public let model: String
     public let systemPrompt: String?
@@ -23,6 +31,8 @@ public struct LLMRequest: Sendable {
     public let toolChoice: ToolChoice
     public let maxTokens: Int
     public let temperature: Double?
+    public let thinking: ThinkingConfig
+    public let enableCaching: Bool
     public let metadata: [String: String]
 
     public init(
@@ -33,6 +43,8 @@ public struct LLMRequest: Sendable {
         toolChoice: ToolChoice = .auto,
         maxTokens: Int = 4096,
         temperature: Double? = nil,
+        thinking: ThinkingConfig = .disabled,
+        enableCaching: Bool = false,
         metadata: [String: String] = [:]
     ) {
         self.model = model
@@ -42,6 +54,8 @@ public struct LLMRequest: Sendable {
         self.toolChoice = toolChoice
         self.maxTokens = maxTokens
         self.temperature = temperature
+        self.thinking = thinking
+        self.enableCaching = enableCaching
         self.metadata = metadata
     }
 }
@@ -76,6 +90,7 @@ public struct LLMMessage: Sendable {
 
 public enum ContentBlock: Sendable {
     case text(String)
+    case thinking(text: String)
     case toolUse(id: String, name: String, input: [String: JSONValue])
     case toolResult(toolUseId: String, content: String, isError: Bool)
     case image(mediaType: String, data: Data)
@@ -123,6 +138,7 @@ public enum JSONValue: Sendable, Codable, Equatable {
 public enum LLMEvent: Sendable {
     case messageStart(MessageMeta)
     case textDelta(String)
+    case thinkingDelta(String)
     case toolUseStart(ToolUseMeta)
     case toolUseInputDelta(String)
     case toolUseEnd
@@ -202,6 +218,14 @@ public enum ToolChoice: Sendable {
 
 // MARK: - Model Descriptor
 
+// MARK: - Thinking Capability
+
+public enum ThinkingCapability: Sendable, Equatable {
+    case none
+    case adaptive
+    case extended
+}
+
 public struct ModelDescriptor: Sendable, Equatable {
     public let id: String
     public let displayName: String
@@ -211,6 +235,7 @@ public struct ModelDescriptor: Sendable, Equatable {
     public let outputPricePerMToken: Double
     public let supportsTools: Bool
     public let supportsStreaming: Bool
+    public let supportsThinking: ThinkingCapability
 
     public init(
         id: String,
@@ -220,7 +245,8 @@ public struct ModelDescriptor: Sendable, Equatable {
         inputPricePerMToken: Double,
         outputPricePerMToken: Double,
         supportsTools: Bool = true,
-        supportsStreaming: Bool = true
+        supportsStreaming: Bool = true,
+        supportsThinking: ThinkingCapability = .none
     ) {
         self.id = id
         self.displayName = displayName
@@ -230,6 +256,7 @@ public struct ModelDescriptor: Sendable, Equatable {
         self.outputPricePerMToken = outputPricePerMToken
         self.supportsTools = supportsTools
         self.supportsStreaming = supportsStreaming
+        self.supportsThinking = supportsThinking
     }
 }
 

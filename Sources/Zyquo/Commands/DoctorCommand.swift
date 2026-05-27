@@ -15,38 +15,34 @@ struct DoctorCommand: AsyncParsableCommand {
         let container = AppContainer(flags: globals.flags)
         let noColor = container.config.ui.noColor
 
-        let check = noColor ? "[OK]" : "\u{1B}[32m\u{2713}\u{1B}[0m"
-        let fail = noColor ? "[FAIL]" : "\u{1B}[31m\u{2717}\u{1B}[0m"
-        let warn = noColor ? "[WARN]" : "\u{1B}[33m!\u{1B}[0m"
-        let info = noColor ? "[INFO]" : "\u{1B}[34m\u{2139}\u{1B}[0m"
+        let co = CommandOutput(noColor: noColor)
 
-        print()
-        print(noColor ? "  Zyquo Doctor" : "  \u{1B}[1mZyquo Doctor\u{1B}[0m")
-        print(noColor ? "  Version: \(ZyquoInfo.versionString)" : "  \u{1B}[2mVersion: \(ZyquoInfo.versionString)\u{1B}[0m")
-        print()
+        co.blank()
+        co.header(title: "Zyquo Doctor", subtitle: "v\(ZyquoInfo.versionString)")
+        co.blank()
 
         // --- System ---
-        print(noColor ? "  System:" : "  \u{1B}[1mSystem:\u{1B}[0m")
+        co.section(title: "System")
 
         // Swift version
-        print("  \(check) Swift runtime available")
+        co.checkItem("Swift runtime available")
 
         // macOS version
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         let osString = "\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
         if osVersion.majorVersion >= 14 {
-            print("  \(check) macOS \(osString) (requires 14+)")
+            co.checkItem("macOS \(osString)", detail: "requires 14+")
         } else {
-            print("  \(fail) macOS \(osString) (requires 14+)")
+            co.failItem("macOS \(osString)", detail: "requires 14+")
         }
 
         // Architecture
         #if arch(arm64)
-        print("  \(check) Architecture: arm64 (Apple Silicon)")
+        co.checkItem("Architecture: arm64 (Apple Silicon)")
         #elseif arch(x86_64)
-        print("  \(check) Architecture: x86_64 (Intel)")
+        co.checkItem("Architecture: x86_64 (Intel)")
         #else
-        print("  \(warn) Architecture: unknown")
+        co.warnItem("Architecture: unknown")
         #endif
 
         // Available disk space
@@ -55,22 +51,22 @@ struct DoctorCommand: AsyncParsableCommand {
            let freeSpace = attrs[.systemFreeSize] as? UInt64 {
             let freeGB = Double(freeSpace) / 1_073_741_824.0
             if freeGB > 1.0 {
-                print("  \(check) Disk space: \(String(format: "%.1f", freeGB)) GB free")
+                co.checkItem("Disk space: \(String(format: "%.1f", freeGB)) GB free")
             } else {
-                print("  \(warn) Disk space: \(String(format: "%.1f", freeGB)) GB free (low)")
+                co.warnItem("Disk space: \(String(format: "%.1f", freeGB)) GB free", detail: "low")
             }
         }
 
-        print()
+        co.blank()
 
         // --- Workspace ---
-        print(noColor ? "  Workspace:" : "  \u{1B}[1mWorkspace:\u{1B}[0m")
+        co.section(title: "Workspace")
 
         let zyquoDir = URL(fileURLWithPath: cwd).appendingPathComponent(".zyquo")
         if FileManager.default.fileExists(atPath: zyquoDir.path) {
-            print("  \(check) Workspace initialized (.zyquo/ found)")
+            co.checkItem("Workspace initialized (.zyquo/ found)")
         } else {
-            print("  \(warn) Workspace not initialized (run `zyquo init`)")
+            co.warnItem("Workspace not initialized", detail: "run `zyquo init`")
         }
 
         // Workspace scan
@@ -79,51 +75,51 @@ struct DoctorCommand: AsyncParsableCommand {
         let wsIndex = await workspace.scan()
 
         if let lang = wsIndex.primaryLanguage {
-            print("  \(check) Primary language: \(lang.displayName)")
+            co.checkItem("Primary language: \(lang.displayName)")
         } else {
-            print("  \(info) No primary language detected")
+            co.infoItem("No primary language detected")
         }
 
         if !wsIndex.frameworks.isEmpty {
-            print("  \(check) Frameworks: \(wsIndex.frameworks.map(\.displayName).joined(separator: ", "))")
+            co.checkItem("Frameworks: \(wsIndex.frameworks.map(\.displayName).joined(separator: ", "))")
         }
 
         if let testCmd = wsIndex.testCommand {
-            print("  \(check) Test command: \(testCmd)")
+            co.checkItem("Test command: \(testCmd)")
         } else {
-            print("  \(info) No test command detected")
+            co.infoItem("No test command detected")
         }
 
         if let buildCmd = wsIndex.buildCommand {
-            print("  \(check) Build command: \(buildCmd)")
+            co.checkItem("Build command: \(buildCmd)")
         } else {
-            print("  \(info) No build command detected")
+            co.infoItem("No build command detected")
         }
 
-        print("  \(info) Files indexed: \(wsIndex.fileCount)")
+        co.infoItem("Files indexed: \(wsIndex.fileCount)")
 
         if let git = wsIndex.gitStatus {
             var gitInfo = "Git: "
             if let branch = git.branch { gitInfo += branch }
             if git.isClean { gitInfo += " (clean)" }
             else { gitInfo += " (modified)" }
-            print("  \(check) \(gitInfo)")
+            co.checkItem(gitInfo)
         } else {
-            print("  \(info) Not a git repository")
+            co.infoItem("Not a git repository")
         }
 
-        print()
+        co.blank()
 
         // --- Required Binaries ---
-        print(noColor ? "  Required Binaries:" : "  \u{1B}[1mRequired Binaries:\u{1B}[0m")
+        co.section(title: "Required Binaries")
 
         // Git
         let gitPath = findBinary("git")
         if let path = gitPath {
             let version = getBinaryVersion("git", args: ["--version"])
-            print("  \(check) git found at \(path)\(version.map { " (\($0))" } ?? "")")
+            co.checkItem("git\(version.map { " (\($0))" } ?? "")", detail: path)
         } else {
-            print("  \(fail) git not found")
+            co.failItem("git not found", detail: "install Xcode CLT")
         }
 
         // Ripgrep
@@ -131,15 +127,15 @@ struct DoctorCommand: AsyncParsableCommand {
         if let path = rgPath {
             let version = getBinaryVersion("rg", path: path, args: ["--version"])
             let versionStr = version.map { " (\($0.components(separatedBy: "\n").first ?? $0))" } ?? ""
-            print("  \(check) rg (ripgrep) found at \(path)\(versionStr)")
+            co.checkItem("rg (ripgrep)\(versionStr)", detail: path)
         } else {
-            print("  \(fail) rg (ripgrep) not found -- install with `brew install ripgrep`")
+            co.failItem("rg (ripgrep) not found", detail: "brew install ripgrep")
         }
 
-        print()
+        co.blank()
 
         // --- Optional Binaries ---
-        print(noColor ? "  Optional Binaries:" : "  \u{1B}[1mOptional Binaries:\u{1B}[0m")
+        co.section(title: "Optional Binaries")
 
         let optionalBinaries: [(String, String, String)] = [
             ("swift-format", "Swift formatter", "brew install swift-format"),
@@ -154,57 +150,73 @@ struct DoctorCommand: AsyncParsableCommand {
 
         for (binary, desc, installHint) in optionalBinaries {
             if let path = findBinary(binary) {
-                print("  \(check) \(binary) (\(desc)) at \(path)")
+                co.checkItem("\(binary) (\(desc))", detail: path)
             } else {
-                print("  \(info) \(binary) (\(desc)) not found -- \(installHint)")
+                co.infoItem("\(binary) (\(desc)) not found", detail: installHint)
             }
         }
 
-        print()
+        co.blank()
 
         // --- Providers ---
-        print(noColor ? "  Providers:" : "  \u{1B}[1mProviders:\u{1B}[0m")
+        co.section(title: "Providers")
 
         let anthropicKey = KeychainHelper.read(service: "dev.zyquo.cli", account: "anthropic")
         if anthropicKey != nil {
-            print("  \(check) Anthropic API key in Keychain")
+            co.checkItem("Anthropic API key in Keychain")
         } else {
-            print("  \(warn) Anthropic API key not found (run `zyquo provider login anthropic`)")
+            co.warnItem("Anthropic API key not found", detail: "run `zyquo provider login anthropic`")
         }
 
         let openrouterKey = KeychainHelper.read(service: "dev.zyquo.cli", account: "openrouter")
         if openrouterKey != nil {
-            print("  \(check) OpenRouter API key in Keychain")
+            co.checkItem("OpenRouter API key in Keychain")
         } else {
-            print("  \(info) OpenRouter API key not found (optional, run `zyquo provider login openrouter`)")
+            co.infoItem("OpenRouter API key not found", detail: "optional, run `zyquo provider login openrouter`")
         }
 
-        print()
+        co.blank()
 
         // --- Configuration ---
-        print(noColor ? "  Configuration:" : "  \u{1B}[1mConfiguration:\u{1B}[0m")
-        print("  Provider: \(container.config.providers.resolvedProvider)")
-        print("  Model: \(container.config.providers.resolvedModel)")
-        print("  Max steps: \(container.config.agent.maxSteps)")
-        print("  Max cost: $\(String(format: "%.2f", container.config.agent.maxCostUSD))")
-        print("  Auto-approve SAFE: \(container.config.agent.autoApproveSafe)")
-        print("  Theme: \(container.config.ui.theme)")
-        print("  Shell: \(container.config.shell.defaultShell)")
-        print("  Shell timeout: \(container.config.shell.timeoutSeconds)s")
-        print()
+        co.section(title: "Configuration")
+        co.keyValue("Provider", container.config.providers.resolvedProvider)
+        co.keyValue("Model", container.config.providers.resolvedModel)
+        co.keyValue("Max steps", "\(container.config.agent.maxSteps)")
+        co.keyValue("Max cost", "$\(String(format: "%.2f", container.config.agent.maxCostUSD))")
+        co.keyValue("Auto-approve SAFE", "\(container.config.agent.autoApproveSafe)")
+        co.keyValue("Theme", container.config.ui.theme)
+        co.keyValue("Shell", container.config.shell.defaultShell)
+        co.keyValue("Shell timeout", "\(container.config.shell.timeoutSeconds)s")
+
+        co.blank()
 
         // --- Paths ---
-        print(noColor ? "  Paths:" : "  \u{1B}[1mPaths:\u{1B}[0m")
+        co.section(title: "Paths")
         let home = FileManager.default.homeDirectoryForCurrentUser
         let globalConfig = home.appendingPathComponent(".zyquo/config.toml")
         let globalThemes = home.appendingPathComponent(".zyquo/themes")
         let logsDir = home.appendingPathComponent("Library/Logs/Zyquo")
 
-        print("  Global config: \(globalConfig.path) \(FileManager.default.fileExists(atPath: globalConfig.path) ? "(exists)" : "(not found)")")
-        print("  Themes dir: \(globalThemes.path)")
-        print("  Logs dir: \(logsDir.path)")
-        print("  Workspace: \(cwd)")
-        print()
+        co.keyValue("Global config", "\(globalConfig.path) \(FileManager.default.fileExists(atPath: globalConfig.path) ? "(exists)" : "(not found)")")
+        co.keyValue("Themes dir", globalThemes.path)
+        co.keyValue("Logs dir", logsDir.path)
+        co.keyValue("Workspace", cwd)
+
+        // --- Summary footer ---
+        var passCount = 0
+        var warnCount = 0
+        // Count results: system checks + binaries + providers
+        if osVersion.majorVersion >= 14 { passCount += 1 } else { warnCount += 1 }
+        passCount += 1 // Swift runtime
+        passCount += 1 // Architecture
+        if gitPath != nil { passCount += 1 } else { warnCount += 1 }
+        if rgPath != nil { passCount += 1 } else { warnCount += 1 }
+        if anthropicKey != nil { passCount += 1 } else { warnCount += 1 }
+
+        co.blank()
+        co.footer(items: [
+            ("Result", "\(passCount) passed \u{00B7} \(warnCount) warnings"),
+        ])
     }
 
     private func findBinary(_ name: String) -> String? {
