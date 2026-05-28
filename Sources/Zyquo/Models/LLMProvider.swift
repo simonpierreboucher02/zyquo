@@ -131,6 +131,16 @@ public enum JSONValue: Sendable, Codable, Equatable {
         if case .string(let s) = self { return s }
         return nil
     }
+
+    public var asBool: Bool? {
+        if case .bool(let b) = self { return b }
+        return nil
+    }
+
+    public var numberValue: Double? {
+        if case .number(let n) = self { return n }
+        return nil
+    }
 }
 
 // MARK: - Events

@@ -19,7 +19,7 @@ struct InteractiveCommand: AsyncParsableCommand {
 
     // MARK: - Tool Schemas
 
-    private static let toolSchemas: [ToolSchema] = [
+    private static let toolSchemas: [ToolSchema] = ZTPToolSchemas.allSchemas() + [
         ToolSchema(
             name: "shell_run",
             description: "Execute a shell command and return its output. Use this to run commands like ls, cat, grep, find, git, etc.",
@@ -217,30 +217,47 @@ struct InteractiveCommand: AsyncParsableCommand {
 
             CRITICAL RULES:
             - ALWAYS use your tools to execute actions — NEVER just suggest commands for the user to run manually.
-            - You CAN and SHOULD use `osascript` via shell_run to control macOS apps:
-              • Messages: send iMessages/SMS via `osascript -e 'tell application "Messages" ...'`
-              • Finder: open files/folders, reveal in Finder
-              • Calendar: create events
-              • Reminders: add reminders
-              • Mail: compose and send emails
-              • Notes: create notes
-              • Music/Spotify: play/pause/skip
-              • System Preferences: change settings
-              • Notifications: post alerts via `osascript -e 'display notification ...'`
-              • Any scriptable macOS app
-            - You can use `open` to launch apps and URLs
-            - You can use `say` for text-to-speech
-            - You can use `afplay` for audio playback
-            - You can use `pbcopy`/`pbpaste` for clipboard
-            - You can use `defaults` to read/write macOS preferences
-            - You can use `networksetup`, `pmset`, `diskutil` for system management
-            - You can create, read, write, and delete files anywhere the user has permission
-            - When the user asks to send a message, DO IT — don't ask for permission or suggest they do it manually
+            - ALWAYS prefer ZTP tools (ztp_*) over shell scripts or workarounds when a ZTP tool exists for the task.
+            - ZTP tools are the native execution layer. You reason and plan; ZTP tools produce artifacts.
+
+            ## ZTP Tools (Zyquo Tool Protocol)
+            You have access to professional document/media/system tools via ZTP:
+
+            | Tool | Use For | Key Commands |
+            |------|---------|-------------|
+            | ztp_excel | Spreadsheets, XLSX reports, data tables | build, inspect, import-csv |
+            | ztp_docx | Word documents, reports, proposals | build, inspect |
+            | ztp_slides | PowerPoint presentations, decks | build, inspect |
+            | ztp_chart | Charts/graphs as PNG/SVG/PDF (bar, line, pie, scatter, area) | build, themes |
+            | ztp_mail | Email drafting and sending (SMTP + Apple Mail) | draft, send, apple-draft |
+            | ztp_message | iMessage/SMS via Apple Messages | draft, send |
+            | ztp_browser | Web screenshots, PDF export, scraping, link extraction | screenshot, pdf, html, text, links |
+            | ztp_macos | macOS: files, clipboard, apps, screenshots, AppleScript, Shortcuts | system-info, files-*, clipboard-*, apps-*, applescript-run |
+
+            ### How to use ZTP tools:
+            1. Call the tool with `command` parameter (e.g., "build")
+            2. For document generation: pass `spec` (inline JSON) or `spec_file` (path) + `output` (file path)
+            3. All responses are JSON — check `ok: true` before continuing
+            4. Chain tools: generate data → chart → embed in slides/docx
+
+            ### ZTP Spec Formats:
+            - Excel: `{"version":"ztp-excel/0.1","workbook":{"title":"..."},"sheets":[{"name":"...","cells":[{"address":"A1","value":"..."}]}]}`
+            - Chart: `{"version":"ztp-chart/0.1","chart":{"type":"bar","title":"...","width":1000,"height":600},"data":{"values":[...]},"x":{"field":"..."},"series":[{"field":"...","label":"..."}]}`
+            - Docx: `{"version":"ztp-docx/0.1","document":{"title":"..."},"sections":[{"elements":[{"type":"heading","level":1,"text":"..."},{"type":"paragraph","runs":[{"text":"..."}]}]}]}`
+            - Slides: `{"version":"ztp-slides/0.1","presentation":{"title":"..."},"slides":[...]}`
+            - Mail: `{"version":"ztp-mail/0.1","message":{"from":"...","to":["..."],"subject":"...","body":{"type":"markdown","content":"..."}}}`
+            - Message: `{"version":"ztp-message/0.1","message":{"channel":"imessage","to":[{"name":"...","address":"..."}],"body":{"type":"plain","content":"..."}}}`
+
+            ## Shell & macOS
+            - Use shell_run for general commands (ls, cat, grep, git, etc.)
+            - Use `osascript` via shell_run for Apple automation not covered by ztp_macos
+            - Use `open` to launch apps and URLs
+            - You can read, write, and delete files anywhere the user has permission
 
             Workspace: \(root.path)
             User: \(NSUserName())
 
-            Be concise. Act decisively. Use tools proactively.
+            Be concise. Act decisively. Use tools proactively. ALWAYS prefer ZTP tools when they exist.
             """
             trimConversation(&conversationHistory, budget: Int(Double(descriptor.contextWindow) * 0.8), systemPrompt: systemPrompt)
 
@@ -450,8 +467,91 @@ struct InteractiveCommand: AsyncParsableCommand {
             }
 
         default:
+            if name.hasPrefix("ztp_") {
+                return await executeZTPTool(name: name, params: params, root: root)
+            }
             return "Unknown tool: \(name)"
         }
+    }
+
+    private func executeZTPTool(
+        name: String,
+        params: [String: JSONValue],
+        root: URL
+    ) async -> String {
+        let ztpToolName = String(name.dropFirst(4))  // "ztp_excel" -> "excel"
+        let ztpBinary = "/opt/homebrew/bin/ztp"
+
+        guard FileManager.default.isExecutableFile(atPath: ztpBinary) else {
+            return "Error: ZTP binary not found at \(ztpBinary). Install with: brew install ztp"
+        }
+
+        let command = params["command"]?.stringValue ?? "build"
+        let specJSON = params["spec"]?.stringValue
+        let specFile = params["spec_file"]?.stringValue
+        let output = params["output"]?.stringValue
+        let confirmed = params["confirmed"]?.asBool ?? false
+
+        var args: [String] = [ztpToolName, command]
+
+        if let spec = specJSON {
+            let tmpPath = FileManager.default.temporaryDirectory
+                .appendingPathComponent("zyquo-ztp-\(UUID().uuidString).json")
+            do {
+                try spec.write(to: tmpPath, atomically: true, encoding: .utf8)
+                args.append(tmpPath.path)
+                defer { try? FileManager.default.removeItem(at: tmpPath) }
+            } catch {
+                return "Error writing temp spec: \(error.localizedDescription)"
+            }
+        } else if let file = specFile {
+            args.append(file)
+        }
+
+        if let out = output { args += ["--output", out] }
+        if confirmed { args.append("--confirmed") }
+
+        for (key, value) in params {
+            let skip: Set = ["command", "spec", "spec_file", "output", "confirmed"]
+            guard !skip.contains(key) else { continue }
+            let flag = "--\(key.replacingOccurrences(of: "_", with: "-"))"
+            switch value {
+            case .string(let s): args += [flag, s]
+            case .number(let n): args += [flag, n.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(n))" : "\(n)"]
+            case .bool(let b): if b { args.append(flag) }
+            default: break
+            }
+        }
+
+        args.append("--json")
+
+        let process = Process()
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.executableURL = URL(fileURLWithPath: ztpBinary)
+        process.arguments = args
+        process.currentDirectoryURL = root
+        process.standardOutput = stdout
+        process.standardError = stderr
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return "Error executing ztp \(ztpToolName): \(error.localizedDescription)"
+        }
+
+        let outData = stdout.fileHandleForReading.readDataToEndOfFile()
+        let errData = stderr.fileHandleForReading.readDataToEndOfFile()
+        var result = String(data: outData, encoding: .utf8) ?? ""
+
+        if process.terminationStatus != 0 {
+            let errStr = String(data: errData, encoding: .utf8) ?? ""
+            if !errStr.isEmpty { result += "\n[stderr] \(errStr)" }
+            result += "\n[exit code: \(process.terminationStatus)]"
+        }
+
+        return result.isEmpty ? "(no output)" : String(result.prefix(12000))
     }
 
     private func parseToolInput(_ raw: String) -> [String: JSONValue] {
