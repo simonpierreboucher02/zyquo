@@ -166,16 +166,17 @@ struct InteractiveCommand: AsyncParsableCommand {
         var currentModel = container.config.providers.resolvedModel
 
         let dim = noColor ? "" : "\u{1B}[2m"
-        let bold = noColor ? "" : "\u{1B}[1m"
-        let cyan = noColor ? "" : "\u{1B}[36m"
-        let red = noColor ? "" : "\u{1B}[31m"
-        let yellow = noColor ? "" : "\u{1B}[33m"
         let reset = noColor ? "" : "\u{1B}[0m"
+
+        // Interactive box renderer for beautiful TUI
+        let boxRenderer = InteractiveBoxRenderer(
+            theme: ThemeEngine().load(named: container.config.ui.theme),
+            noColor: noColor
+        )
 
         // REPL loop
         while true {
-            print("\(bold)\(cyan)zyquo>\(reset) ", terminator: "")
-            fflush(stdout)
+            boxRenderer.renderPrompt()
 
             guard let line = readLine(strippingNewline: true) else {
                 print()
@@ -193,23 +194,31 @@ struct InteractiveCommand: AsyncParsableCommand {
                     totalCost: totalCost, messageCount: messageCount,
                     noColor: noColor, conversationHistory: &conversationHistory,
                     root: root, modelName: currentModelDisplay,
-                    currentModel: &currentModel
+                    currentModel: &currentModel,
+                    boxRenderer: boxRenderer
                 )
                 if result == .exit { break }
                 continue
             }
 
+            // Show user input in a box
+            boxRenderer.renderUserInput(trimmed)
+
             // Send to LLM with tools
             messageCount += 1
 
             guard let resolved = await router.resolveExplicit(providerId: providerName, modelId: currentModel) else {
-                print("  \(red)No provider available. Run: zyquo provider login \(providerName) --key YOUR_KEY\(reset)")
-                print()
+                boxRenderer.renderError(
+                    "No provider available",
+                    hint: "Run: zyquo provider login \(providerName) --key YOUR_KEY"
+                )
                 continue
             }
 
             let descriptor = ModelCatalog.find(id: resolved.model) ?? ModelCatalog.claudeSonnet4_6
             conversationHistory.append(.user(trimmed))
+
+            let currentModelDisplay = ModelCatalog.findByAlias(currentModel)?.displayName ?? currentModel
 
             // Trim history if over 80% of context window
             let systemPrompt = """
@@ -264,6 +273,7 @@ struct InteractiveCommand: AsyncParsableCommand {
             // Tool-use loop: keep calling LLM until it stops requesting tools
             var loopCount = 0
             let maxLoops = 10
+            var responseStarted = false
 
             while loopCount < maxLoops {
                 loopCount += 1
@@ -278,7 +288,6 @@ struct InteractiveCommand: AsyncParsableCommand {
                 )
 
                 let stream = resolved.provider.send(request: request, cancellation: nil)
-                if loopCount == 1 { print() }
 
                 var lastUsage: TokenUsage?
                 var fullText = ""
@@ -292,9 +301,12 @@ struct InteractiveCommand: AsyncParsableCommand {
                     for try await event in stream {
                         switch event {
                         case .textDelta(let text):
+                            if !responseStarted {
+                                boxRenderer.renderResponseStart(model: currentModelDisplay)
+                                responseStarted = true
+                            }
                             fullText += text
-                            print(text, terminator: "")
-                            fflush(stdout)
+                            boxRenderer.renderResponseDelta(text)
                         case .toolUseStart(let meta):
                             currentToolId = meta.id
                             currentToolName = meta.name
@@ -310,19 +322,28 @@ struct InteractiveCommand: AsyncParsableCommand {
                         case .messageStop(let reason):
                             stopReason = reason
                         case .error(let err):
-                            print("\n  \(red)Error: \(err.description)\(reset)")
+                            if responseStarted {
+                                boxRenderer.renderResponseEnd()
+                                responseStarted = false
+                            }
+                            boxRenderer.renderError(err.description)
                         default:
                             break
                         }
                     }
                 } catch {
+                    if responseStarted {
+                        boxRenderer.renderResponseEnd()
+                        responseStarted = false
+                    }
                     let msg = (error as? ZyquoError)?.description ?? error.localizedDescription
-                    print("\n  \(red)Error: \(msg)\(reset)")
+                    boxRenderer.renderError(msg)
                     break
                 }
 
-                if !fullText.isEmpty {
-                    print()
+                if !fullText.isEmpty && responseStarted {
+                    boxRenderer.renderResponseEnd()
+                    responseStarted = false
                 }
 
                 if let usage = lastUsage {
@@ -351,8 +372,6 @@ struct InteractiveCommand: AsyncParsableCommand {
                 var toolResultBlocks: [ContentBlock] = []
 
                 for tc in pendingToolCalls {
-                    co.infoItem(tc.name, detail: nil)
-
                     let result = await executeTool(
                         name: tc.name,
                         input: tc.input,
@@ -361,25 +380,29 @@ struct InteractiveCommand: AsyncParsableCommand {
                     )
 
                     let truncated = String(result.prefix(8000))
-                    toolResultBlocks.append(.toolResult(toolUseId: tc.id, content: truncated, isError: false))
+                    let isError = result.hasPrefix("Error")
+                    toolResultBlocks.append(.toolResult(toolUseId: tc.id, content: truncated, isError: isError))
 
                     let preview = String(result.prefix(200)).replacingOccurrences(of: "\n", with: " ")
-                    print("    \(dim)\(preview)\(result.count > 200 ? "..." : "")\(reset)")
+                    boxRenderer.renderToolCall(
+                        name: tc.name,
+                        preview: preview + (result.count > 200 ? "..." : ""),
+                        isError: isError
+                    )
                 }
 
                 conversationHistory.append(LLMMessage(role: .user, content: toolResultBlocks))
             }
 
-            co.blank()
-            co.footer(items: [
-                ("Tokens", "\(totalCost.totalInputTokens) in / \(totalCost.totalOutputTokens) out"),
-                ("Cost", totalCost.formattedCost),
-                ("Requests", "\(totalCost.requests)"),
-            ])
-            co.blank()
+            // Session stats footer
+            boxRenderer.renderSessionStats(
+                tokens: "\(totalCost.totalInputTokens) in / \(totalCost.totalOutputTokens) out",
+                cost: totalCost.formattedCost,
+                requests: "\(totalCost.requests)"
+            )
+            boxRenderer.renderSeparator()
 
             // Update status bar with latest cost and token info
-            let currentModelDisplay = ModelCatalog.findByAlias(currentModel)?.displayName ?? currentModel
             await statusBar.update(StatusBarManager.Content(
                 left: "\(root.lastPathComponent)",
                 center: "\(currentModelDisplay) \u{2022} \(totalCost.totalInputTokens + totalCost.totalOutputTokens) tok",
@@ -593,16 +616,14 @@ struct InteractiveCommand: AsyncParsableCommand {
         conversationHistory: inout [LLMMessage],
         root: URL,
         modelName: String,
-        currentModel: inout String
+        currentModel: inout String,
+        boxRenderer: InteractiveBoxRenderer
     ) -> SlashResult {
         let parts = command.split(separator: " ", maxSplits: 1).map(String.init)
         let cmd = parts[0].lowercased()
         let arg = parts.count > 1 ? parts[1] : nil
 
-        let bold = noColor ? "" : "\u{1B}[1m"
         let dim = noColor ? "" : "\u{1B}[2m"
-        let cyan = noColor ? "" : "\u{1B}[36m"
-        let yellow = noColor ? "" : "\u{1B}[33m"
         let reset = noColor ? "" : "\u{1B}[0m"
 
         switch cmd {
@@ -612,7 +633,7 @@ struct InteractiveCommand: AsyncParsableCommand {
             return .exit
 
         case "/help", "/h", "/?":
-            let cmds: [(String, String)] = [
+            boxRenderer.renderListPanel(title: "Commands", entries: [
                 ("/help", "Show this help"),
                 ("/status", "Session info"),
                 ("/cost", "Token and dollar cost"),
@@ -622,61 +643,74 @@ struct InteractiveCommand: AsyncParsableCommand {
                 ("/reset", "Clear conversation"),
                 ("/clear", "Clear screen"),
                 ("/exit", "Quit"),
-            ]
-            print()
-            print("  \(bold)Commands\(reset)")
-            for (c, d) in cmds {
-                let pad = String(repeating: " ", count: max(1, 20 - c.count))
-                print("  \(cyan)\(c)\(reset)\(pad)\(d)")
-            }
+            ])
 
         case "/status":
-            print()
-            print("  \(bold)Session\(reset)")
-            print("  Provider:  \(container.config.providers.resolvedProvider)")
-            print("  Model:     \(modelName)")
-            print("  Messages:  \(messageCount)")
-            print("  History:   \(conversationHistory.count) messages")
-            print("  \(totalCost.summary)")
+            boxRenderer.renderCommandResult(title: "Session", items: [
+                ("Provider", container.config.providers.resolvedProvider),
+                ("Model", modelName),
+                ("Messages", "\(messageCount)"),
+                ("History", "\(conversationHistory.count) messages"),
+                ("Cost", totalCost.formattedCost),
+            ])
 
         case "/cost":
-            print("  \(totalCost.summary)")
+            boxRenderer.renderCommandResult(title: "Cost", items: [
+                ("Input tokens", "\(totalCost.totalInputTokens)"),
+                ("Output tokens", "\(totalCost.totalOutputTokens)"),
+                ("Total cost", totalCost.formattedCost),
+                ("Requests", "\(totalCost.requests)"),
+            ])
 
         case "/model":
             if let alias = arg {
                 if let desc = ModelCatalog.findByAlias(alias) {
                     currentModel = desc.id
-                    print("  Model: \(bold)\(desc.displayName)\(reset) \(dim)(next message)\(reset)")
+                    boxRenderer.renderCommandResult(title: "Model", items: [
+                        ("Switched to", desc.displayName),
+                        ("Effective", "next message"),
+                    ])
                 } else {
-                    print("  Unknown model. Try: opus, sonnet, haiku")
+                    boxRenderer.renderError("Unknown model '\(alias)'", hint: "Try: opus, sonnet, haiku")
                 }
             } else {
-                print("  Current: \(bold)\(modelName)\(reset)")
-                print("  Available: opus, sonnet, haiku")
+                boxRenderer.renderCommandResult(title: "Model", items: [
+                    ("Current", modelName),
+                    ("Available", "opus, sonnet, haiku"),
+                ])
             }
 
         case "/tools":
-            let tools: [(String, String)] = [
+            boxRenderer.renderListPanel(title: "Tools (auto)", entries: [
                 ("shell_run", "Execute shell commands"),
                 ("file_read", "Read file contents"),
+                ("file_write", "Write file contents"),
                 ("file_list", "List directory"),
-            ]
-            print()
-            print("  \(bold)Tools\(reset) (agent uses these automatically)")
-            for (name, desc) in tools {
-                let pad = String(repeating: " ", count: max(1, 16 - name.count))
-                print("  \(cyan)\(name)\(reset)\(pad)\(desc)")
-            }
+                ("ztp_excel", "Spreadsheets & XLSX"),
+                ("ztp_docx", "Word documents"),
+                ("ztp_slides", "Presentations"),
+                ("ztp_chart", "Charts & graphs"),
+                ("ztp_mail", "Email drafting"),
+                ("ztp_message", "iMessage/SMS"),
+                ("ztp_browser", "Web scraping"),
+                ("ztp_macos", "macOS automation"),
+            ])
 
         case "/history":
             let turns = conversationHistory.filter { $0.role == .user }.count
             let tokens = conversationHistory.reduce(0) { $0 + estimateMessageTokens($1) }
-            print("  Turns: \(turns)  Messages: \(conversationHistory.count)  Tokens: ~\(tokens)")
+            boxRenderer.renderCommandResult(title: "History", items: [
+                ("Turns", "\(turns)"),
+                ("Messages", "\(conversationHistory.count)"),
+                ("Tokens (est.)", "~\(tokens)"),
+            ])
 
         case "/reset":
             let n = conversationHistory.count
             conversationHistory.removeAll()
-            print("  \(yellow)History cleared\(reset) (\(n) messages removed)")
+            boxRenderer.renderCommandResult(title: "Reset", items: [
+                ("Cleared", "\(n) messages removed"),
+            ])
 
         case "/clear":
             print("\u{1B}[2J\u{1B}[H", terminator: "")
@@ -684,20 +718,21 @@ struct InteractiveCommand: AsyncParsableCommand {
             return .handled
 
         case "/version":
-            print("  \(ZyquoInfo.versionString)")
+            boxRenderer.renderCommandResult(title: "Version", items: [
+                ("Zyquo", ZyquoInfo.versionString),
+            ])
 
         default:
             let known = ["/help", "/status", "/exit", "/clear", "/cost", "/model",
                          "/tools", "/version", "/reset", "/history"]
             if let best = known.min(by: { levenshtein($0, cmd) < levenshtein($1, cmd) }),
                levenshtein(best, cmd) <= 2 {
-                print("  Unknown '\(cmd)'. Did you mean \(cyan)\(best)\(reset)?")
+                boxRenderer.renderError("Unknown command '\(cmd)'", hint: "Did you mean \(best)?")
             } else {
-                print("  Unknown '\(cmd)'. Type \(cyan)/help\(reset) for commands.")
+                boxRenderer.renderError("Unknown command '\(cmd)'", hint: "Type /help for available commands")
             }
         }
 
-        print()
         return .handled
     }
 
