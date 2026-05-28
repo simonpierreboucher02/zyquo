@@ -26,7 +26,11 @@ public final class PromptInputController: @unchecked Sendable {
     /// Returns the submitted text, or nil if cancelled (Ctrl-C/Ctrl-D).
     public func readLine() -> String? {
         Terminal.enableRawMode()
-        defer { Terminal.restore() }
+        writeOutput("\u{1B}[?2004h")  // enable bracketed paste
+        defer {
+            writeOutput("\u{1B}[?2004l")  // disable bracketed paste
+            Terminal.restore()
+        }
 
         state = PromptInput(
             prompt: state.prompt, text: "", cursorPosition: 0,
@@ -153,6 +157,24 @@ public final class PromptInputController: @unchecked Sendable {
             case UInt8(ascii: "F"):
                 state = state.moveCursorEnd()
                 redrawLine()
+            // \x1b[2~ (Insert) or \x1b[200~ (bracketed paste start)
+            case UInt8(ascii: "2"):
+                var next: UInt8 = 0
+                guard read(STDIN_FILENO, &next, 1) == 1 else { return }
+                if next == UInt8(ascii: "0") {
+                    // Could be \e[200~ (paste start)
+                    var next2: UInt8 = 0
+                    guard read(STDIN_FILENO, &next2, 1) == 1 else { return }
+                    if next2 == UInt8(ascii: "0") {
+                        var tilde: UInt8 = 0
+                        _ = read(STDIN_FILENO, &tilde, 1)  // consume ~
+                        handleBracketedPaste()
+                        return
+                    }
+                } else if next == UInt8(ascii: "~") {
+                    // Insert key — ignore
+                    return
+                }
             // Sequences like \x1b[1~ (Home), \x1b[3~ (Delete), \x1b[4~ (End)
             case UInt8(ascii: "1"), UInt8(ascii: "3"), UInt8(ascii: "4"):
                 var tilde: UInt8 = 0
@@ -175,6 +197,43 @@ public final class PromptInputController: @unchecked Sendable {
                 break
             }
         }
+    }
+
+    // MARK: - Bracketed Paste
+
+    private func handleBracketedPaste() {
+        var pasteBuffer = ""
+        while true {
+            var byte: UInt8 = 0
+            guard read(STDIN_FILENO, &byte, 1) == 1 else { break }
+
+            if byte == 0x1B {
+                // Check for paste end sequence: \e[201~
+                var seq: [UInt8] = [0, 0, 0, 0]
+                let n = read(STDIN_FILENO, &seq, 4)
+                if n == 4, seq[0] == UInt8(ascii: "["),
+                   seq[1] == UInt8(ascii: "2"), seq[2] == UInt8(ascii: "0"),
+                   seq[3] == UInt8(ascii: "1") {
+                    var tilde: UInt8 = 0
+                    _ = read(STDIN_FILENO, &tilde, 1)  // consume ~
+                    break
+                }
+                // Not end sequence — add bytes to buffer
+                pasteBuffer.append(Character(UnicodeScalar(0x1B)))
+                for i in 0..<n { pasteBuffer.append(Character(UnicodeScalar(seq[i]))) }
+            } else {
+                if byte >= 0x20 {
+                    pasteBuffer.append(Character(UnicodeScalar(byte)))
+                } else if byte == 0x0A || byte == 0x0D {
+                    pasteBuffer.append("\n")
+                }
+            }
+        }
+
+        for ch in pasteBuffer {
+            state = state.insertCharacter(ch)
+        }
+        redrawLine()
     }
 
     // MARK: - UTF-8 Handling

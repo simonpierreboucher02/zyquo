@@ -3,13 +3,13 @@
 [![macOS](https://img.shields.io/badge/macOS-14%2B%20Sonoma-000000?style=flat-square&logo=apple&logoColor=white)](https://www.apple.com/macos/sonoma/)
 [![Swift](https://img.shields.io/badge/Swift-5.10%2B-F05138?style=flat-square&logo=swift&logoColor=white)](https://swift.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.9.0-5BA8FF?style=flat-square)](https://github.com/simonpierreboucher02/zyquo/releases/tag/v0.9.0)
+[![Version](https://img.shields.io/badge/Version-1.0.0-5BA8FF?style=flat-square)](https://github.com/simonpierreboucher02/zyquo/releases/tag/v1.0.0)
 [![Homebrew](https://img.shields.io/badge/Homebrew-tap-FBB040?style=flat-square&logo=homebrew&logoColor=white)](https://github.com/simonpierreboucher02/homebrew-zyquo)
 [![Architecture](https://img.shields.io/badge/arch-arm64%20%7C%20x86__64-8E8E93?style=flat-square)](https://github.com/simonpierreboucher02/zyquo)
 [![Claude](https://img.shields.io/badge/Claude-Opus%20%7C%20Sonnet%20%7C%20Haiku-D97706?style=flat-square)](https://anthropic.com)
 [![Tools](https://img.shields.io/badge/Tools-8%20built--in-4ADE80?style=flat-square)](https://github.com/simonpierreboucher02/zyquo)
 [![Agents](https://img.shields.io/badge/Agents-6%20specialized-9D7CFF?style=flat-square)](https://github.com/simonpierreboucher02/zyquo)
-[![Cluster](https://img.shields.io/badge/MacLustr-16%20nodes%20%7C%20250%20cores-EF4444?style=flat-square)](https://github.com/simonpierreboucher02/zyquo)
+[![Cluster](https://img.shields.io/badge/MacLustr-V2%20planned-8E8E93?style=flat-square)](https://github.com/simonpierreboucher02/zyquo)
 
 **Native macOS AI terminal agent runtime.**
 

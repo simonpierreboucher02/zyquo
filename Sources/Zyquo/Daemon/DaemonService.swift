@@ -356,7 +356,7 @@ public actor DaemonService {
             vectorsStored: 0,   // Will be populated when accessed cross-actor
             lastIndexTime: lastIndexTime,
             memoryUsageMB: currentMemoryMB(),
-            cpuPercent: 0.0     // CPU tracking requires sampling; placeholder
+            cpuPercent: currentCPUPercent()
         )
     }
 
@@ -387,7 +387,7 @@ public actor DaemonService {
             vectorsStored: vectorCount,
             lastIndexTime: lastIndexTime,
             memoryUsageMB: currentMemoryMB(),
-            cpuPercent: 0.0
+            cpuPercent: currentCPUPercent()
         )
     }
 
@@ -424,5 +424,46 @@ public actor DaemonService {
             return Int(info.resident_size) / (1024 * 1024)
         }
         return 0
+    }
+
+    /// Estimate current CPU usage by sampling thread times.
+    private func currentCPUPercent() -> Double {
+        var threadList: thread_act_array_t?
+        var threadCount: mach_msg_type_number_t = 0
+
+        let result = task_threads(mach_task_self_, &threadList, &threadCount)
+        guard result == KERN_SUCCESS, let threads = threadList else { return 0.0 }
+        defer {
+            vm_deallocate(
+                mach_task_self_,
+                vm_address_t(bitPattern: threads),
+                vm_size_t(Int(threadCount) * MemoryLayout<thread_act_t>.size)
+            )
+        }
+
+        var totalUserTime: Double = 0
+        var totalSystemTime: Double = 0
+
+        for i in 0..<Int(threadCount) {
+            var info = thread_basic_info()
+            var infoCount = mach_msg_type_number_t(MemoryLayout<thread_basic_info_data_t>.size / MemoryLayout<integer_t>.size)
+            let infoResult = withUnsafeMutablePointer(to: &info) {
+                $0.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) {
+                    thread_info(threads[i], thread_flavor_t(THREAD_BASIC_INFO), $0, &infoCount)
+                }
+            }
+            if infoResult == KERN_SUCCESS {
+                if info.flags & TH_FLAGS_IDLE == 0 {
+                    totalUserTime += Double(info.user_time.seconds) + Double(info.user_time.microseconds) / 1_000_000.0
+                    totalSystemTime += Double(info.system_time.seconds) + Double(info.system_time.microseconds) / 1_000_000.0
+                }
+            }
+        }
+
+        guard let started = startedAt else { return 0.0 }
+        let wallTime = Date().timeIntervalSince(started)
+        guard wallTime > 0 else { return 0.0 }
+
+        return ((totalUserTime + totalSystemTime) / wallTime) * 100.0
     }
 }

@@ -1,0 +1,50 @@
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - Resources
+  - research
+  - docs
+  - scripts
+
+disabled_rules:
+  - trailing_comma
+  - opening_brace
+  - identifier_name
+  - type_name
+  - nesting
+  - cyclomatic_complexity
+  - function_body_length
+  - type_body_length
+  - file_length
+
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - fatal_error_message
+  - first_where
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - last_where
+  - redundant_nil_coalescing
+  - toggle_bool
+
+force_unwrapping:
+  severity: warning
+
+line_length:
+  warning: 140
+  error: 200
+
+function_parameter_count:
+  warning: 8
+  error: 12
+
+large_tuple:
+  warning: 4
+
+reporter: xcode

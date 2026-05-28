@@ -1,5 +1,47 @@
 import Foundation
 
+public func displayWidth(_ c: Character) -> Int {
+    let scalars = c.unicodeScalars
+    guard let first = scalars.first else { return 0 }
+    let v = first.value
+
+    // Combining marks — zero width
+    if (0x0300...0x036F).contains(v) || (0x1AB0...0x1AFF).contains(v) ||
+       (0x1DC0...0x1DFF).contains(v) || (0x20D0...0x20FF).contains(v) ||
+       (0xFE20...0xFE2F).contains(v) {
+        return 0
+    }
+
+    // CJK ranges — double width
+    if (0x1100...0x115F).contains(v) ||  // Hangul Jamo
+       (0x2E80...0x303E).contains(v) ||  // CJK Radicals
+       (0x3041...0x33BF).contains(v) ||  // Hiragana..CJK Compatibility
+       (0x3400...0x4DBF).contains(v) ||  // CJK Unified Ext A
+       (0x4E00...0x9FFF).contains(v) ||  // CJK Unified
+       (0xA000...0xA4CF).contains(v) ||  // Yi
+       (0xAC00...0xD7AF).contains(v) ||  // Hangul Syllables
+       (0xF900...0xFAFF).contains(v) ||  // CJK Compatibility Ideographs
+       (0xFE30...0xFE6F).contains(v) ||  // CJK Compatibility Forms
+       (0xFF01...0xFF60).contains(v) ||  // Fullwidth Forms
+       (0xFFE0...0xFFE6).contains(v) ||  // Fullwidth Signs
+       (0x20000...0x2FA1F).contains(v) { // CJK Ext B..Compatibility Supp
+        return 2
+    }
+
+    // Emoji presentation — double width (simplified check for emoji with high codepoints)
+    if scalars.count > 1 {
+        return 2
+    }
+    if v > 0x23F, first.properties.isEmoji {
+        return 2
+    }
+
+    // Control characters
+    if v < 0x20 || v == 0x7F { return 0 }
+
+    return 1
+}
+
 public enum BoxBorderStyle: Sendable {
     case rounded    // ╭─╮│╰╯
     case square     // ┌─┐│└┘
@@ -102,9 +144,14 @@ public struct CellBuffer: Sendable {
     public mutating func write(_ text: String, x: Int, y: Int, fg: ANSIColor = .default, bg: ANSIColor = .default, bold: Bool = false, italic: Bool = false, underline: Bool = false) {
         var col = x
         for char in text {
-            guard col < width else { break }
+            let w = displayWidth(char)
+            guard col + w <= width else { break }
             self[col, y] = Cell(character: char, fg: fg, bg: bg, bold: bold, italic: italic, underline: underline)
-            col += 1
+            if w == 2, col + 1 < width {
+                // Write a padding cell for the second column of a double-width character
+                self[col + 1, y] = Cell(character: "\0", fg: fg, bg: bg, bold: false, italic: false, underline: false)
+            }
+            col += w
         }
     }
 
@@ -126,6 +173,10 @@ public struct CellBuffer: Sendable {
             result.append(self[x, y].character)
         }
         return result.replacingOccurrences(of: "\\s+$", with: "", options: .regularExpression)
+    }
+
+    public func renderPlainText() -> String {
+        (0..<height).map { extractText(y: $0) }.joined(separator: "\n") + "\n"
     }
 
     public mutating func fill(x: Int, y: Int, width w: Int, height h: Int, cell: Cell = .empty) {

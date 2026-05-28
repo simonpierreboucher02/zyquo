@@ -227,8 +227,4 @@ public final class AuditLog: @unchecked Sendable {
     }
 }
 
-// MARK: - Redaction import
-
-/// Re-export Redaction for use in AuditLog without adding a separate import.
-/// The actual implementation lives in Observability/Logger.swift.
-// Note: Redaction is already in scope since both are in the Zyquo target.
+// Redaction is in Security/Redaction.swift (same target, no import needed).

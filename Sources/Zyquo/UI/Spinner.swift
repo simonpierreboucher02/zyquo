@@ -23,11 +23,13 @@ public enum SpinnerStyle: Sendable {
 }
 
 public struct Spinner: Renderable, Sendable {
+    public static let animationsEnabled: Bool = ProcessInfo.processInfo.environment["TERM"] != "dumb" && ProcessInfo.processInfo.environment["NO_COLOR"] == nil
+
     public let style: SpinnerStyle
     public let label: String
     public let frame: Int
 
-    public var isAnimated: Bool { true }
+    public var isAnimated: Bool { Self.animationsEnabled }
 
     public init(style: SpinnerStyle = .braille, label: String = "", frame: Int = 0) {
         self.style = style

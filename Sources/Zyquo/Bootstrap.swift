@@ -43,6 +43,12 @@ extension Notification.Name {
     static let terminalResized = Notification.Name("dev.zyquo.terminalResized")
 }
 
+enum CursorShape: Int {
+    case block = 2
+    case underline = 4
+    case bar = 6
+}
+
 enum Terminal {
     private static let originalTermios = OSAllocatedUnfairLock<termios?>(initialState: nil)
 
@@ -62,7 +68,18 @@ enum Terminal {
             tcsetattr(STDIN_FILENO, TCSAFLUSH, &original)
             originalTermios.withLock { $0 = nil }
         }
-        print("\u{1B}[?25h", terminator: "") // show cursor
+        print("\u{1B}[0 q", terminator: "")  // reset cursor shape to default
+        print("\u{1B}[?25h", terminator: "")  // show cursor
+        fflush(stdout)
+    }
+
+    static func setWindowTitle(_ title: String) {
+        print("\u{1B}]0;\(title)\u{07}", terminator: "")
+        fflush(stdout)
+    }
+
+    static func setCursorShape(_ shape: CursorShape) {
+        print("\u{1B}[\(shape.rawValue) q", terminator: "")
         fflush(stdout)
     }
 

@@ -1,6 +1,8 @@
 import Foundation
 
 public struct ProgressBar: Renderable, Sendable {
+    public static let animationsEnabled: Bool = ProcessInfo.processInfo.environment["TERM"] != "dumb" && ProcessInfo.processInfo.environment["NO_COLOR"] == nil
+
     public enum Mode: Sendable {
         case determinate(Double)
         case indeterminate(frame: Int)
@@ -10,6 +12,7 @@ public struct ProgressBar: Renderable, Sendable {
     public let label: String
 
     public var isAnimated: Bool {
+        guard Self.animationsEnabled else { return false }
         if case .indeterminate = mode { return true }
         return false
     }

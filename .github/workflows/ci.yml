@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-14
+    strategy:
+      matrix:
+        arch: [arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Build (debug)
+        run: swift build
+
+      - name: Build (release)
+        run: swift build -c release
+
+      - name: Run tests
+        run: swift test
+
+  lint:
+    name: Lint
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        run: swiftlint lint --strict Sources/
+
+  format:
+    name: Format Check
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install swift-format
+        run: brew install swift-format
+
+      - name: Check formatting
+        run: |
+          swift-format lint --recursive Sources/ Tests/
+          if [ $? -ne 0 ]; then
+            echo "::error::Code is not properly formatted. Run 'swift-format format --in-place --recursive Sources/ Tests/' locally."
+            exit 1
+          fi
+
+  snapshot:
+    name: Snapshot Tests
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run snapshot tests
+        run: swift test --filter Snapshot
+
+  perf-budget:
+    name: Performance Budget
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release
+        run: swift build -c release
+
+      - name: Check binary size (< 25 MB)
+        run: |
+          SIZE=$(stat -f%z .build/release/zyquo 2>/dev/null || echo 0)
+          MAX=$((25 * 1024 * 1024))
+          echo "Binary size: $SIZE bytes (max: $MAX)"
+          if [ "$SIZE" -gt "$MAX" ]; then
+            echo "::error::Binary exceeds 25 MB budget"
+            exit 1
+          fi
+
+      - name: Check cold start (< 250 ms)
+        run: |
+          START=$(python3 -c 'import time; print(int(time.time()*1000))')
+          .build/release/zyquo --help > /dev/null 2>&1
+          END=$(python3 -c 'import time; print(int(time.time()*1000))')
+          ELAPSED=$((END - START))
+          echo "Cold start: ${ELAPSED}ms (budget: 250ms)"
+          if [ "$ELAPSED" -gt 250 ]; then
+            echo "::warning::Cold start exceeds 250ms budget (${ELAPSED}ms)"
+          fi

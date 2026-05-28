@@ -48,12 +48,28 @@ public final class TerminalRendererEngine: @unchecked Sendable {
     private let capability: TerminalCapability
     private var size: Size
 
+    private var inAltScreen = false
+
     public init() {
         let termSize = Terminal.size
         self.size = Size(width: termSize.width, height: termSize.height)
         self.frontBuffer = CellBuffer(width: size.width, height: size.height)
         self.backBuffer = CellBuffer(width: size.width, height: size.height)
         self.capability = TerminalCapability.detect()
+    }
+
+    public func enterAltScreen() {
+        guard capability != .monochrome else { return }
+        print("\u{1B}[?1049h", terminator: "")
+        fflush(stdout)
+        inAltScreen = true
+    }
+
+    public func leaveAltScreen() {
+        guard capability != .monochrome else { return }
+        print("\u{1B}[?1049l", terminator: "")
+        fflush(stdout)
+        inAltScreen = false
     }
 
     public func resize() {
@@ -81,7 +97,17 @@ public final class TerminalRendererEngine: @unchecked Sendable {
         var output = ""
         output.reserveCapacity(size.width * size.height * 4)
 
-        output += "\u{1B}[?25l" // hide cursor
+        // Begin synchronized output, save cursor position, hide cursor
+        output += "\u{1B}[?2026h"  // begin sync
+        output += "\u{1B}7"         // save cursor (DECSC)
+        output += "\u{1B}[?25l"     // hide cursor
+
+        // Track current SGR state to avoid redundant escapes
+        var currentFg: ANSIColor = .default
+        var currentBg: ANSIColor = .default
+        var currentBold = false
+        var currentItalic = false
+        var currentUnderline = false
 
         for y in 0..<size.height {
             for x in 0..<size.width {
@@ -91,27 +117,42 @@ public final class TerminalRendererEngine: @unchecked Sendable {
                 if newCell != oldCell {
                     output += "\u{1B}[\(y + 1);\(x + 1)H"
 
-                    var codes: [String] = []
-                    if newCell.bold { codes.append("1") }
-                    if newCell.italic { codes.append("3") }
-                    if newCell.underline { codes.append("4") }
-                    if newCell.fg != .default { codes.append(newCell.fg.fgCode) }
-                    if newCell.bg != .default { codes.append(newCell.bg.bgCode) }
+                    let needsChange = newCell.fg != currentFg || newCell.bg != currentBg ||
+                                      newCell.bold != currentBold || newCell.italic != currentItalic ||
+                                      newCell.underline != currentUnderline
 
-                    if !codes.isEmpty {
-                        output += "\u{1B}[\(codes.joined(separator: ";"))m"
+                    if needsChange {
+                        output += "\u{1B}[0m"  // reset
+                        var codes: [String] = []
+                        if newCell.bold { codes.append("1") }
+                        if newCell.italic { codes.append("3") }
+                        if newCell.underline { codes.append("4") }
+                        if newCell.fg != .default { codes.append(newCell.fg.fgCode) }
+                        if newCell.bg != .default { codes.append(newCell.bg.bgCode) }
+                        if !codes.isEmpty {
+                            output += "\u{1B}[\(codes.joined(separator: ";"))m"
+                        }
+                        currentFg = newCell.fg
+                        currentBg = newCell.bg
+                        currentBold = newCell.bold
+                        currentItalic = newCell.italic
+                        currentUnderline = newCell.underline
                     }
 
                     output.append(newCell.character)
-
-                    if !codes.isEmpty {
-                        output += "\u{1B}[0m"
-                    }
                 }
             }
         }
 
-        output += "\u{1B}[?25h" // show cursor
+        // Reset SGR if any style was active
+        if currentFg != .default || currentBg != .default || currentBold || currentItalic || currentUnderline {
+            output += "\u{1B}[0m"
+        }
+
+        // Show cursor, restore cursor position, end synchronized output
+        output += "\u{1B}[?25h"     // show cursor
+        output += "\u{1B}8"         // restore cursor (DECRC)
+        output += "\u{1B}[?2026l"   // end sync
 
         frontBuffer = backBuffer
         print(output, terminator: "")

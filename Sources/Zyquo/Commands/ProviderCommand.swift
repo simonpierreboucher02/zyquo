@@ -224,7 +224,10 @@ struct ProviderCommand: AsyncParsableCommand {
                 throw ExitCode.failure
             }
 
-            let providerInfo = ProviderCommand.knownProviders.first(where: { $0.id == providerId })!
+            guard let providerInfo = ProviderCommand.knownProviders.first(where: { $0.id == providerId }) else {
+                print("\(red)Internal error: provider '\(providerId)' passed validation but not found in registry.\(reset)")
+                throw ExitCode.failure
+            }
 
             // Resolve the key from the three possible sources
             let resolvedKey: String

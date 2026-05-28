@@ -63,9 +63,7 @@ public struct CodeDependencyGraph: Sendable, Equatable {
                     language: language,
                     symbolCount: fileSymbols.count
                 )
-            } else {
-                // Aggregate symbol count if module id collides
-                var existing = moduleMap[moduleId]!
+            } else if let existing = moduleMap[moduleId] {
                 moduleMap[moduleId] = ModuleNode(
                     id: existing.id,
                     path: existing.path,

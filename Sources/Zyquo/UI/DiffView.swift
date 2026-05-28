@@ -33,17 +33,25 @@ public struct DiffLine: Sendable {
     }
 }
 
+public enum DiffFileRisk: String, Sendable {
+    case safe = "SAFE"
+    case moderate = "MODERATE"
+    case dangerous = "DANGEROUS"
+}
+
 public struct DiffFile: Sendable {
     public let path: String
     public let hunks: [DiffHunk]
     public let linesAdded: Int
     public let linesRemoved: Int
+    public let risk: DiffFileRisk
 
-    public init(path: String, hunks: [DiffHunk], linesAdded: Int, linesRemoved: Int) {
+    public init(path: String, hunks: [DiffHunk], linesAdded: Int, linesRemoved: Int, risk: DiffFileRisk = .moderate) {
         self.path = path
         self.hunks = hunks
         self.linesAdded = linesAdded
         self.linesRemoved = linesRemoved
+        self.risk = risk
     }
 }
 
@@ -51,15 +59,32 @@ public struct DiffSummary: Sendable {
     public let filesChanged: Int
     public let totalAdded: Int
     public let totalRemoved: Int
+    public let riskCounts: [DiffFileRisk: Int]
 
     public init(files: [DiffFile]) {
         self.filesChanged = files.count
         self.totalAdded = files.reduce(0) { $0 + $1.linesAdded }
         self.totalRemoved = files.reduce(0) { $0 + $1.linesRemoved }
+        var counts: [DiffFileRisk: Int] = [:]
+        for file in files {
+            counts[file.risk, default: 0] += 1
+        }
+        self.riskCounts = counts
     }
 
     public var summaryText: String {
-        "\(filesChanged) file\(filesChanged == 1 ? "" : "s") changed \u{00B7} +\(totalAdded) / \u{2212}\(totalRemoved)"
+        var text = "\(filesChanged) file\(filesChanged == 1 ? "" : "s") changed \u{00B7} +\(totalAdded) / \u{2212}\(totalRemoved)"
+        // Append risk breakdown (dangerous first, then moderate)
+        if let dangerous = riskCounts[.dangerous], dangerous > 0 {
+            text += " \u{00B7} \(dangerous) risk DANGEROUS"
+        }
+        if let moderate = riskCounts[.moderate], moderate > 0 {
+            text += " \u{00B7} \(moderate) risk MODERATE"
+        }
+        if let safe = riskCounts[.safe], safe > 0 {
+            text += " \u{00B7} \(safe) risk SAFE"
+        }
+        return text
     }
 }
 
@@ -104,7 +129,15 @@ public struct DiffView: Renderable, Sendable {
         var row = 0
         let summary = DiffSummary(files: files)
         let sumText = summary.summaryText
-        buf.write(sumText, x: 0, y: row, fg: theme.colors.fg, bold: true)
+
+        // Render summary banner with border
+        let bannerBorder = Cell(character: "\u{2500}", fg: theme.colors.border, bg: .default, bold: false, italic: false, underline: false)
+        for col in 0..<region.width {
+            buf[col, row] = bannerBorder
+        }
+        // Overlay summary text centered or left-aligned with padding
+        let displaySum = String(sumText.prefix(region.width - 4))
+        buf.write(displaySum, x: 2, y: row, fg: theme.colors.fg, bold: true)
         row += 1
 
         for file in files {
@@ -156,7 +189,14 @@ public struct DiffView: Renderable, Sendable {
         var row = 0
         let summary = DiffSummary(files: files)
         let sumText = summary.summaryText
-        buf.write(sumText, x: 0, y: row, fg: theme.colors.fg, bold: true)
+
+        // Render summary banner with border
+        let bannerBorder = Cell(character: "\u{2500}", fg: theme.colors.border, bg: .default, bold: false, italic: false, underline: false)
+        for col in 0..<region.width {
+            buf[col, row] = bannerBorder
+        }
+        let displaySum = String(sumText.prefix(region.width - 4))
+        buf.write(displaySum, x: 2, y: row, fg: theme.colors.fg, bold: true)
         row += 1
 
         for file in files {

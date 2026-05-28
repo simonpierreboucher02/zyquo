@@ -127,6 +127,22 @@ struct InteractiveCommand: AsyncParsableCommand {
         )
         splash.display()
 
+        // Set window title
+        if !noColor {
+            Terminal.setWindowTitle("Zyquo \u{2014} \(root.lastPathComponent)")
+            Terminal.setCursorShape(.bar)
+        }
+
+        // Enable persistent status bar
+        let writer = StreamWriter(theme: ThemeEngine().load(named: container.config.ui.theme), noColor: noColor)
+        let statusBar = StatusBarManager(writer: writer)
+        await statusBar.enable()
+        await statusBar.update(StatusBarManager.Content(
+            left: "\(root.lastPathComponent)",
+            center: modelName,
+            right: "$0.0000"
+        ))
+
         // Check provider key
         let hasKey = KeychainHelper.exists(service: ProviderKeychain.service, account: providerName)
         if !hasKey {
@@ -344,6 +360,14 @@ struct InteractiveCommand: AsyncParsableCommand {
                 ("Requests", "\(totalCost.requests)"),
             ])
             co.blank()
+
+            // Update status bar with latest cost and token info
+            let currentModelDisplay = ModelCatalog.findByAlias(currentModel)?.displayName ?? currentModel
+            await statusBar.update(StatusBarManager.Content(
+                left: "\(root.lastPathComponent)",
+                center: "\(currentModelDisplay) \u{2022} \(totalCost.totalInputTokens + totalCost.totalOutputTokens) tok",
+                right: totalCost.formattedCost
+            ))
         }
     }
 
@@ -484,6 +508,7 @@ struct InteractiveCommand: AsyncParsableCommand {
         switch cmd {
         case "/exit", "/quit", "/q":
             print("  \(dim)Goodbye.\(reset)")
+            Terminal.setCursorShape(.block)
             return .exit
 
         case "/help", "/h", "/?":

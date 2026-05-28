@@ -124,7 +124,7 @@ public struct MarkdownRenderer: Renderable, Sendable {
                     break
                 }
             } else if remaining.hasPrefix("*") || remaining.hasPrefix("_") {
-                let marker = remaining.first!
+                guard let marker = remaining.first else { break }
                 remaining = remaining.dropFirst()
                 if let end = remaining.firstIndex(of: marker) {
                     segments.append(.italic(String(remaining[..<end])))
@@ -147,8 +147,7 @@ public struct MarkdownRenderer: Renderable, Sendable {
                 }
             } else {
                 var plain = ""
-                while !remaining.isEmpty {
-                    let ch = remaining.first!
+                while let ch = remaining.first {
                     if ch == "`" || ch == "*" || ch == "_" || ch == "[" { break }
                     plain.append(ch)
                     remaining = remaining.dropFirst()
