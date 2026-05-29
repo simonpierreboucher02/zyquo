@@ -60,10 +60,15 @@ public struct ContextAssembler: Sendable {
         intent: String,
         workspaceSummary: String?,
         projectMemory: String?,
+        userModel: String? = nil,
+        toolGuidance: String? = nil,
         tools: [ToolSchema],
         budget: TokenBudget
     ) -> (context: AssembledContext, updatedBudget: TokenBudget) {
-        let systemPrompt = AgentPrompts.plannerSystem
+        var systemPrompt = AgentPrompts.plannerSystem
+        if let guidance = toolGuidance, !guidance.isEmpty {
+            systemPrompt += "\n" + guidance
+        }
 
         var userContent = "User intent: \(intent)\n"
         if let ws = workspaceSummary {
@@ -71,6 +76,9 @@ public struct ContextAssembler: Sendable {
         }
         if let pm = projectMemory {
             userContent += "\nProject memory:\n\(pm)\n"
+        }
+        if let um = userModel, !um.isEmpty {
+            userContent += "\nAbout the user (apply their preferences and style):\n\(um)\n"
         }
 
         let messages: [LLMMessage] = [.user(userContent)]
@@ -114,10 +122,14 @@ public struct ContextAssembler: Sendable {
         steps: [AgentStep],
         currentStepIndex: Int,
         workspaceSummary: String?,
+        toolGuidance: String? = nil,
         tools: [ToolSchema],
         budget: TokenBudget
     ) -> (context: AssembledContext, updatedBudget: TokenBudget) {
-        let systemPrompt = AgentPrompts.executorSystem
+        var systemPrompt = AgentPrompts.executorSystem
+        if let guidance = toolGuidance, !guidance.isEmpty {
+            systemPrompt += "\n" + guidance
+        }
 
         var messages: [LLMMessage] = []
 

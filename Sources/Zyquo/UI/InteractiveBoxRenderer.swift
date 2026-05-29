@@ -1,359 +1,245 @@
 import Foundation
 
-/// Renders beautiful bordered boxes for the interactive REPL.
-/// Wraps user prompts, AI responses, tool calls, and session stats
-/// in styled Unicode-bordered panels.
+/// Renders the interactive REPL surface in the "Premium Panels" style:
+/// raised filled cards with iris-gradient titles, vivid rounded borders, a
+/// gradient left gutter for streamed AI text, and gradient hairline rules.
+///
+/// Public API is unchanged so `InteractiveCommand` needs no edits. All output
+/// degrades gracefully (no bg fill on 16-color/mono, ASCII borders on NO_COLOR).
 public struct InteractiveBoxRenderer: Sendable {
     let theme: Theme
     let capability: TerminalCapability
     let noColor: Bool
+    private let panel: PremiumPanel
+    private let grad: Gradient
 
     public init(theme: Theme? = nil, noColor: Bool = false) {
-        self.theme = theme ?? .zyquoDark
-        self.capability = noColor ? .monochrome : TerminalCapability.detect()
+        let t = theme ?? .zyquoDark
+        let cap: TerminalCapability = noColor ? .monochrome : TerminalCapability.detect()
+        self.theme = t
+        self.capability = cap
         self.noColor = noColor
+        self.panel = PremiumPanel(theme: t, capability: cap, noColor: noColor)
+        self.grad = Gradient(theme: t, capability: cap, noColor: noColor)
     }
 
-    // MARK: - ANSI Helpers
-
-    private func fg(_ color: ANSIColor) -> String {
-        guard !noColor else { return "" }
-        let resolved = theme.resolve(color, capability: capability)
-        if case .default = resolved { return "" }
-        return "\u{1B}[\(resolved.fgCode)m"
-    }
-
+    private var width: Int { min(max(40, Terminal.size.width), 100) }
     private var rst: String { noColor ? "" : "\u{1B}[0m" }
-    private var bold: String { noColor ? "" : "\u{1B}[1m" }
     private var dim: String { noColor ? "" : "\u{1B}[2m" }
+    private var bold: String { noColor ? "" : "\u{1B}[1m" }
 
-    private var tl: String { noColor ? "+" : "\u{256D}" }
-    private var tr: String { noColor ? "+" : "\u{256E}" }
-    private var bl: String { noColor ? "+" : "\u{2570}" }
-    private var br: String { noColor ? "+" : "\u{256F}" }
-    private var hz: String { noColor ? "-" : "\u{2500}" }
-    private var vt: String { noColor ? "|" : "\u{2502}" }
+    private var fgRGB: RGB { RGB(ansi: theme.colors.fg) }
+    private var mutedRGB: RGB { RGB(ansi: theme.colors.fg).mix(RGB(ansi: theme.colors.fgMuted), 1.0) }
+    private func rgb(_ c: ANSIColor) -> RGB { RGB(ansi: c) }
 
-    private var width: Int { max(40, Terminal.size.width) }
+    private func fg(_ c: ANSIColor) -> String { grad.fg(c) }
 
-    // MARK: - User Input Box
+    // MARK: - User Input
 
-    /// Renders a compact box showing the user's input message.
     public func renderUserInput(_ text: String) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.accent)
-        let titleColor = fg(theme.colors.accent)
-        let textColor = fg(theme.colors.fg)
-        let icon = noColor ? ">" : "\u{276F}"
-
-        // Top with title
-        let titleText = " \(icon) You "
-        let titleLen = stripANSI(titleText).count
-        let rightFill = max(0, innerWidth - 1 - titleLen)
-        print("\(borderColor)\(tl)\(hz)\(rst)\(bold)\(titleColor)\(titleText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-
-        // Content lines
-        let lines = wrapText(text, maxWidth: innerWidth - 2)
-        for line in lines {
-            let padLen = max(0, innerWidth - visibleLength(line) - 2)
-            print("\(borderColor)\(vt)\(rst) \(textColor)\(line)\(rst)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
+        let textWidth = width - 4
+        let rows = wrap(text, textWidth).map { [PremiumPanel.Segment($0, fgRGB)] }
+        let body = rows.isEmpty ? [[PremiumPanel.Segment("", fgRGB)]] : rows
+        print()
+        for line in panel.panel(title: "You", icon: glyph(">", "\u{276F}"), bodyRows: body, width: width) {
+            print(line)
         }
-
-        // Bottom
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
     }
 
-    // MARK: - AI Response Box
+    // MARK: - AI Response (streamed)
 
-    /// Call before streaming to print the top border of the response box.
     public func renderResponseStart(model: String) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.border)
-        let titleColor = fg(theme.colors.accentStrong)
-        let accentColor = fg(theme.colors.accent)
-        let icon = noColor ? "*" : "\u{2726}"
-
-        let titleText = " \(icon) \(model) "
-        let titleLen = stripANSI(titleText).count
-        let rightFill = max(0, innerWidth - 1 - titleLen)
-
         print()
-        print("\(borderColor)\(tl)\(hz)\(rst)\(bold)\(titleColor)\(titleText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-        // Left gutter bar for first content line
-        print("\(accentColor)\(vt)\(rst) ", terminator: "")
+        // Rounded header with gradient title, then start the gradient gutter.
+        print(panel.headerLine(title: model, icon: glyph("*", "\u{2726}"), inner: width - 2))
+        print(gutter(), terminator: "")
         fflush(stdout)
     }
 
-    /// Call for each streaming text delta during response.
-    /// Uses a colored left gutter bar to frame the streaming content.
     public func renderResponseDelta(_ text: String) {
-        let accentColor = fg(theme.colors.accent)
-
-        for char in text {
-            if char == "\n" {
+        for ch in text {
+            if ch == "\n" {
                 print()
-                print("\(accentColor)\(vt)\(rst) ", terminator: "")
+                print(gutter(), terminator: "")
             } else {
-                print(String(char), terminator: "")
+                print(String(ch), terminator: "")
             }
         }
         fflush(stdout)
     }
 
-    /// Call after streaming ends to close the response box.
     public func renderResponseEnd() {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.border)
-
-        // End the last content line
         print()
-        // Bottom border
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
+        // Gradient hairline closes the response block.
+        print(" " + panel.rule(width: width - 2))
     }
 
-    // MARK: - Tool Call Box
+    /// The iris gradient left gutter prefix for a streamed line.
+    private func gutter() -> String {
+        guard !noColor else { return "| " }
+        let bar = "\u{258C}" // ▌
+        return grad.fg(grad.start) + bar + rst + " "
+    }
 
-    /// Renders a tool invocation with its result in a compact styled panel.
+    // MARK: - Tool Call
+
     public func renderToolCall(name: String, preview: String, isError: Bool = false) {
-        let w = width
-        let innerWidth = w - 4
-        let borderColor = fg(theme.colors.fgMuted)
-        let toolColor = isError ? fg(theme.colors.risk) : fg(theme.colors.warn)
-        let icon = isError
-            ? (noColor ? "[X]" : "\u{2717}")
-            : (noColor ? "[>]" : "\u{25B6}")
-        let statusIcon = isError
-            ? (noColor ? "FAIL" : "\u{2717}")
-            : (noColor ? "OK" : "\u{2713}")
-        let statusColor = isError ? fg(theme.colors.risk) : fg(theme.colors.ok)
+        let accent = isError ? rgb(theme.colors.risk) : rgb(theme.colors.accent)
+        let statusGlyph = isError ? glyph("FAIL", "\u{2717}") : glyph("OK", "\u{2713}")
+        let statusColor = isError ? rgb(theme.colors.risk) : rgb(theme.colors.ok)
+        let icon = isError ? glyph("x", "\u{2717}") : glyph(">", "\u{27E2}")
 
-        // Single-line compact tool header
-        let headerText = " \(icon) \(name) "
-        let headerLen = stripANSI(headerText).count + 2
-        let rightFill = max(0, innerWidth - headerLen + 2)
-
-        print("  \(borderColor)\(tl)\(hz)\(rst)\(bold)\(toolColor)\(headerText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-
-        // Preview line(s)
-        let truncatedPreview = String(preview.prefix(max(10, innerWidth - 4)))
-            .replacingOccurrences(of: "\n", with: " ")
-        let lines = wrapText(truncatedPreview, maxWidth: innerWidth - 2)
-        for line in lines {
-            let padLen = max(0, innerWidth - visibleLength(line) - 2)
-            print("  \(borderColor)\(vt)\(rst) \(dim)\(line)\(rst)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
+        let innerText = width - 6
+        let clean = preview.replacingOccurrences(of: "\n", with: " ")
+        var rows: [[PremiumPanel.Segment]] = wrap(clean, innerText).prefix(3).map {
+            [PremiumPanel.Segment($0, mutedRGB, dim: true)]
         }
+        rows.append([
+            PremiumPanel.Segment("\(statusGlyph) ", statusColor, bold: true),
+            PremiumPanel.Segment(isError ? "failed" : "done", statusColor),
+        ])
 
-        // Status + bottom
-        let statusText = " \(statusIcon) "
-        let statusLen = stripANSI(statusText).count + 2
-        let bottomFill = max(0, innerWidth - statusLen + 2)
-        print("  \(borderColor)\(bl)\(String(repeating: hz, count: bottomFill))\(rst)\(statusColor)\(statusText)\(rst)\(borderColor)\(hz)\(br)\(rst)")
+        let lines = panel.panel(
+            title: name, icon: icon, bodyRows: rows, width: width - 2, accent: accent
+        )
+        for line in lines { print("  " + line) }
     }
 
-    /// Renders tool execution duration.
     public func renderToolDuration(_ durationMs: Int) {
-        let durationStr = durationMs >= 1000
-            ? String(format: "%.1fs", Double(durationMs) / 1000.0)
-            : "\(durationMs)ms"
-        print("  \(dim)\(fg(theme.colors.fgMuted))  \u{231A} \(durationStr)\(rst)")
+        let s = durationMs >= 1000 ? String(format: "%.1fs", Double(durationMs) / 1000) : "\(durationMs)ms"
+        print("    \(dim)\(fg(theme.colors.fgMuted))\(glyph("~", "\u{231A}")) \(s)\(rst)")
     }
 
-    // MARK: - Session Stats Box
+    // MARK: - Session Stats
 
-    /// Renders the session cost/token footer in a styled panel.
     public func renderSessionStats(tokens: String, cost: String, requests: String) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.border)
-        let mutedColor = fg(theme.colors.fgMuted)
-        let fgColor = fg(theme.colors.fg)
-
-        // Top thin separator
-        print("\(borderColor)\(tl)\(String(repeating: hz, count: innerWidth))\(tr)\(rst)")
-
-        // Stats items inline
-        let items: [(String, String, String)] = [
-            ("tok", "Tokens", tokens),
-            ("$", "Cost", cost),
-            ("#", "Reqs", requests),
+        let sep = PremiumPanel.Segment("  \(glyph("|", "\u{2502}"))  ", rgb(theme.colors.border))
+        let row: [PremiumPanel.Segment] = [
+            PremiumPanel.Segment(glyph("tok", "\u{25C8}") + " ", rgb(theme.colors.accent)),
+            PremiumPanel.Segment(tokens, fgRGB),
+            sep,
+            PremiumPanel.Segment("$ ", rgb(theme.colors.ok)),
+            PremiumPanel.Segment(cost, fgRGB),
+            sep,
+            PremiumPanel.Segment("# ", rgb(theme.colors.warn)),
+            PremiumPanel.Segment(requests, fgRGB),
         ]
-        let itemStrings = items.map { icon, label, val in
-            noColor ? "\(label): \(val)" : "\(mutedColor)\(icon)\(rst) \(fgColor)\(val)\(rst)"
+        print()
+        for line in panel.panel(title: "Session", icon: glyph("=", "\u{25B8}"), bodyRows: [row], width: width) {
+            print(line)
         }
-        let joined = itemStrings.joined(separator: "  \(borderColor)\u{2502}\(rst)  ")
-        let contentLen = items.reduce(0) { $0 + $1.0.count + 1 + $1.2.count } + (items.count - 1) * 5
-        let padLen = max(0, innerWidth - contentLen - 2)
-
-        print("\(borderColor)\(vt)\(rst) \(joined)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
-
-        // Bottom
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
     }
 
-    // MARK: - Prompt Line
+    // MARK: - Prompt
 
-    /// Renders the interactive prompt with a styled prefix.
     public func renderPrompt() {
-        let accentColor = fg(theme.colors.accent)
-        let icon = noColor ? ">" : "\u{276F}"
-        print("\(bold)\(accentColor)\(icon) zyquo\(rst) \(dim)\(fg(theme.colors.fgMuted))\u{2502}\(rst) ", terminator: "")
+        let icon = glyph(">", "\u{276F}")
+        let label = grad.text("\(icon) zyquo", bold: true)
+        print("\(label) \(dim)\(fg(theme.colors.fgMuted))\(glyph("|", "\u{2502}"))\(rst) ", terminator: "")
         fflush(stdout)
     }
 
     // MARK: - Slash Command Results
 
-    /// Renders a slash command result in a panel.
     public func renderCommandResult(title: String, items: [(String, String)]) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.border)
-        let titleColor = fg(theme.colors.accent)
-        let fgColor = fg(theme.colors.fg)
-        let mutedColor = fg(theme.colors.fgMuted)
-
-        let titleText = " \(title) "
-        let titleLen = titleText.count
-        let rightFill = max(0, innerWidth - 1 - titleLen)
-
-        print()
-        print("\(borderColor)\(tl)\(hz)\(rst)\(bold)\(titleColor)\(titleText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-
-        for (key, value) in items {
-            let content = "\(key):  \(value)"
-            let contentLen = content.count
-            let padLen = max(0, innerWidth - contentLen - 2)
-            print("\(borderColor)\(vt)\(rst) \(mutedColor)\(key):\(rst)  \(fgColor)\(value)\(rst)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
+        let keyWidth = (items.map { DisplayWidth.width($0.0) }.max() ?? 6) + 2
+        let rows: [[PremiumPanel.Segment]] = items.map { key, value in
+            let label = DisplayWidth.pad(key, to: keyWidth)
+            return [
+                PremiumPanel.Segment(label, mutedRGB),
+                PremiumPanel.Segment(value, fgRGB),
+            ]
         }
-
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
+        print()
+        for line in panel.panel(title: title, bodyRows: rows.isEmpty ? [[PremiumPanel.Segment("", fgRGB)]] : rows, width: width) {
+            print(line)
+        }
         print()
     }
 
-    /// Renders a simple list panel (for /help, /tools, etc.).
     public func renderListPanel(title: String, entries: [(String, String)], keyColor: ANSIColor? = nil) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.border)
-        let titleColor = fg(theme.colors.accent)
-        let kColor = fg(keyColor ?? theme.colors.accent)
-        let descColor = fg(theme.colors.fgMuted)
-
-        let titleText = " \(title) "
-        let titleLen = titleText.count
-        let rightFill = max(0, innerWidth - 1 - titleLen)
-
-        print()
-        print("\(borderColor)\(tl)\(hz)\(rst)\(bold)\(titleColor)\(titleText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-
-        let maxKeyLen = entries.map { $0.0.count }.max() ?? 10
-        for (key, desc) in entries {
-            let pad = String(repeating: " ", count: max(1, maxKeyLen - key.count + 2))
-            let content = "\(key)\(pad)\(desc)"
-            let contentLen = content.count
-            let rightPad = max(0, innerWidth - contentLen - 2)
-            print("\(borderColor)\(vt)\(rst) \(kColor)\(key)\(rst)\(pad)\(descColor)\(desc)\(rst)\(String(repeating: " ", count: rightPad)) \(borderColor)\(vt)\(rst)")
+        let kc = rgb(keyColor ?? theme.colors.accent)
+        let keyWidth = (entries.map { DisplayWidth.width($0.0) }.max() ?? 8) + 2
+        let rows: [[PremiumPanel.Segment]] = entries.map { key, desc in
+            [
+                PremiumPanel.Segment(DisplayWidth.pad(key, to: keyWidth), kc, bold: true),
+                PremiumPanel.Segment(desc, mutedRGB),
+            ]
         }
-
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
+        print()
+        for line in panel.panel(title: title, bodyRows: rows.isEmpty ? [[PremiumPanel.Segment("", fgRGB)]] : rows, width: width) {
+            print(line)
+        }
         print()
     }
 
-    // MARK: - Thinking Indicator
+    // MARK: - Thinking
 
-    /// Renders a thinking/processing indicator before streaming starts.
+    private static let braille = ["\u{280B}", "\u{2819}", "\u{2839}", "\u{2838}", "\u{283C}", "\u{2834}", "\u{2826}", "\u{2827}", "\u{2807}", "\u{280F}"]
+
     public func renderThinking() {
-        let mutedColor = fg(theme.colors.fgMuted)
-        let icon = noColor ? "..." : "\u{2026}"
-        print("  \(dim)\(mutedColor)\(icon) thinking\(rst)", terminator: "\r")
+        let spin = noColor ? "..." : Self.braille[0]
+        print("  \(fg(theme.colors.accent))\(spin)\(rst) \(dim)\(fg(theme.colors.fgMuted))thinking\(rst)", terminator: "\r")
         fflush(stdout)
     }
 
-    /// Clears the thinking indicator line.
     public func clearThinking() {
-        let w = width
-        print("\r\(String(repeating: " ", count: w))\r", terminator: "")
+        print("\r\(String(repeating: " ", count: width))\r", terminator: "")
         fflush(stdout)
     }
 
-    // MARK: - Error Box
+    // MARK: - Error
 
-    /// Renders an error in a distinctly-styled box.
     public func renderError(_ message: String, hint: String? = nil) {
-        let w = width
-        let innerWidth = w - 2
-        let borderColor = fg(theme.colors.risk)
-        let icon = noColor ? "[!]" : "\u{26A0}"
-
-        let titleText = " \(icon) Error "
-        let titleLen = stripANSI(titleText).count
-        let rightFill = max(0, innerWidth - 1 - titleLen)
-
-        print("\(borderColor)\(tl)\(hz)\(rst)\(bold)\(borderColor)\(titleText)\(rst)\(borderColor)\(String(repeating: hz, count: rightFill))\(tr)\(rst)")
-
-        let lines = wrapText(message, maxWidth: innerWidth - 2)
-        for line in lines {
-            let padLen = max(0, innerWidth - visibleLength(line) - 2)
-            print("\(borderColor)\(vt)\(rst) \(fg(theme.colors.risk))\(line)\(rst)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
+        let risk = rgb(theme.colors.risk)
+        let textWidth = width - 4
+        var rows: [[PremiumPanel.Segment]] = wrap(message, textWidth).map {
+            [PremiumPanel.Segment($0, risk)]
         }
-
-        if let hint = hint {
-            // Separator
-            print("\(borderColor)\(vt)\(rst) \(borderColor)\(String(repeating: hz, count: innerWidth - 2))\(rst) \(borderColor)\(vt)\(rst)")
-            let hintLines = wrapText("Hint: \(hint)", maxWidth: innerWidth - 2)
-            for line in hintLines {
-                let padLen = max(0, innerWidth - visibleLength(line) - 2)
-                print("\(borderColor)\(vt)\(rst) \(dim)\(fg(theme.colors.fgMuted))\(line)\(rst)\(String(repeating: " ", count: padLen)) \(borderColor)\(vt)\(rst)")
+        if let hint {
+            rows.append([PremiumPanel.Segment(String(repeating: glyph("-", "\u{2500}"), count: textWidth), rgb(theme.colors.border))])
+            for line in wrap("Hint: \(hint)", textWidth) {
+                rows.append([PremiumPanel.Segment(line, mutedRGB, dim: true)])
             }
         }
-
-        print("\(borderColor)\(bl)\(String(repeating: hz, count: innerWidth))\(br)\(rst)")
+        print()
+        for line in panel.panel(title: "Error", icon: glyph("!", "\u{26A0}"), bodyRows: rows, width: width, accent: risk) {
+            print(line)
+        }
     }
 
     // MARK: - Separator
 
-    /// Renders a thin decorative separator between exchanges.
-    public func renderSeparator() {
-        print()
+    public func renderSeparator() { print() }
+
+    // MARK: - Utilities
+
+    private func glyph(_ ascii: String, _ unicode: String) -> String {
+        noColor ? ascii : unicode
     }
 
-    // MARK: - Text Utilities
-
-    private func wrapText(_ text: String, maxWidth: Int) -> [String] {
+    private func wrap(_ text: String, _ maxWidth: Int) -> [String] {
         guard maxWidth > 0 else { return [text] }
         var result: [String] = []
-        let rawLines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        for rawLine in rawLines {
-            if rawLine.count <= maxWidth {
-                result.append(rawLine)
-            } else {
-                var remaining = rawLine
-                while remaining.count > maxWidth {
-                    let breakIdx = remaining.index(remaining.startIndex, offsetBy: maxWidth)
-                    // Try to break at a space
-                    if let spaceIdx = remaining[..<breakIdx].lastIndex(of: " ") {
-                        result.append(String(remaining[..<spaceIdx]))
-                        remaining = String(remaining[remaining.index(after: spaceIdx)...])
-                    } else {
-                        result.append(String(remaining.prefix(maxWidth)))
-                        remaining = String(remaining.dropFirst(maxWidth))
-                    }
-                }
-                if !remaining.isEmpty {
-                    result.append(remaining)
+        for raw in text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init) {
+            if DisplayWidth.width(raw) <= maxWidth {
+                result.append(raw)
+                continue
+            }
+            var remaining = raw
+            while DisplayWidth.width(remaining) > maxWidth {
+                let head = DisplayWidth.truncate(remaining, to: maxWidth)
+                // try to break at the last space within head
+                if let spaceIdx = head.lastIndex(of: " "), spaceIdx != head.startIndex {
+                    result.append(String(head[..<spaceIdx]))
+                    remaining = String(remaining[remaining.index(after: spaceIdx)...])
+                } else {
+                    result.append(head)
+                    remaining = String(remaining.dropFirst(head.count))
                 }
             }
+            if !remaining.isEmpty { result.append(remaining) }
         }
         return result.isEmpty ? [""] : result
-    }
-
-    private func stripANSI(_ str: String) -> String {
-        str.replacingOccurrences(of: "\u{1B}\\[[0-9;]*m", with: "", options: .regularExpression)
-    }
-
-    private func visibleLength(_ str: String) -> Int {
-        stripANSI(str).count
     }
 }

@@ -12,6 +12,9 @@ public struct ExecutionContext: Sendable {
     public let trustStore: TrustStore
     public let config: AgentConfig
     public let logger: Logging.Logger
+    /// Optional registry of `Tool`s (ZTP bridges, file.write/patch, git.*, …).
+    /// Tool names not handled natively are dispatched through this registry.
+    public let toolRegistry: ToolRegistry?
 
     public init(
         workspace: Workspace,
@@ -20,7 +23,8 @@ public struct ExecutionContext: Sendable {
         approvalGate: ApprovalGate,
         trustStore: TrustStore,
         config: AgentConfig,
-        logger: Logging.Logger = ZyquoLogger.shared
+        logger: Logging.Logger = ZyquoLogger.shared,
+        toolRegistry: ToolRegistry? = nil
     ) {
         self.workspace = workspace
         self.shellExecutor = shellExecutor
@@ -29,6 +33,7 @@ public struct ExecutionContext: Sendable {
         self.trustStore = trustStore
         self.config = config
         self.logger = logger
+        self.toolRegistry = toolRegistry
     }
 }
 
@@ -79,21 +84,120 @@ public struct Executor: Sendable {
     ) async throws -> ExecutionResult {
         let startTime = ContinuousClock.now
 
-        switch toolCall.toolName {
+        // Normalize the LLM-facing wire name (e.g. "ztp_excel", "shell_run")
+        // back to the canonical "ns.verb" form the dispatcher and registry use.
+        let canonicalName = toolCall.toolName.contains(".")
+            ? toolCall.toolName
+            : ToolNameWire.toCanonical(toolCall.toolName)
+        let call = canonicalName == toolCall.toolName
+            ? toolCall
+            : ToolCall(toolName: canonicalName, input: toolCall.input, id: toolCall.id)
+
+        switch canonicalName {
         case "shell.run":
-            return try await executeShellRun(toolCall: toolCall, context: context, startTime: startTime)
+            return try await executeShellRun(toolCall: call, context: context, startTime: startTime)
         case "file.read":
-            return try await executeFileRead(toolCall: toolCall, context: context, startTime: startTime)
+            return try await executeFileRead(toolCall: call, context: context, startTime: startTime)
         case "file.list":
-            return try await executeFileList(toolCall: toolCall, context: context, startTime: startTime)
+            return try await executeFileList(toolCall: call, context: context, startTime: startTime)
         default:
-            let elapsed = elapsedMs(since: startTime)
+            return try await executeRegistryTool(toolCall: call, context: context, startTime: startTime)
+        }
+    }
+
+    // MARK: - Registry-backed tools (ZTP bridges, file.write/patch, git.*, …)
+
+    /// Dispatch a tool call to a `Tool` registered in the execution context's
+    /// registry. Mutating tools are gated through the same approval policy as
+    /// shell commands (auto-approve SAFE/MODERATE when configured; deny
+    /// DANGEROUS/CRITICAL in non-interactive mode).
+    private func executeRegistryTool(
+        toolCall: ToolCall,
+        context: ExecutionContext,
+        startTime: ContinuousClock.Instant
+    ) async throws -> ExecutionResult {
+        guard let registry = context.toolRegistry,
+              let tool = registry.tool(named: toolCall.toolName) else {
+            let available = context.toolRegistry?.allTools().map(\.name).sorted()
+                ?? ["shell.run", "file.read", "file.list"]
             return ExecutionResult(
                 observation: Observation(
-                    summary: "Unknown tool '\(toolCall.toolName)'. Available tools: shell.run, file.read, file.list",
-                    durationMs: elapsed,
+                    summary: "Unknown tool '\(toolCall.toolName)'. Available: \(available.joined(separator: ", "))",
+                    durationMs: elapsedMs(since: startTime),
                     isError: true
                 )
+            )
+        }
+
+        // Per-call risk: a tool flagged `confirmed`/destructive escalates.
+        let confirmed = toolCall.input["confirmed"]?.asBool ?? false
+        let tier = (tool.isMutating && confirmed) ? max(tool.defaultRisk, .dangerous) : tool.defaultRisk
+        let risk = RiskAssessment(tier: tier, rationale: "Registered tool '\(tool.name)' (\(tier.displayName))")
+
+        // Approval gating (trust grants keyed by tool name).
+        let decision = context.approvalGate.check(
+            command: tool.name,
+            risk: risk,
+            trustStore: context.trustStore
+        )
+        let approvalSource: ApprovalSource
+        switch decision {
+        case .autoApproved:
+            approvalSource = .autoSafe
+        case .requiresApproval:
+            if tier <= .moderate && context.config.autoApproveSafe {
+                approvalSource = .autoSafe
+            } else {
+                return ExecutionResult(
+                    observation: Observation(
+                        summary: "Approval required for \(tier.displayName) tool '\(tool.name)'",
+                        durationMs: elapsedMs(since: startTime),
+                        isError: true
+                    ),
+                    riskAssessment: risk,
+                    approvalSource: .policyDenied,
+                    wasSkipped: true
+                )
+            }
+        case .denied(let reason):
+            return ExecutionResult(
+                observation: Observation(
+                    summary: "Tool '\(tool.name)' denied: \(reason)",
+                    durationMs: elapsedMs(since: startTime),
+                    isError: true
+                ),
+                riskAssessment: risk,
+                approvalSource: .policyDenied,
+                wasSkipped: true
+            )
+        }
+
+        let toolContext = ToolContext(
+            workspaceRoot: await context.workspace.root,
+            sessionId: "",
+            logger: context.logger
+        )
+
+        do {
+            let result = try await tool.execute(input: toolCall.input, context: toolContext)
+            // A ZTP/registry tool reports failure inside its payload; treat a
+            // summary starting with "FAILED"/"Error" as an error observation.
+            let lower = result.summary.lowercased()
+            let isError = lower.contains("failed") || lower.hasPrefix("error")
+            return ExecutionResult(
+                observation: result.toObservation(isError: isError),
+                riskAssessment: risk,
+                approvalSource: approvalSource
+            )
+        } catch {
+            return ExecutionResult(
+                observation: Observation(
+                    summary: "Tool '\(tool.name)' error: \(error.localizedDescription)",
+                    durationMs: elapsedMs(since: startTime),
+                    isError: true
+                ),
+                riskAssessment: risk,
+                approvalSource: approvalSource
             )
         }
     }

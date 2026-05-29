@@ -9,9 +9,80 @@ struct MemoryCommand: AsyncParsableCommand {
             MemoryOverview.self,
             MemoryEdit.self,
             MemoryCompact.self,
+            MemoryUser.self,
         ],
         defaultSubcommand: MemoryOverview.self
     )
+
+    // MARK: - User Model Subcommand
+
+    struct MemoryUser: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "user",
+            abstract: "Show the persistent cross-session user model"
+        )
+
+        @OptionGroup var globals: ZyquoCLI.GlobalOptions
+
+        @Flag(name: .long, help: "Open the user model in $EDITOR")
+        var edit = false
+
+        func run() async throws {
+            Bootstrap.setupSignalHandlers()
+            let store = UserModelStore()
+
+            if edit {
+                // Ensure the markdown mirror exists before editing.
+                let model = await store.load()
+                try? await store.save(model)
+                let path = await store.markdownLocation()
+                let editor = ProcessInfo.processInfo.environment["EDITOR"] ?? "vi"
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+                process.arguments = [editor, path.path]
+                process.standardInput = FileHandle.standardInput
+                process.standardOutput = FileHandle.standardOutput
+                process.standardError = FileHandle.standardError
+                try process.run()
+                process.waitUntilExit()
+                return
+            }
+
+            let model = await store.load()
+            print()
+            print("  \u{1B}[1mUser Model\u{1B}[0m")
+            print("  \(String(repeating: "\u{2500}", count: 50))")
+
+            if model.observations.isEmpty && model.userEditedNotes.isEmpty {
+                print("  Nothing learned yet.")
+                print("  Zyquo builds this as you run agentic tasks (`zyquo run ...`).")
+                print()
+                return
+            }
+
+            for trait in UserTrait.allCases {
+                let filtered: [UserObservation] = model.observations.filter {
+                    $0.trait == trait && $0.confidence >= 0.2
+                }
+                let group: [UserObservation] = filtered.sorted { $0.confidence > $1.confidence }
+                guard !group.isEmpty else { continue }
+                print("  \u{1B}[36m\(trait.displayName)\u{1B}[0m")
+                for obs in group {
+                    let pct = Int((obs.confidence * 100).rounded())
+                    print("    • \(obs.statement) \u{1B}[2m(\(pct)%, \(obs.evidenceCount)×)\u{1B}[0m")
+                }
+            }
+
+            if !model.userEditedNotes.isEmpty {
+                print("  \u{1B}[36mNotes\u{1B}[0m")
+                print("    \(model.userEditedNotes.replacingOccurrences(of: "\n", with: "\n    "))")
+            }
+
+            print("  \(String(repeating: "\u{2500}", count: 50))")
+            print("  Edit with: zyquo memory user --edit")
+            print()
+        }
+    }
 
     struct MemoryOverview: AsyncParsableCommand {
         static let configuration = CommandConfiguration(

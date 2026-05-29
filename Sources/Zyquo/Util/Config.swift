@@ -7,6 +7,7 @@ public struct Config: Sendable {
     public let providers: ProvidersConfig
     public let shell: ShellConfig
     public let memory: MemoryConfig
+    public let learning: LearningConfig
 
     public init(
         flags: CommandFlags = .init(),
@@ -22,6 +23,7 @@ public struct Config: Sendable {
         self.providers = ProvidersConfig(flags: flags, env: environment, workspace: workspaceConfig, user: userConfig)
         self.shell = ShellConfig(flags: flags, env: environment, workspace: workspaceConfig, user: userConfig)
         self.memory = MemoryConfig(flags: flags, env: environment, workspace: workspaceConfig, user: userConfig)
+        self.learning = LearningConfig(flags: flags, env: environment, workspace: workspaceConfig, user: userConfig)
     }
 
     static let defaultUserConfigPath: URL = {
@@ -182,5 +184,49 @@ public struct MemoryConfig: Sendable {
         let memSection = user["memory"] as? [String: Any] ?? [:]
         self.compressThresholdPct = memSection["compress_threshold_pct"] as? Int ?? 70
         self.keepDecisionsVerbatim = memSection["keep_decisions_verbatim"] as? Bool ?? true
+    }
+}
+
+// MARK: - LearningConfig
+
+/// Controls the closed learning loop: persistent user modeling, skill
+/// extraction/refinement, and learning nudges. Everything here is opt-out
+/// (defaults on) and cost-bounded so the loop never surprises the user.
+public struct LearningConfig: Sendable {
+    /// Master switch for the entire learning loop.
+    public let enabled: Bool
+    /// Whether to distill/maintain the persistent user model.
+    public let userModel: Bool
+    /// Whether to auto-extract reusable skill candidates from sessions.
+    public let skillExtraction: Bool
+    /// Whether to surface learning nudges.
+    public let nudges: Bool
+    /// Hard cap on USD spent per session-end distillation pass.
+    public let maxDistillCostUSD: Double
+    /// Number of sessions without a project-memory update before nudging.
+    public let staleMemorySessions: Int
+    /// Minimum runs before a skill becomes eligible for a refinement proposal.
+    public let skillRefineMinRuns: Int
+
+    init(flags: CommandFlags, env: [String: String], workspace: [String: Any], user: [String: Any]) {
+        let section = (workspace["learning"] as? [String: Any])
+            ?? (user["learning"] as? [String: Any]) ?? [:]
+        self.enabled = (env["ZYQUO_LEARNING"].flatMap(Self.parseBool)) ?? (section["enabled"] as? Bool ?? true)
+        self.userModel = section["user_model"] as? Bool ?? true
+        self.skillExtraction = section["skill_extraction"] as? Bool ?? true
+        self.nudges = section["nudges"] as? Bool ?? true
+        self.maxDistillCostUSD = (section["max_distill_cost_usd"] as? Double)
+            ?? (section["max_distill_cost_usd"] as? Int).map(Double.init)
+            ?? 0.05
+        self.staleMemorySessions = section["stale_memory_sessions"] as? Int ?? 10
+        self.skillRefineMinRuns = section["skill_refine_min_runs"] as? Int ?? 5
+    }
+
+    private static func parseBool(_ s: String) -> Bool? {
+        switch s.lowercased() {
+        case "1", "true", "yes", "on": return true
+        case "0", "false", "no", "off": return false
+        default: return nil
+        }
     }
 }

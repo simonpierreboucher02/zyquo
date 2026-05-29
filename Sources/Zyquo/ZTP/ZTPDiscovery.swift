@@ -89,11 +89,32 @@ public actor ZTPDiscovery {
     }
 
     public nonisolated func isAvailable() -> Bool {
+        Self.resolveBinaryPath() != nil
+    }
+
+    /// Resolve the `ztp` binary path robustly across install layouts
+    /// (Homebrew arm64/x86_64, ~/.local/bin, then `which ztp`). Returns nil if
+    /// not installed. Shared by the integration so the path is never hardcoded.
+    public nonisolated static func resolveBinaryPath() -> String? {
         let candidates = [
             "/opt/homebrew/bin/ztp",
             "/usr/local/bin/ztp",
+            "\(FileManager.default.homeDirectoryForCurrentUser.path)/.local/bin/ztp",
         ]
-        return candidates.contains { FileManager.default.isExecutableFile(atPath: $0) }
+        for path in candidates where FileManager.default.isExecutableFile(atPath: path) {
+            return path
+        }
+        let process = Process()
+        let pipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        process.arguments = ["-lc", "which ztp"]
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        try? process.run()
+        process.waitUntilExit()
+        let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        let trimmed = out.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (!trimmed.isEmpty && FileManager.default.isExecutableFile(atPath: trimmed)) ? trimmed : nil
     }
 
     private func resolveZTPPath() -> String? {

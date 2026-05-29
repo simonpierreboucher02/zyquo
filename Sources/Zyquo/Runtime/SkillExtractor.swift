@@ -9,7 +9,7 @@ import Foundation
 /// for promotion into the skill registry.
 ///
 /// Reference: CLAUDE.md §30 Phase 10
-public struct ExtractedSkillCandidate: Sendable {
+public struct ExtractedSkillCandidate: Sendable, Codable, Equatable {
     /// Suggested stable identifier for the skill (e.g. "fix_swift_build").
     public let suggestedId: String
     /// Suggested human-readable title.

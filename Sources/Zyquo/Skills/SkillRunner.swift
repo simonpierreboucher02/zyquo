@@ -14,19 +14,24 @@ public struct SkillExecutionContext: Sendable {
     public let toolRegistry: ToolRegistry
     /// The session ID for this execution.
     public let sessionId: SessionID
+    /// Optional stats store; when provided, each completed/failed run is
+    /// recorded so the `SkillRefiner` can later propose improvements.
+    public let statsStore: SkillStatsStore?
 
     public init(
         workspace: URL,
         provider: any LLMProvider,
         model: String,
         toolRegistry: ToolRegistry,
-        sessionId: SessionID
+        sessionId: SessionID,
+        statsStore: SkillStatsStore? = nil
     ) {
         self.workspace = workspace
         self.provider = provider
         self.model = model
         self.toolRegistry = toolRegistry
         self.sessionId = sessionId
+        self.statsStore = statsStore
     }
 }
 
@@ -334,6 +339,21 @@ public actor SkillRunner {
                     cost: cost,
                     duration: duration
                 )
+
+                // Record usage stats so the refiner can learn from outcomes.
+                if let stats = context.statsStore {
+                    // A run is a success unless verification explicitly failed.
+                    let succeeded = verificationPassed != false
+                    try? await stats.record(
+                        id: skill.manifest.id,
+                        succeeded: succeeded,
+                        steps: stepsCompleted,
+                        costUSD: cost.totalCostUSD,
+                        outcome: succeeded ? "completed" : "verification failed",
+                        failureNote: succeeded ? nil : "verification command failed"
+                    )
+                }
+
                 continuation.yield(.completed(result))
                 continuation.finish()
             }

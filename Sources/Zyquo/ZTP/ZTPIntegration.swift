@@ -22,7 +22,10 @@ public actor ZTPIntegration {
         let manifests = await discovery.discoverTools()
         logger.info("ZTP discovery found \(manifests.count) tools")
 
-        let ztpPath = "/opt/homebrew/bin/ztp"
+        guard let ztpPath = ZTPDiscovery.resolveBinaryPath() else {
+            logger.info("ZTP binary path could not be resolved — skipping registration")
+            return
+        }
         for manifest in manifests {
             let bridge = ZTPToolBridge(manifest: manifest, ztpBinary: ztpPath)
             bridges[bridge.name] = bridge
@@ -78,9 +81,14 @@ public actor ZTPIntegration {
         }
 
         fragment += "\n### Spec Format\n"
-        fragment += "Each document-generating tool (excel, docx, slides, chart) accepts a JSON spec.\n"
-        fragment += "Pass specs inline via `spec` parameter or save to a file and use `spec_file`.\n"
-        fragment += "All commands must use `--json` output (handled automatically).\n"
+        fragment += "Each document-generating tool accepts a JSON spec via the `spec` parameter "
+        fragment += "(inline) or `spec_file` (path), plus `command` (usually \"build\") and `output`.\n"
+        fragment += "Every spec MUST include its `version` field exactly as shown:\n"
+        fragment += "- Excel: `{\"version\":\"ztp-excel/0.1\",\"workbook\":{\"title\":\"...\"},\"sheets\":[{\"name\":\"...\",\"cells\":[{\"address\":\"A1\",\"value\":\"...\"}]}]}`\n"
+        fragment += "- Chart: `{\"version\":\"ztp-chart/0.1\",\"chart\":{\"type\":\"bar\",\"title\":\"...\",\"width\":1000,\"height\":600},\"data\":{\"values\":[...]},\"x\":{\"field\":\"...\"},\"series\":[{\"field\":\"...\",\"label\":\"...\"}]}`\n"
+        fragment += "- Docx: `{\"version\":\"ztp-docx/0.1\",\"document\":{\"title\":\"...\"},\"sections\":[{\"elements\":[{\"type\":\"heading\",\"level\":1,\"text\":\"...\"},{\"type\":\"paragraph\",\"runs\":[{\"text\":\"...\"}]}]}]}`\n"
+        fragment += "- Slides: `{\"version\":\"ztp-slides/0.1\",\"presentation\":{\"title\":\"...\"},\"slides\":[...]}`\n"
+        fragment += "- Mail: `{\"version\":\"ztp-mail/0.1\",\"message\":{\"from\":\"...\",\"to\":[\"...\"],\"subject\":\"...\",\"body\":{\"type\":\"markdown\",\"content\":\"...\"}}}`\n"
         fragment += "Verify `ok: true` in the response before proceeding.\n\n"
 
         fragment += "### Workflow Chaining\n"

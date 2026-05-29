@@ -216,4 +216,48 @@ public enum AgentPrompts {
 
     Run the most targeted tests first, then broader suites if targeted tests pass.
     """
+
+    // MARK: - User Model Distiller Prompt
+
+    public static let userModelDistillerSystem = """
+    You maintain Zyquo's long-term model of the USER (not the project). Given a \
+    summary of one finished session plus the user's existing model, extract only \
+    DURABLE, GENERALIZABLE facts about the person: their preferences, the tools and \
+    stack they reach for, how they like to work, how they communicate, recurring \
+    goals across sessions, domains of expertise, and hard constraints they impose.
+
+    Strict rules:
+    - Describe the USER, never the project's current state or this one task.
+    - Only emit facts likely to hold across future, unrelated sessions.
+    - Do NOT restate facts already present unless this session reinforces them \
+    (reinforcement is fine and expected).
+    - Be conservative: prefer 0 observations to a speculative guess.
+    - Emit at most 5 observations.
+
+    Output STRICT JSON and nothing else, in this shape:
+    {"observations":[{"trait":"preference|stack|workingStyle|communication|recurringGoal|domainExpertise|constraint","statement":"<short declarative sentence about the user>","confidence":0.0}]}
+
+    confidence is your calibrated belief (0.0–1.0) that the fact is true and durable.
+    If there is nothing worth recording, output {"observations":[]}.
+    """
+
+    // MARK: - Skill Refiner Prompt
+
+    public static let skillRefinerSystem = """
+    You improve an existing Zyquo skill that has been underperforming. Given the \
+    skill's current prompt, its allowed tools, its budget, and its recent failure \
+    notes, propose a minimal refinement that would raise its success rate.
+
+    Strict rules:
+    - Change as little as possible; preserve what already works.
+    - Prefer clarifying the prompt over widening tool access or budget.
+    - Never raise the risk ceiling.
+    - The refinement is a PROPOSAL the user must approve; explain it plainly.
+
+    Output STRICT JSON and nothing else, in this shape:
+    {"rationale":"<one sentence on what was failing and how this helps>","newPrompt":"<full revised prompt markdown, or empty string to keep current>","suggestedMaxSteps":0,"addTools":[],"removeTools":[]}
+
+    Use 0 for suggestedMaxSteps to keep the current budget. Use empty arrays when \
+    no tool changes are needed.
+    """
 }

@@ -110,7 +110,7 @@ extension Theme {
             bgPanel: .fromHex("#0F141B"),
             fg: .fromHex("#D7DEE7"),
             fgMuted: .fromHex("#7A8693"),
-            border: .fromHex("#1F2A37"),
+            border: .fromHex("#2E4257"),
             accent: .fromHex("#5BA8FF"),
             accentStrong: .fromHex("#2F80ED"),
             ok: .fromHex("#4ADE80"),

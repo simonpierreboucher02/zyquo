@@ -15,6 +15,15 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
 
     public init() {}
 
+    /// Whether a model still accepts the `temperature` parameter. The Claude 4.x
+    /// family (sonnet-4, opus-4, haiku-4) deprecated it and rejects requests
+    /// that include it, so we omit it for those.
+    static func supportsTemperature(model: String) -> Bool {
+        let m = model.lowercased()
+        let deprecated = ["sonnet-4", "opus-4", "haiku-4"]
+        return !deprecated.contains { m.contains($0) }
+    }
+
     public func send(
         request: LLMRequest,
         cancellation: Task<Void, Never>?
@@ -159,7 +168,10 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
 
         switch request.thinking {
         case .disabled:
-            if let temp = request.temperature {
+            // Newer Claude models (4.x: sonnet-4, opus-4, haiku-4) deprecated the
+            // `temperature` parameter and reject requests that include it. Only
+            // send it for models that still accept it.
+            if let temp = request.temperature, Self.supportsTemperature(model: request.model) {
                 body["temperature"] = temp
             }
         case .adaptive:
@@ -187,7 +199,10 @@ public final class AnthropicProvider: LLMProvider, @unchecked Sendable {
     }
 
     private func encodeMessage(_ message: LLMMessage) -> [String: Any] {
-        var dict: [String: Any] = ["role": message.role.rawValue]
+        // Anthropic only accepts "user"/"assistant" roles; tool results are
+        // carried as tool_result content blocks inside a "user" turn.
+        let role = message.role == .tool ? "user" : message.role.rawValue
+        var dict: [String: Any] = ["role": role]
         if message.content.count == 1, case .text(let text) = message.content[0] {
             dict["content"] = text
         } else {

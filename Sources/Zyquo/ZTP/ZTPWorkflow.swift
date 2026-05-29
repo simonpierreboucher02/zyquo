@@ -43,11 +43,11 @@ public actor ZTPWorkflowEngine {
 
     public init(
         discovery: ZTPDiscovery,
-        ztpBinary: String = "/opt/homebrew/bin/ztp",
+        ztpBinary: String? = nil,
         logger: Logging.Logger = ZyquoLogger.shared
     ) {
         self.discovery = discovery
-        self.ztpBinary = ztpBinary
+        self.ztpBinary = ztpBinary ?? ZTPDiscovery.resolveBinaryPath() ?? "ztp"
         self.logger = logger
     }
 

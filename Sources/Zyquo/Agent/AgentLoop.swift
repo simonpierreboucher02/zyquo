@@ -51,6 +51,10 @@ public actor AgentRuntime {
     /// Whether the runtime has been cancelled.
     private var isCancelled = false
 
+    /// Extra system-prompt guidance (e.g. the ZTP tools fragment) appended to
+    /// the planner and executor prompts so the model knows about registry tools.
+    private var toolGuidance: String?
+
     /// Execution dependencies.
     private let executionContext: ExecutionContext
 
@@ -89,7 +93,8 @@ public actor AgentRuntime {
         intent: String,
         workspace: Workspace,
         config: AgentConfig,
-        router: ModelRouter
+        router: ModelRouter,
+        toolGuidance: String? = nil
     ) -> AsyncStream<AgentEvent> {
         AsyncStream { continuation in
             Task { [weak self] in
@@ -97,6 +102,7 @@ public actor AgentRuntime {
                     continuation.finish()
                     return
                 }
+                await self.setToolGuidance(toolGuidance)
                 await self.executeLoop(
                     intent: intent,
                     workspace: workspace,
@@ -111,6 +117,11 @@ public actor AgentRuntime {
     /// Cancel the running agent loop.
     public func cancel() {
         isCancelled = true
+    }
+
+    /// Set the tool guidance fragment (actor-isolated).
+    private func setToolGuidance(_ guidance: String?) {
+        self.toolGuidance = guidance
     }
 
     /// Get the current agent state (for inspection).
@@ -390,12 +401,19 @@ public actor AgentRuntime {
             .appendingPathComponent("project.md")
         let projectMemory = try? String(contentsOf: projectMemoryPath, encoding: .utf8)
 
+        // Load the persistent, cross-session user model (global) and render a
+        // compact view to personalize planning. Harmless when absent.
+        let userModelText = await UserModelStore().load()
+            .renderForContext(maxTokens: 400)
+
         // Assemble context for planning
         let tools = buildToolSchemas()
         let (context, updatedBudget) = contextAssembler.assembleForPlanning(
             intent: intent,
             workspaceSummary: workspaceSummary,
             projectMemory: projectMemory,
+            userModel: userModelText,
+            toolGuidance: toolGuidance,
             tools: tools,
             budget: state?.tokenBudget ?? TokenBudget()
         )
@@ -440,6 +458,7 @@ public actor AgentRuntime {
             steps: currentState.steps,
             currentStepIndex: currentState.steps.count,
             workspaceSummary: wsIndex.summaryCard,
+            toolGuidance: toolGuidance,
             tools: tools,
             budget: currentState.tokenBudget
         )
@@ -525,7 +544,7 @@ public actor AgentRuntime {
 
     /// Build the tool schemas available in V1.
     private func buildToolSchemas() -> [ToolSchema] {
-        [
+        let native: [ToolSchema] = [
             ToolSchema(
                 name: "shell.run",
                 description: "Execute a shell command via zsh -c. Returns stdout, stderr, and exit code.",
@@ -579,6 +598,29 @@ public actor AgentRuntime {
                     ]),
                 ]
             ),
-        ]
+        ] + registryToolSchemas()
+        // Anthropic/OpenAI require tool names matching ^[a-zA-Z0-9_-]+$ (no dots),
+        // so advertise canonical "ns.verb" names in wire form "ns_verb". The
+        // Executor normalizes the returned name back to canonical.
+        return native.map { schema in
+            ToolSchema(
+                name: ToolNameWire.toWire(schema.name),
+                description: schema.description,
+                inputSchema: schema.inputSchema
+            )
+        }
+    }
+
+    /// Schemas for every tool in the execution context's registry (ZTP bridges,
+    /// file.write/patch, git.*, …), so the planner/executor can call them.
+    private func registryToolSchemas() -> [ToolSchema] {
+        guard let registry = executionContext.toolRegistry else { return [] }
+        return registry.enabledTools().map { tool in
+            ToolSchema(
+                name: tool.name,
+                description: tool.summary,
+                inputSchema: tool.inputSchema.toJSONValueSchema()
+            )
+        }
     }
 }

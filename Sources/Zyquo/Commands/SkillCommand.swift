@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Yams
 
 // MARK: - SkillCommand
 
@@ -19,6 +20,10 @@ struct SkillCommand: AsyncParsableCommand {
             ListSkills.self,
             ShowSkill.self,
             RunSkill.self,
+            CandidatesSkill.self,
+            AcceptSkill.self,
+            RejectSkill.self,
+            RefineSkill_.self,
         ],
         defaultSubcommand: ListSkills.self
     )
@@ -236,6 +241,224 @@ struct SkillCommand: AsyncParsableCommand {
             if let verify = m.verify {
                 print("  Verification: \(verify.command)")
             }
+        }
+    }
+
+    // MARK: - Candidates Subcommand
+
+    struct CandidatesSkill: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "candidates",
+            abstract: "List auto-extracted skill candidates awaiting review"
+        )
+
+        @OptionGroup var globals: ZyquoCLI.GlobalOptions
+
+        func run() async throws {
+            Bootstrap.setupSignalHandlers()
+            let candidates = await SkillCandidateStore().list()
+
+            guard !candidates.isEmpty else {
+                print("No skill candidates yet.")
+                print("")
+                print("Candidates are extracted automatically from successful agentic")
+                print("runs (`zyquo run ...`). Review them here, then:")
+                print("  zyquo skills accept <id>   # promote to a runnable skill")
+                print("  zyquo skills reject <id>   # discard")
+                return
+            }
+
+            print("\u{1B}[1mSkill Candidates (\(candidates.count)):\u{1B}[0m")
+            print("\u{1B}[2m\(String(repeating: "-", count: 70))\u{1B}[0m")
+            for c in candidates {
+                let conf = Int((c.confidence * 100).rounded())
+                print("  \u{1B}[1m\(c.suggestedId)\u{1B}[0m  \u{1B}[2m(conf \(conf)%, \(c.stepsCount) steps)\u{1B}[0m")
+                print("    \(c.suggestedTitle)")
+                print("    \u{1B}[2mtools: \(c.toolsUsed.joined(separator: ", "))\u{1B}[0m")
+            }
+            print("")
+            print("Accept with: zyquo skills accept <id>")
+        }
+    }
+
+    // MARK: - Accept Subcommand
+
+    struct AcceptSkill: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "accept",
+            abstract: "Promote a candidate into a runnable skill"
+        )
+
+        @OptionGroup var globals: ZyquoCLI.GlobalOptions
+
+        @Argument(help: "The candidate ID to accept")
+        var id: String
+
+        func run() async throws {
+            Bootstrap.setupSignalHandlers()
+            let store = SkillCandidateStore()
+            guard let candidate = await store.load(id: id) else {
+                print("No candidate '\(id)'. Run `zyquo skills candidates` to list them.")
+                throw ExitCode.failure
+            }
+
+            let skillsDir = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent(".zyquo")
+                .appendingPathComponent("skills")
+                .appendingPathComponent(candidate.suggestedId)
+            try FileManager.default.createDirectory(at: skillsDir, withIntermediateDirectories: true)
+
+            // Write skill.yaml + prompt.md
+            let manifest = candidate.toManifest()
+            let yaml = try YAMLEncoder().encode(manifest)
+            try yaml.write(
+                to: skillsDir.appendingPathComponent("skill.yaml"),
+                atomically: true, encoding: .utf8
+            )
+            try candidate.suggestedPrompt.write(
+                to: skillsDir.appendingPathComponent("prompt.md"),
+                atomically: true, encoding: .utf8
+            )
+
+            try? await store.delete(id: id)
+            // Resolve the matching nudge if present.
+            try? await NudgeStore().markActed(
+                id: LearningNudge.makeId(kind: .saveSkill, subject: candidate.suggestedId)
+            )
+
+            print("\u{1B}[32m\u{2713}\u{1B}[0m Promoted candidate '\(candidate.suggestedId)' to a skill.")
+            print("  \(skillsDir.path)")
+            print("  Run it with: zyquo skills run \(candidate.suggestedId)")
+        }
+    }
+
+    // MARK: - Reject Subcommand
+
+    struct RejectSkill: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "reject",
+            abstract: "Discard a skill candidate"
+        )
+
+        @OptionGroup var globals: ZyquoCLI.GlobalOptions
+
+        @Argument(help: "The candidate ID to reject")
+        var id: String
+
+        func run() async throws {
+            Bootstrap.setupSignalHandlers()
+            let store = SkillCandidateStore()
+            guard await store.load(id: id) != nil else {
+                print("No candidate '\(id)'.")
+                throw ExitCode.failure
+            }
+            try await store.delete(id: id)
+            try? await NudgeStore().markDismissed(
+                id: LearningNudge.makeId(kind: .saveSkill, subject: id)
+            )
+            print("Discarded candidate '\(id)'.")
+        }
+    }
+
+    // MARK: - Refine Subcommand
+
+    struct RefineSkill_: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "refine",
+            abstract: "Review or apply a proposed skill refinement"
+        )
+
+        @OptionGroup var globals: ZyquoCLI.GlobalOptions
+
+        @Argument(help: "The skill ID to refine")
+        var id: String
+
+        @Flag(name: .long, help: "Apply the proposed refinement")
+        var apply = false
+
+        func run() async throws {
+            Bootstrap.setupSignalHandlers()
+
+            let workspaceRoot = globals.workspace.map { URL(fileURLWithPath: $0) }
+                ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            let loader = SkillLoader()
+            let skills = loader.discoverSkills(
+                searchPaths: SkillLoader.defaultSearchPaths(workspaceRoot: workspaceRoot)
+            )
+            guard let skill = skills.first(where: { $0.manifest.id == id }) else {
+                print("Skill '\(id)' not found.")
+                throw ExitCode.failure
+            }
+            guard let proposal = SkillRefiner.load(skillDirectory: skill.sourcePath) else {
+                print("No pending refinement for '\(id)'.")
+                return
+            }
+
+            print("\u{1B}[1mProposed refinement for '\(id)':\u{1B}[0m")
+            print("  Rationale: \(proposal.rationale)")
+            if proposal.suggestedMaxSteps > 0 {
+                print("  Budget: \(skill.manifest.budget.maxSteps) -> \(proposal.suggestedMaxSteps) steps")
+            }
+            if !proposal.addTools.isEmpty {
+                print("  Add tools: \(proposal.addTools.joined(separator: ", "))")
+            }
+            if !proposal.removeTools.isEmpty {
+                print("  Remove tools: \(proposal.removeTools.joined(separator: ", "))")
+            }
+            if !proposal.newPrompt.isEmpty {
+                print("  Prompt: revised (\(proposal.newPrompt.count) chars)")
+            }
+
+            guard apply else {
+                print("")
+                print("Apply with: zyquo skills refine \(id) --apply")
+                return
+            }
+
+            // Apply: rewrite prompt.md and skill.yaml in the skill directory.
+            if !proposal.newPrompt.isEmpty {
+                let promptPath = skill.sourcePath.appendingPathComponent("prompt.md")
+                try proposal.newPrompt.write(to: promptPath, atomically: true, encoding: .utf8)
+            }
+
+            let m = skill.manifest
+            let newBudget = proposal.suggestedMaxSteps > 0
+                ? SkillBudget(maxSteps: proposal.suggestedMaxSteps, maxCostUSD: m.budget.maxCostUSD)
+                : m.budget
+            var tools = m.toolsAllowed
+            for t in proposal.addTools where !tools.contains(t) { tools.append(t) }
+            tools.removeAll { proposal.removeTools.contains($0) }
+
+            let updated = SkillManifest(
+                id: m.id,
+                version: bumpPatch(m.version),
+                title: m.title,
+                description: m.description,
+                authors: m.authors,
+                inputs: m.inputs,
+                toolsAllowed: tools,
+                promptFile: m.promptFile,
+                verify: m.verify,
+                budget: newBudget,
+                riskCeiling: m.riskCeiling   // never raised
+            )
+            let yaml = try YAMLEncoder().encode(updated)
+            try yaml.write(
+                to: skill.sourcePath.appendingPathComponent("skill.yaml"),
+                atomically: true, encoding: .utf8
+            )
+
+            SkillRefiner.clear(skillDirectory: skill.sourcePath)
+            try? await NudgeStore().markActed(
+                id: LearningNudge.makeId(kind: .refineSkill, subject: id)
+            )
+            print("\u{1B}[32m\u{2713}\u{1B}[0m Applied refinement to '\(id)' (now v\(updated.version)).")
+        }
+
+        private func bumpPatch(_ version: String) -> String {
+            let parts = version.split(separator: ".").map(String.init)
+            guard parts.count == 3, let patch = Int(parts[2]) else { return version }
+            return "\(parts[0]).\(parts[1]).\(patch + 1)"
         }
     }
 }

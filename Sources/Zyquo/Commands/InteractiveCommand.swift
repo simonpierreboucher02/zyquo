@@ -189,7 +189,7 @@ struct InteractiveCommand: AsyncParsableCommand {
 
             if trimmed.hasPrefix("/") {
                 let currentModelDisplay = ModelCatalog.findByAlias(currentModel)?.displayName ?? currentModel
-                let result = handleSlashCommand(
+                let result = await handleSlashCommand(
                     trimmed, container: container, router: router,
                     totalCost: totalCost, messageCount: messageCount,
                     noColor: noColor, conversationHistory: &conversationHistory,
@@ -503,10 +503,9 @@ struct InteractiveCommand: AsyncParsableCommand {
         root: URL
     ) async -> String {
         let ztpToolName = String(name.dropFirst(4))  // "ztp_excel" -> "excel"
-        let ztpBinary = "/opt/homebrew/bin/ztp"
 
-        guard FileManager.default.isExecutableFile(atPath: ztpBinary) else {
-            return "Error: ZTP binary not found at \(ztpBinary). Install with: brew install ztp"
+        guard let ztpBinary = ZTPDiscovery.resolveBinaryPath() else {
+            return "Error: ZTP binary not found (looked in Homebrew, ~/.local/bin, and PATH). Install with: brew install ztp"
         }
 
         let command = params["command"]?.stringValue ?? "build"
@@ -618,7 +617,7 @@ struct InteractiveCommand: AsyncParsableCommand {
         modelName: String,
         currentModel: inout String,
         boxRenderer: InteractiveBoxRenderer
-    ) -> SlashResult {
+    ) async -> SlashResult {
         let parts = command.split(separator: " ", maxSplits: 1).map(String.init)
         let cmd = parts[0].lowercased()
         let arg = parts.count > 1 ? parts[1] : nil
@@ -640,6 +639,8 @@ struct InteractiveCommand: AsyncParsableCommand {
                 ("/model [name]", "Show or switch model"),
                 ("/tools", "Available tools"),
                 ("/history", "Conversation info"),
+                ("/whoami", "Show learned user model"),
+                ("/nudges", "Pending learning suggestions"),
                 ("/reset", "Clear conversation"),
                 ("/clear", "Clear screen"),
                 ("/exit", "Quit"),
@@ -722,9 +723,42 @@ struct InteractiveCommand: AsyncParsableCommand {
                 ("Zyquo", ZyquoInfo.versionString),
             ])
 
+        case "/whoami":
+            let model = await UserModelStore().load()
+            let top = model.observations
+                .filter { $0.confidence >= 0.3 }
+                .prefix(12)
+            if top.isEmpty && model.userEditedNotes.isEmpty {
+                boxRenderer.renderCommandResult(title: "User Model", items: [
+                    ("Status", "nothing learned yet"),
+                    ("Tip", "run agentic tasks with `zyquo run`"),
+                ])
+            } else {
+                var entries: [(String, String)] = top.map {
+                    ("\($0.trait.displayName) · \(Int(($0.confidence * 100).rounded()))%", $0.statement)
+                }
+                if !model.userEditedNotes.isEmpty {
+                    entries.append(("Notes", model.userEditedNotes.prefix(80).description))
+                }
+                boxRenderer.renderListPanel(title: "User Model", entries: entries)
+            }
+
+        case "/nudges":
+            let pending = await NudgeStore().pending()
+            if pending.isEmpty {
+                boxRenderer.renderCommandResult(title: "Nudges", items: [
+                    ("Pending", "none"),
+                ])
+            } else {
+                let entries = pending.map {
+                    ($0.actionCommand ?? "—", $0.message)
+                }
+                boxRenderer.renderListPanel(title: "Pending Nudges", entries: entries)
+            }
+
         default:
             let known = ["/help", "/status", "/exit", "/clear", "/cost", "/model",
-                         "/tools", "/version", "/reset", "/history"]
+                         "/tools", "/version", "/reset", "/history", "/whoami", "/nudges"]
             if let best = known.min(by: { levenshtein($0, cmd) < levenshtein($1, cmd) }),
                levenshtein(best, cmd) <= 2 {
                 boxRenderer.renderError("Unknown command '\(cmd)'", hint: "Did you mean \(best)?")

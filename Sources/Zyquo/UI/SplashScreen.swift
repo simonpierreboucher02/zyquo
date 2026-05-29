@@ -52,10 +52,9 @@ public struct SplashScreen: Sendable {
 
     /// Interpolate between two RGB colors across a number of steps.
     private func gradientColors(steps: Int) -> [(r: UInt8, g: UInt8, b: UInt8)] {
-        // accent start:  #5BA8FF  (91, 168, 255)
-        // accent end:    #2F80ED  (47, 128, 237)
+        // iris start: #5BA8FF (91, 168, 255)  →  end: #9D7CFF (157, 124, 255)
         let startR: Double = 91, startG: Double = 168, startB: Double = 255
-        let endR: Double = 47, endG: Double = 128, endB: Double = 237
+        let endR: Double = 157, endG: Double = 124, endB: Double = 255
         guard steps > 1 else {
             return [(r: UInt8(startR), g: UInt8(startG), b: UInt8(startB))]
         }
@@ -105,7 +104,12 @@ public struct SplashScreen: Sendable {
         let innerWidth = max(logoWidth + 4, min(termWidth - 2, 64))
         let panelWidth = innerWidth + 2  // +2 for left/right borders
 
-        let borderFg = fgFromANSI(theme.colors.border)
+        // Iris-tinted, brighter border to match the Premium Panels surface.
+        let g = Gradient(theme: theme, capability: capability, noColor: noColor)
+        let borderRGB = RGB(ansi: theme.colors.border)
+            .mix(RGB(0x5B, 0xA8, 0xFF), 0.5)
+            .mix(RGB(0xFF, 0xFF, 0xFF), 0.06)
+        let borderFg = g.fg(borderRGB)
         let mutedFg = fgFromANSI(theme.colors.fgMuted)
         let accentFg = fgFromANSI(theme.colors.accent)
 
@@ -114,8 +118,8 @@ public struct SplashScreen: Sendable {
         // Blank line
         lines.append("")
 
-        // Top border
-        let topBorder = borderFg + tl + String(repeating: hz, count: innerWidth) + tr + resetCode
+        // Top border — iris gradient hairline between rounded corners
+        let topBorder = borderFg + tl + g.rule(width: innerWidth) + borderFg + tr + resetCode
         lines.append(topBorder)
 
         // Logo lines (centered inside panel)
@@ -202,8 +206,8 @@ public struct SplashScreen: Sendable {
             + borderFg + vt + resetCode
         lines.append(hintLine)
 
-        // Bottom border
-        let bottomBorder = borderFg + bl + String(repeating: hz, count: innerWidth) + br + resetCode
+        // Bottom border — iris gradient hairline
+        let bottomBorder = borderFg + bl + g.rule(width: innerWidth) + borderFg + br + resetCode
         lines.append(bottomBorder)
 
         // Trailing blank line

@@ -62,6 +62,18 @@ struct RunCommand: AsyncParsableCommand {
         let trustStore = TrustStore(workspaceRoot: root)
 
         let agentConfig = container.config.agent
+
+        // Build the agent tool registry: built-ins (web/db/applescript) +
+        // filesystem/git tools + ZTP bridges (discovered from the ztp binary).
+        let toolRegistry = ToolRegistry()
+        registerBuiltinTools(in: toolRegistry)
+        toolRegistry.registerAll([
+            FileWriteTool(), FilePatchTool(),
+            GitStatusTool(), GitDiffTool(), GitLogTool(), GitCommitTool(),
+        ])
+        await ZTPIntegration.shared.bootstrap(registry: toolRegistry, logger: container.logger)
+        let toolGuidance = await ZTPIntegration.shared.systemPromptFragment()
+
         let executionContext = ExecutionContext(
             workspace: workspace,
             shellExecutor: shellExecutor,
@@ -69,7 +81,8 @@ struct RunCommand: AsyncParsableCommand {
             approvalGate: approvalGate,
             trustStore: trustStore,
             config: agentConfig,
-            logger: container.logger
+            logger: container.logger,
+            toolRegistry: toolRegistry
         )
 
         // Create agent runtime
@@ -83,7 +96,8 @@ struct RunCommand: AsyncParsableCommand {
             intent: intent,
             workspace: workspace,
             config: agentConfig,
-            router: router
+            router: router,
+            toolGuidance: toolGuidance
         )
 
         // Consume and render events
@@ -103,6 +117,17 @@ struct RunCommand: AsyncParsableCommand {
                 sessionCost: &sessionCost,
                 startTime: startTime
             )
+        }
+
+        // Persist the session and run the closed learning loop (best-effort).
+        if let finalState = await runtime.currentState() {
+            let learning = await SessionFinalizer.finalize(
+                state: finalState,
+                workspaceRoot: root,
+                router: router,
+                config: container.config
+            )
+            SessionFinalizer.renderNudges(learning, noColor: noColor)
         }
 
         // Final separator

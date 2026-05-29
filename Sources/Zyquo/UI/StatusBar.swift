@@ -36,11 +36,11 @@ public actor StatusBarManager {
         guard !writer.noColor else { return }
         enabled = true
         terminalHeight = Terminal.size.height
-        // Set scroll region to exclude the last row
-        let esc = "\u{1B}[1;\(terminalHeight - 1)r"
-        // Move cursor to row 1
-        let move = "\u{1B}[1;1H"
-        print("\(esc)\(move)", terminator: "")
+        // Save cursor, set scroll region to exclude the last row, restore cursor
+        let saveCursor = "\u{1B}7"
+        let scrollRegion = "\u{1B}[1;\(terminalHeight - 1)r"
+        let restoreCursor = "\u{1B}8"
+        print("\(saveCursor)\(scrollRegion)\(restoreCursor)", terminator: "")
         fflush(stdout)
         startListeningForResize()
         redrawInternal()

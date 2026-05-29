@@ -45,6 +45,7 @@ struct ZyquoCLI: AsyncParsableCommand {
             MemoryCommand.self,
             ToolsCommand.self,
             SkillCommand.self,
+            NudgesCommand.self,
             WorkflowCommand.self,
             ClusterCommand.self,
             DaemonCommand.self,
