@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zyquo — Native macOS AI Terminal Agent · Documentation</title>
+<meta name="description" content="Zyquo — a native macOS AI terminal agent in Swift: plan-execute-verify loop, safety gates, premium TUI, persistent memory, a closed learning loop, and a real tool runtime (ZTP)." />
+<style>
+:root{
+  --bg:#0B0F14; --bg-panel:#0F141B; --bg-elev:#131A23; --fg:#D7DEE7; --fg-muted:#7A8693;
+  --border:#1F2A37; --border-bright:#2E4257; --accent:#5BA8FF; --accent-strong:#2F80ED;
+  --iris1:#5BA8FF; --iris2:#9D7CFF; --ok:#4ADE80; --warn:#F59E0B; --risk:#EF4444; --teal:#5EEAD4;
+  --kw:#9D7CFF; --str:#7DD3FC; --code-bg:#0a0e13;
+  --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.65;font-size:16px}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--iris2)}
+.iris{background:linear-gradient(90deg,var(--iris1),var(--iris2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:262px;flex:none;background:var(--bg-panel);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;margin:4px 8px 4px}
+.brand .dot{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--iris1),var(--iris2))}
+.tag{margin:2px 8px 18px;color:var(--fg-muted);font-size:12.5px}
+.nav h4{color:var(--fg-muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;margin:18px 8px 6px}
+.nav a{display:block;padding:6px 10px;border-radius:8px;color:var(--fg);font-size:14px}
+.nav a:hover{background:var(--bg-elev)}
+.nav a.active{background:linear-gradient(90deg,rgba(91,168,255,.16),rgba(157,124,255,.10));color:#fff;box-shadow:inset 2px 0 0 var(--accent)}
+.content{flex:1;min-width:0;padding:0 0 80px}
+.hero{padding:64px 8vw 44px;border-bottom:1px solid var(--border);background:radial-gradient(1200px 400px at 20% -10%,rgba(91,168,255,.10),transparent),radial-gradient(900px 500px at 90% 0%,rgba(157,124,255,.08),transparent)}
+.hero h1{font-size:46px;margin:0 0 12px;letter-spacing:-.5px}
+.hero p.lead{font-size:19px;color:var(--fg-muted);max-width:780px;margin:0 0 22px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--border-bright);background:var(--bg-elev);color:var(--fg);font-family:var(--mono)}
+.badge.ok{border-color:#23502f;color:var(--ok)}
+.badge.iris{border-color:#3a3a6a;color:var(--iris2)}
+.section{padding:46px 8vw;border-bottom:1px solid var(--border);max-width:1100px}
+.section h2{font-size:30px;margin:0 0 6px;letter-spacing:-.3px}
+.section h3{font-size:20px;margin:30px 0 8px}
+.section h2 .anchor,.section h3 .anchor{opacity:0;margin-left:8px;font-size:.7em;color:var(--fg-muted)}
+.section h2:hover .anchor{opacity:1}
+.muted{color:var(--fg-muted)}
+code{font-family:var(--mono);font-size:.88em;background:var(--bg-elev);border:1px solid var(--border);border-radius:5px;padding:1px 6px;color:var(--teal)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:14px 0;font-family:var(--mono);font-size:13.5px;line-height:1.55}
+pre code{background:none;border:none;padding:0;color:var(--fg)}
+.tok-c{color:var(--fg-muted)} .tok-k{color:var(--kw)} .tok-s{color:var(--str)}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--bg-elev);color:#fff;font-weight:600}
+tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:18px 0}
+.card{border:1px solid var(--border);border-radius:12px;background:var(--bg-panel);padding:16px 18px}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{margin:0;color:var(--fg-muted);font-size:13.5px}
+.flow{border:1px solid var(--border-bright);border-radius:12px;background:var(--bg-elev);padding:14px 18px;font-family:var(--mono);font-size:13px;color:var(--teal);white-space:pre-wrap;line-height:1.7}
+.callout{border:1px solid var(--border-bright);border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:14px}
+.callout.warn{border-left-color:var(--warn)}
+footer{padding:30px 8vw;color:var(--fg-muted);font-size:13px}
+.topbar{display:none}
+@media(max-width:880px){
+  .sidebar{display:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:12px 18px;font-weight:700}
+  .hero{padding:40px 22px 30px}.hero h1{font-size:34px}.section{padding:34px 22px}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><span class="iris">Zyquo</span><a href="https://github.com/simonpierreboucher02/zyquo">GitHub ↗</a></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span><span>Zyquo</span></div>
+    <div class="tag">macOS AI terminal agent · v1.2.0</div>
+    <nav class="nav">
+      <h4>Start</h4>
+      <a href="#overview">Overview</a>
+      <a href="#install">Install</a>
+      <a href="#quickstart">Quick start</a>
+      <h4>How it works</h4>
+      <a href="#runtime">Agent runtime</a>
+      <a href="#tools">Tools</a>
+      <a href="#tui">Premium TUI</a>
+      <a href="#learning">Learning loop</a>
+      <a href="#memory">Memory &amp; sessions</a>
+      <a href="#providers">Providers &amp; models</a>
+      <h4>Reference</h4>
+      <a href="#cli">CLI reference</a>
+      <a href="#slash">Slash commands</a>
+      <a href="#safety">Safety model</a>
+      <a href="#config">Configuration</a>
+      <a href="#architecture">Architecture</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="hero">
+      <h1><span class="iris">Zyquo</span> — macOS AI terminal agent</h1>
+      <p class="lead">A native macOS AI terminal agent. <strong>Plan → execute → verify</strong> with safety gates, a premium TUI, persistent memory, a closed learning loop, and a real tool runtime (<a href="https://github.com/simonpierreboucher02/ztp">ZTP</a>). Not a chat box with shell access — a genuine multi-step agent.</p>
+      <div class="badges">
+        <span class="badge">macOS 14+</span>
+        <span class="badge">Swift 6 · strict concurrency</span>
+        <span class="badge">arm64 · x86_64</span>
+        <span class="badge iris">agent tools: shell · fs · git · ZTP×12</span>
+        <span class="badge ok">notarized · Developer ID</span>
+        <span class="badge">Apache-2.0</span>
+      </div>
+    </header>
+
+    <section class="section" id="overview">
+      <h2>Overview <a class="anchor" href="#overview">#</a></h2>
+      <p>Zyquo is a <strong>terminal-first AI runtime</strong> for macOS, inspired by OpenHands, Cline, OpenCode, and Hermes — built Swift-native. Everything the agent does is <strong>renderable, reviewable, and reversible</strong>. It runs locally; your code and memory live on disk under <code>.zyquo/</code> and <code>~/.zyquo/</code>.</p>
+      <div class="grid">
+        <div class="card"><h4>🤖 Real agent loop</h4><p>Plan/execute/verify with stop conditions, retries, and replanning — not single-shot completion.</p></div>
+        <div class="card"><h4>🛡️ Safety first</h4><p>Rule-based risk classifier, approval gates (<code>y/n/a/e/?</code>), workspace boundary guard, trust scopes.</p></div>
+        <div class="card"><h4>🎨 Premium TUI</h4><p>"Premium Panels + Iris" — filled gradient cards, correct Unicode width, truecolor→mono degradation.</p></div>
+        <div class="card"><h4>🧠 Closed learning loop</h4><p>Persistent user model, skill extraction, self-improving skills, nudges (Hermes-inspired).</p></div>
+        <div class="card"><h4>🔌 Real tool runtime</h4><p>Native shell/file/git tools plus the full <a href="https://github.com/simonpierreboucher02/ztp">ZTP</a> suite (12 tools).</p></div>
+        <div class="card"><h4>🔑 Keychain-only secrets</h4><p>API keys live in the macOS Keychain, never in shell history or files.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="install">
+      <h2>Install <a class="anchor" href="#install">#</a></h2>
+      <h3>Homebrew</h3>
+      <pre><code>brew install simonpierreboucher02/zyquo/zyquo
+zyquo version</code></pre>
+      <h3>From the notarized release</h3>
+      <pre><code>tar xzf zyquo-1.2.0-macos-arm64.tar.gz
+sudo mv zyquo /usr/local/bin/</code></pre>
+      <h3>From source</h3>
+      <pre><code>git <span class="tok-k">clone</span> https://github.com/simonpierreboucher02/zyquo.git
+<span class="tok-k">cd</span> zyquo &amp;&amp; swift build -c release</code></pre>
+      <p class="muted">Requirements: macOS 14+, Swift 6 toolchain (Xcode 16+). Optional: <a href="https://github.com/simonpierreboucher02/ztp"><code>ztp</code></a>, <code>ripgrep</code>, <code>git</code>.</p>
+    </section>
+
+    <section class="section" id="quickstart">
+      <h2>Quick start <a class="anchor" href="#quickstart">#</a></h2>
+      <pre><code>zyquo provider login anthropic --key sk-ant-...   <span class="tok-c"># store key in Keychain</span>
+zyquo                                             <span class="tok-c"># launch the interactive TUI</span>
+zyquo run <span class="tok-s">"fix the failing tests and explain why"</span> <span class="tok-c"># agentic run (tools enabled)</span>
+zyquo ask  <span class="tok-s">"explain this repo"</span>                    <span class="tok-c"># single-shot Q&amp;A (no tools)</span>
+zyquo plan <span class="tok-s">"add an auth flow"</span>                     <span class="tok-c"># plan only (no execution)</span></code></pre>
+    </section>
+
+    <section class="section" id="runtime">
+      <h2>The agent runtime <a class="anchor" href="#runtime">#</a></h2>
+      <p>The <code>zyquo run</code> loop is a true multi-step agent:</p>
+      <div class="flow">intent → workspace scan → context assembly → planning →
+  per step: tool proposal → risk classification → approval gate →
+            execution → observation → verification → memory update
+→ summarize → persist → learn</div>
+      <ul>
+        <li><strong>Planner</strong> → numbered, verifiable steps (each one tool call)</li>
+        <li><strong>Executor</strong> → dispatches tool calls through a unified <code>ToolRegistry</code> with risk + approval gating</li>
+        <li><strong>Verifier</strong> → pass / fail / unclear verdict per step</li>
+        <li><strong>Stop conditions</strong> → max steps/cost, consecutive failures, loop detection, user cancel</li>
+        <li><strong>Context assembler</strong> → workspace summary + project memory + <strong>user model</strong> + tool guidance, token-budgeted</li>
+      </ul>
+      <p class="muted">Every state transition emits a UI event; nothing happens off-screen.</p>
+    </section>
+
+    <section class="section" id="tools">
+      <h2>Tools <a class="anchor" href="#tools">#</a></h2>
+      <p>The agent and interactive chat execute through one registry. Tool calls are <strong>typed and schema-validated</strong> — never <code>eval</code> of model output.</p>
+      <table>
+        <tr><th>Group</th><th>Tools</th></tr>
+        <tr><td>🐚 Shell</td><td><code>shell.run</code> — zsh, streamed, risk-classified, cancellable</td></tr>
+        <tr><td>📁 Filesystem</td><td><code>file.read</code> · <code>file.list</code> · <code>file.write</code> · <code>file.patch</code> (unified-diff, boundary-checked)</td></tr>
+        <tr><td>🌿 Git</td><td><code>git.status</code> · <code>git.diff</code> · <code>git.log</code> · <code>git.commit</code> (never auto-pushes)</td></tr>
+        <tr><td>⚙️ ZTP ×12</td><td><code>ztp.excel · docx · slides · chart · mail · message · browser · macos · ocr · notes · files · finder</code></td></tr>
+      </table>
+      <p>ZTP tools are <strong>auto-discovered</strong> from the installed <code>ztp</code> binary and registered as <code>ztp.*</code>, so the agent can generate real Office documents and charts, send mail, run <strong>local OCR</strong>, read/write <strong>Apple Notes</strong>, manage <strong>files</strong> (search &amp; compression), and drive <strong>Finder</strong> — all as part of a task.</p>
+      <div class="callout">Install/upgrade <a href="https://github.com/simonpierreboucher02/ztp"><code>ztp</code></a> ≥ 0.9.0 to expose all twelve tools to the agent.</div>
+    </section>
+
+    <section class="section" id="tui">
+      <h2>Premium TUI <a class="anchor" href="#tui">#</a></h2>
+      <p>The interactive surface uses a <strong>"Premium Panels + Iris"</strong> design language:</p>
+      <ul>
+        <li>🟦 <strong>Filled gradient cards</strong> — raised panels with iris (blue→violet) gradient titles and vivid rounded borders</li>
+        <li>📐 <strong>Pixel-correct layout</strong> — <code>DisplayWidth</code> handles emoji / CJK / combining marks so panels never misalign</li>
+        <li>🌈 <strong>Capability-aware</strong> — truecolor → 256 → 16 → monochrome, honoring <code>NO_COLOR</code> / <code>CLICOLOR</code> / <code>TERM</code></li>
+        <li>✍️ <strong>Streaming</strong> — token-by-token responses with an iris left-gutter; gradient hairline rules</li>
+        <li>🎛️ <strong>29 components</strong> — panels, diff view, spinners, progress bars, timeline, status badges, markdown renderer, modal picker, keymap overlay…</li>
+        <li>🎨 <strong>5 themes</strong> — <code>zyquo-dark</code> (default), <code>minimal</code>, <code>high-contrast</code>, <code>solarized-dark</code>, plus user TOML themes</li>
+      </ul>
+    </section>
+
+    <section class="section" id="learning">
+      <h2>Closed learning loop &amp; user model <a class="anchor" href="#learning">#</a></h2>
+      <p>Inspired by Hermes Agent, Zyquo learns across sessions:</p>
+      <ul>
+        <li>🧑 <strong>Persistent user model</strong> — distills durable facts about you (stack, preferences, working style, constraints) with confidence reinforcement + decay; injected into planning. View with <code>zyquo memory user</code> or <code>/whoami</code>.</li>
+        <li>🧪 <strong>Skill extraction</strong> — successful sessions become reviewable skill candidates (<code>zyquo skills candidates / accept / reject</code>).</li>
+        <li>🔧 <strong>Self-improving skills</strong> — usage stats drive refinement proposals.</li>
+        <li>🔔 <strong>Nudges</strong> — rule-based suggestions surfaced at session end (<code>zyquo nudges</code>, <code>/nudges</code>).</li>
+      </ul>
+      <div class="callout warn">Nothing is auto-written: skills, refinements, and user-model changes are all proposed and require your explicit acceptance.</div>
+    </section>
+
+    <section class="section" id="memory">
+      <h2>Memory &amp; sessions <a class="anchor" href="#memory">#</a></h2>
+      <ul>
+        <li><strong>Project memory</strong> — <code>.zyquo/memory/project.md</code> (hand-editable; agent proposes patches, never overwrites your notes).</li>
+        <li><strong>Session memory</strong> — full transcript + tool calls, resumable across restarts and crashes.</li>
+        <li><strong>Decision memory</strong> — append-only ADR-style log.</li>
+        <li><strong>Retrieval</strong> — lexical (SQLite FTS) now; hybrid (FTS + embeddings) on the V2 path.</li>
+      </ul>
+      <pre><code>zyquo sessions                 <span class="tok-c"># list sessions</span>
+zyquo sessions resume &lt;id&gt;      <span class="tok-c"># restore plan, steps, context</span>
+zyquo memory                   <span class="tok-c"># open the memory inspector</span></code></pre>
+    </section>
+
+    <section class="section" id="providers">
+      <h2>Providers &amp; models <a class="anchor" href="#providers">#</a></h2>
+      <p>Provider-agnostic with streaming and tool use. Keys are stored in the macOS Keychain (service <code>dev.zyquo.cli</code>).</p>
+      <table>
+        <tr><th>Provider</th><th>Notes</th></tr>
+        <tr><td>Anthropic</td><td>Primary. Messages API, SSE streaming, native tool use.</td></tr>
+        <tr><td>OpenRouter</td><td>Catalog passthrough + fallback routing.</td></tr>
+        <tr><td>Local (V2)</td><td>llama.cpp / Apple Foundation Models on the roadmap.</td></tr>
+      </table>
+      <p>A <strong>ModelRouter</strong> picks a model per task class (planning / coding / summarization / verification), overridable with <code>--model</code>.</p>
+    </section>
+
+    <section class="section" id="cli">
+      <h2>CLI reference <a class="anchor" href="#cli">#</a></h2>
+      <table>
+        <tr><th>Command</th><th>Purpose</th></tr>
+        <tr><td><code>zyquo</code></td><td>Launch the interactive TUI in the current directory.</td></tr>
+        <tr><td><code>zyquo run "…"</code></td><td>Agentic run with tools enabled.</td></tr>
+        <tr><td><code>zyquo ask "…"</code></td><td>Single-shot Q&amp;A (no tools).</td></tr>
+        <tr><td><code>zyquo plan "…"</code></td><td>Plan only, no execution.</td></tr>
+        <tr><td><code>zyquo diff / apply / reject</code></td><td>Review &amp; apply pending patches.</td></tr>
+        <tr><td><code>zyquo memory [user] [edit]</code></td><td>Inspect project/session/user memory.</td></tr>
+        <tr><td><code>zyquo skills candidates / accept / reject</code></td><td>Manage extracted skills.</td></tr>
+        <tr><td><code>zyquo nudges</code></td><td>List / act / dismiss learning nudges.</td></tr>
+        <tr><td><code>zyquo sessions [resume|fork] &lt;id&gt;</code></td><td>List, resume, or branch sessions.</td></tr>
+        <tr><td><code>zyquo provider login &lt;id&gt;</code></td><td>Store an API key in the Keychain.</td></tr>
+        <tr><td><code>zyquo doctor</code></td><td>Diagnostics: keys, permissions, providers, binaries.</td></tr>
+      </table>
+    </section>
+
+    <section class="section" id="slash">
+      <h2>Slash commands <a class="anchor" href="#slash">#</a></h2>
+      <p>Inside the interactive TUI, lines beginning with <code>/</code> are parsed locally (no tokens spent):</p>
+      <pre><code>/help   /plan   /status   /diff   /apply   /reject
+/model  /provider  /theme   /whoami   /nudges
+/memory   /tools   /trust   /cancel   /cost   /export   /exit</code></pre>
+    </section>
+
+    <section class="section" id="safety">
+      <h2>Safety model <a class="anchor" href="#safety">#</a></h2>
+      <ul>
+        <li><strong>Risk tiers</strong> — every command/tool call is classified SAFE / MODERATE / DANGEROUS / CRITICAL.</li>
+        <li><strong>Approval gates</strong> — risky actions prompt <code>[y]es / [n]o / [a]lways / [e]dit / [?]explain</code>; trust is scoped (once / session / workspace / global).</li>
+        <li><strong>Workspace boundary</strong> — writes and shell cwd stay inside the workspace unless explicitly approved.</li>
+        <li><strong>No silent anything</strong> — no silent network calls, no silent writes (every write is a reversible patch), no secrets in logs.</li>
+      </ul>
+      <div class="callout warn">Approval is consent: Zyquo will not override a user who explicitly trusts a CRITICAL action.</div>
+    </section>
+
+    <section class="section" id="config">
+      <h2>Configuration <a class="anchor" href="#config">#</a></h2>
+      <p>Precedence: <code>CLI flag &gt; env var &gt; workspace .zyquo/config.json &gt; ~/.zyquo/config.toml &gt; defaults</code>.</p>
+      <pre><code><span class="tok-c"># ~/.zyquo/config.toml</span>
+[ui]
+theme = <span class="tok-s">"zyquo-dark"</span>
+
+[agent]
+max_steps = 40
+max_cost_usd = 5.00
+auto_approve_safe = <span class="tok-k">true</span>
+
+[providers]
+default = <span class="tok-s">"anthropic"</span>
+
+[learning]
+enabled = <span class="tok-k">true</span>
+user_model = <span class="tok-k">true</span></code></pre>
+    </section>
+
+    <section class="section" id="architecture">
+      <h2>Architecture <a class="anchor" href="#architecture">#</a></h2>
+      <pre><code>Sources/Zyquo/
+├── Agent/        AgentLoop · Planner · Executor · Verifier · ContextAssembler
+├── Tools/        ToolRegistry · shell/file/git tools · ZTP bridges
+├── Shell/        ShellExecutor · RiskClassifier · DangerRules
+├── Diff/         DiffEngine · PatchEngine · ConflictResolver
+├── UI/           TerminalRenderer · PremiumPanel · Gradient · DiffView · …
+├── Memory/       Project/Session/Decision memory · UserModel
+├── Runtime/      LearningCoordinator · NudgeEngine · SkillRefiner
+├── Models/       LLMProvider · Anthropic/OpenRouter · ModelRouter
+├── Persistence/  SessionStore · MemoryStore · SnapshotStore
+└── ZTP/          ZTPDiscovery · ZTPIntegration · ZTPToolBridge</code></pre>
+      <p>Source: <a href="https://github.com/simonpierreboucher02/zyquo">github.com/simonpierreboucher02/zyquo</a> · License: Apache-2.0.</p>
+    </section>
+
+    <footer>
+      Zyquo — native macOS AI terminal agent · v1.2.0 · by Simon-Pierre Boucher.
+      <br/>Tool runtime: <a href="https://github.com/simonpierreboucher02/ztp">ZTP</a>.
+    </footer>
+  </main>
+</div>
+
+<script>
+const links=[...document.querySelectorAll('.nav a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const obs=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target.id);if(a)a.classList.add('active');}});
+},{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
