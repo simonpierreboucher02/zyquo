@@ -516,6 +516,12 @@ struct InteractiveCommand: AsyncParsableCommand {
 
         var args: [String] = [ztpToolName, command]
 
+        // Browser subcommands take the URL as a positional argument
+        // (e.g. `ztp browser text <url>`), not as `--url`.
+        if ztpToolName == "browser", let url = params["url"]?.stringValue {
+            args.append(url)
+        }
+
         if let spec = specJSON {
             let tmpPath = FileManager.default.temporaryDirectory
                 .appendingPathComponent("zyquo-ztp-\(UUID().uuidString).json")
@@ -536,7 +542,15 @@ struct InteractiveCommand: AsyncParsableCommand {
         for (key, value) in params {
             let skip: Set = ["command", "spec", "spec_file", "output", "confirmed"]
             guard !skip.contains(key) else { continue }
-            let flag = "--\(key.replacingOccurrences(of: "_", with: "-"))"
+            if ztpToolName == "browser", key == "url" { continue } // already positional
+            let flag: String
+            if ztpToolName == "browser", key == "viewport_width" {
+                flag = "--width"
+            } else if ztpToolName == "browser", key == "viewport_height" {
+                flag = "--height"
+            } else {
+                flag = "--\(key.replacingOccurrences(of: "_", with: "-"))"
+            }
             switch value {
             case .string(let s): args += [flag, s]
             case .number(let n): args += [flag, n.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(n))" : "\(n)"]

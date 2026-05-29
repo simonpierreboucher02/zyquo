@@ -55,9 +55,8 @@ public struct ZTPToolBridge: Tool, Sendable {
                 confirmed: confirmed, cwd: context.workspaceRoot
             )
         } else {
-            let extraArgs = buildExtraArgs(from: input, excluding: ["command", "spec", "spec_file", "output", "confirmed"])
             result = try await executeRawCommand(
-                command: command, args: extraArgs,
+                command: command, input: input, output: outputPath,
                 confirmed: confirmed, cwd: context.workspaceRoot
             )
         }
@@ -98,14 +97,50 @@ public struct ZTPToolBridge: Tool, Sendable {
     }
 
     private func executeRawCommand(
-        command: String, args: [String],
+        command: String, input: [String: JSONValue], output: String?,
         confirmed: Bool, cwd: URL
     ) async throws -> ZTPExecutionResult {
-        var fullArgs = [command] + args
+        let consumed: Set<String> = ["command", "spec", "spec_file", "output", "confirmed"]
+
+        var positionals: [String] = []
+        var flags: [String] = []
+
+        // Browser subcommands take the URL as a positional argument
+        // (e.g. `ztp browser text <url>`), not as `--url`.
+        if ztpToolName == "browser", let url = input["url"]?.stringValue {
+            positionals.append(url)
+        }
+
+        for (key, value) in input where !consumed.contains(key) {
+            if ztpToolName == "browser", key == "url" { continue } // already positional
+            let flag = Self.flagName(for: key, tool: ztpToolName)
+            switch value {
+            case .string(let s): flags += [flag, s]
+            case .number(let n): flags += [flag, n.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(n))" : "\(n)"]
+            case .bool(let b): if b { flags.append(flag) }
+            default: break
+            }
+        }
+
+        var fullArgs = [command] + positionals + flags
+        if let out = output { fullArgs += ["--output", out] }
         if confirmed { fullArgs.append("--confirmed") }
         fullArgs.append("--json")
 
         return runZTP(args: fullArgs, cwd: cwd)
+    }
+
+    /// Maps a schema input key to the matching ztp CLI flag, accounting for
+    /// per-tool option naming (e.g. browser viewport uses `--width`/`--height`).
+    private static func flagName(for key: String, tool: String) -> String {
+        if tool == "browser" {
+            switch key {
+            case "viewport_width": return "--width"
+            case "viewport_height": return "--height"
+            default: break
+            }
+        }
+        return "--\(key.replacingOccurrences(of: "_", with: "-"))"
     }
 
     // MARK: - Shell Execution
@@ -202,20 +237,6 @@ public struct ZTPToolBridge: Tool, Sendable {
     }
 
     // MARK: - Helpers
-
-    private func buildExtraArgs(from input: [String: JSONValue], excluding: Set<String>) -> [String] {
-        var args: [String] = []
-        for (key, value) in input where !excluding.contains(key) {
-            let flag = "--\(key.replacingOccurrences(of: "_", with: "-"))"
-            switch value {
-            case .string(let s): args += [flag, s]
-            case .number(let n): args += [flag, n.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(n))" : "\(n)"]
-            case .bool(let b): if b { args.append(flag) }
-            default: break
-            }
-        }
-        return args
-    }
 
     private func mimeType(for ext: String) -> String {
         switch ext.lowercased() {
