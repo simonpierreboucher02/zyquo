@@ -7,7 +7,7 @@
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-6%20strict%20concurrency-F05138?logo=swift&logoColor=white)
 ![Arch](https://img.shields.io/badge/arch-arm64%20%C2%B7%20x86__64-blue)
-![Version](https://img.shields.io/badge/version-1.1.0-2F80ED)
+![Version](https://img.shields.io/badge/version-1.1.1-2F80ED)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![Notarized](https://img.shields.io/badge/notarized-Developer%20ID-success?logo=apple)
 
@@ -82,7 +82,7 @@ Everything the agent does is **renderable, reviewable, and reversible**. It runs
 ```bash
 brew install simonpierreboucher02/tap/zyquo
 # or from the release tarball committed in this repo:
-tar xzf zyquo-1.1.0-macos-arm64.tar.gz && sudo mv zyquo /usr/local/bin/
+tar xzf zyquo-1.1.1-macos-arm64.tar.gz && sudo mv zyquo /usr/local/bin/
 ```
 
 ### From source
