@@ -7,7 +7,7 @@
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-6%20strict%20concurrency-F05138?logo=swift&logoColor=white)
 ![Arch](https://img.shields.io/badge/arch-arm64%20%C2%B7%20x86__64-blue)
-![Version](https://img.shields.io/badge/version-1.1.1-2F80ED)
+![Version](https://img.shields.io/badge/version-1.2.0-2F80ED)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![Notarized](https://img.shields.io/badge/notarized-Developer%20ID-success?logo=apple)
 
@@ -16,7 +16,7 @@
 ![UI](https://img.shields.io/badge/TUI%20components-29-5EEAD4)
 ![Themes](https://img.shields.io/badge/themes-5-F0ABFC)
 ![Providers](https://img.shields.io/badge/providers-Anthropic%20%C2%B7%20OpenRouter%20%C2%B7%20local-5BA8FF)
-![Tools](https://img.shields.io/badge/agent%20tools-shell%20%C2%B7%20fs%20%C2%B7%20git%20%C2%B7%20ZTP%C3%978-FBBF24)
+![Tools](https://img.shields.io/badge/agent%20tools-shell%20%C2%B7%20fs%20%C2%B7%20git%20%C2%B7%20ZTP%C3%9712-FBBF24)
 
 *Inspired by OpenHands · Cline · OpenCode · Hermes — built Swift-native for macOS.*
 
@@ -80,9 +80,9 @@ Everything the agent does is **renderable, reviewable, and reversible**. It runs
 ### Homebrew
 
 ```bash
-brew install simonpierreboucher02/tap/zyquo
-# or from the release tarball committed in this repo:
-tar xzf zyquo-1.1.1-macos-arm64.tar.gz && sudo mv zyquo /usr/local/bin/
+brew install simonpierreboucher02/zyquo/zyquo
+# or from the notarized release tarball (GitHub Releases):
+tar xzf zyquo-1.2.0-macos-arm64.tar.gz && sudo mv zyquo /usr/local/bin/
 ```
 
 ### From source
@@ -133,11 +133,11 @@ The agent and the interactive chat execute through one registry. Tool calls are 
 | 🐚 **Shell** | `shell.run` (zsh, streamed, risk-classified, cancellable) |
 | 📁 **Filesystem** | `file.read` · `file.list` · `file.write` · `file.patch` (unified-diff, boundary-checked) |
 | 🌿 **Git** | `git.status` · `git.diff` · `git.log` · `git.commit` (never auto-pushes) |
-| ⚙️ **ZTP** | `ztp.excel` · `ztp.docx` · `ztp.slides` · `ztp.chart` · `ztp.mail` · `ztp.message` · `ztp.browser` · `ztp.macos` |
+| ⚙️ **ZTP** | `ztp.excel` · `ztp.docx` · `ztp.slides` · `ztp.chart` · `ztp.mail` · `ztp.message` · `ztp.browser` · `ztp.macos` · `ztp.ocr` · `ztp.notes` · `ztp.files` · `ztp.finder` |
 | 🌐 **Web** *(V2)* | `web.search` · `web.fetch` · `http.request` · `docs.search` |
 | 🍎 **macOS** | `applescript.run` · `applescript.query` · `applescript.info` |
 
-ZTP tools are auto-discovered from the installed `ztp` binary and registered as `ztp.*`, so the agent can generate real Office documents, charts, and emails as part of a task.
+ZTP tools are auto-discovered from the installed `ztp` binary and registered as `ztp.*`, so the agent can generate real Office documents, charts, and emails — and now also run **local OCR** (`ztp.ocr`), read/write **Apple Notes** (`ztp.notes`), manage **files** with search & compression (`ztp.files`), and drive **Finder** (`ztp.finder`) — as part of a task.
 
 ---
 

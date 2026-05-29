@@ -68,7 +68,7 @@ public actor ZTPDiscovery {
         guard let ztpPath = resolveZTPPath() else { return [] }
 
         var manifests: [ZTPToolManifest] = []
-        let toolNames = ["excel", "docx", "slides", "chart", "mail", "message", "browser", "macos"]
+        let toolNames = ["excel", "docx", "slides", "chart", "mail", "message", "browser", "macos", "ocr", "notes", "files", "finder"]
 
         for toolName in toolNames {
             if let manifest = await probeToolManifest(ztpPath: ztpPath, toolName: toolName) {
@@ -200,8 +200,10 @@ public actor ZTPDiscovery {
             perms["applescript"] = true
             perms["notifications"] = true
             perms["screenshots"] = true
-        case "message":
+        case "message", "notes", "finder":
             perms["applescript"] = true
+        case "ocr":
+            perms["screenshots"] = true
         default:
             break
         }

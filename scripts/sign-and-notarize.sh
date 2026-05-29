@@ -3,7 +3,7 @@ set -euo pipefail
 
 APP_NAME="zyquo"
 BUNDLE_ID="dev.zyquo.cli"
-VERSION="1.1.1"
+VERSION="1.2.0"
 IDENTITY="Developer ID Application: Simon-Pierre Boucher (3YM54G49SN)"
 KEYCHAIN_PROFILE="MacLustr-Notarize"
 ENTITLEMENTS="Entitlements/Zyquo.entitlements"

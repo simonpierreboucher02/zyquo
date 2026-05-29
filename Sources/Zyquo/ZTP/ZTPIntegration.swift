@@ -72,6 +72,10 @@ public actor ZTPIntegration {
             "ztp-message": "iMessage and SMS via Apple Messages",
             "ztp-browser": "Web screenshots, scraping, PDF export",
             "ztp-macos": "macOS automation, files, apps, clipboard, screenshots",
+            "ztp-ocr": "Local OCR of images, PDFs, and screen captures (Vision)",
+            "ztp-notes": "Read/write Apple Notes, create structured notes",
+            "ztp-files": "File navigation, search, copy/move/rename, compression",
+            "ztp-finder": "Advanced Finder control (selection, view, trash, eject)",
         ]
 
         for manifest in manifests.sorted(by: { $0.name < $1.name }) {
@@ -112,6 +116,10 @@ public enum ZTPToolSchemas {
             messageSchema,
             browserSchema,
             macosSchema,
+            ocrSchema,
+            notesSchema,
+            filesSchema,
+            finderSchema,
         ]
     }
 
@@ -162,6 +170,108 @@ public enum ZTPToolSchemas {
         description: "macOS automation: system-info, files (read/write/copy/move/delete), clipboard, notifications, screenshots, apps (open/list/quit), windows, processes, AppleScript, Shortcuts. Use for all macOS system interactions.",
         inputSchema: macosInputSchema()
     )
+
+    public static let ocrSchema = ToolSchema(
+        name: "ztp_ocr",
+        description: "Local on-device OCR (Apple Vision). Commands: image, pdf, screen, languages. Extract text from images, scanned PDFs, and screenshots — no network.",
+        inputSchema: ocrInputSchema()
+    )
+
+    public static let notesSchema = ToolSchema(
+        name: "ztp_notes",
+        description: "Read and write Apple Notes. Commands: list, read, create, append, delete, folders.",
+        inputSchema: notesInputSchema()
+    )
+
+    public static let filesSchema = ToolSchema(
+        name: "ztp_files",
+        description: "Filesystem navigation, search and management. Commands: list, tree, search, info, copy, move, rename, mkdir, delete, compress, extract.",
+        inputSchema: filesInputSchema()
+    )
+
+    public static let finderSchema = ToolSchema(
+        name: "ztp_finder",
+        description: "Advanced Finder control via AppleScript. Commands: selection, reveal, open, new-window, set-view, info, trash, empty-trash, eject.",
+        inputSchema: finderInputSchema()
+    )
+
+    private static func prop(_ type: String, _ desc: String, enumValues: [String]? = nil) -> JSONValue {
+        var obj: [String: JSONValue] = ["type": .string(type), "description": .string(desc)]
+        if let enumValues { obj["enum"] = .array(enumValues.map { .string($0) }) }
+        return .object(obj)
+    }
+
+    private static func ocrInputSchema() -> [String: JSONValue] {
+        [
+            "type": .string("object"),
+            "required": .array([.string("command")]),
+            "properties": .object([
+                "command": prop("string", "OCR command", enumValues: ["image", "pdf", "screen", "languages"]),
+                "input": prop("string", "Input image/PDF file path"),
+                "languages": prop("string", "Comma-separated languages, e.g. en,fr"),
+                "pages": prop("string", "PDF page range, e.g. 1-3 or 1,2,5"),
+                "dpi": prop("integer", "PDF rasterization DPI (default 200)"),
+                "fast": prop("boolean", "Faster, lower-accuracy recognition"),
+                "output": prop("string", "Write extracted text to this file"),
+            ]),
+        ]
+    }
+
+    private static func notesInputSchema() -> [String: JSONValue] {
+        [
+            "type": .string("object"),
+            "required": .array([.string("command")]),
+            "properties": .object([
+                "command": prop("string", "Notes command", enumValues: ["list", "read", "create", "append", "delete", "folders"]),
+                "name": prop("string", "Note title (read/append/delete)"),
+                "title": prop("string", "Note title for create"),
+                "body": prop("string", "Note body text or HTML"),
+                "folder": prop("string", "Notes folder"),
+                "limit": prop("integer", "Max notes to list"),
+                "confirmed": prop("boolean", "Required to delete"),
+            ]),
+        ]
+    }
+
+    private static func filesInputSchema() -> [String: JSONValue] {
+        [
+            "type": .string("object"),
+            "required": .array([.string("command")]),
+            "properties": .object([
+                "command": prop("string", "Files command", enumValues: ["list", "tree", "search", "info", "copy", "move", "rename", "mkdir", "delete", "compress", "extract"]),
+                "path": prop("string", "Target path"),
+                "from": prop("string", "Source path (copy/move)"),
+                "to": prop("string", "Destination path (copy/move/extract)"),
+                "input": prop("string", "Archive path for extract"),
+                "output": prop("string", "Output .zip path for compress"),
+                "query": prop("string", "Search query (substring or regex)"),
+                "name": prop("string", "New name for rename"),
+                "ext": prop("string", "Restrict search to a file extension"),
+                "sort": prop("string", "List sort key", enumValues: ["name", "size", "date"]),
+                "depth": prop("integer", "Max tree depth"),
+                "max": prop("integer", "Max results/entries"),
+                "regex": prop("boolean", "Treat query as regex"),
+                "content": prop("boolean", "Search file contents (grep)"),
+                "all": prop("boolean", "Include hidden entries"),
+                "permanent": prop("boolean", "Permanently delete instead of Trash"),
+                "confirmed": prop("boolean", "Required for move/rename/delete/extract"),
+            ]),
+        ]
+    }
+
+    private static func finderInputSchema() -> [String: JSONValue] {
+        [
+            "type": .string("object"),
+            "required": .array([.string("command")]),
+            "properties": .object([
+                "command": prop("string", "Finder command", enumValues: ["selection", "reveal", "open", "new-window", "set-view", "info", "trash", "empty-trash", "eject"]),
+                "path": prop("string", "Target path"),
+                "view": prop("string", "View mode for set-view", enumValues: ["icon", "list", "column", "gallery"]),
+                "name": prop("string", "Volume name for eject"),
+                "confirmed": prop("boolean", "Required for trash/empty-trash/eject"),
+            ]),
+        ]
+    }
 
     private static func toolInputSchema(commands: [String]) -> [String: JSONValue] {
         [

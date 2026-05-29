@@ -328,6 +328,37 @@ public struct ZTPToolBridge: Tool, Sendable {
                 enumValues: ["png", "svg", "pdf"],
                 defaultValue: "png"
             )
+        case "ocr":
+            properties["input"] = PropertySchema(type: "string", description: "Input image/PDF file path (image, pdf commands)")
+            properties["languages"] = PropertySchema(type: "string", description: "Comma-separated recognition languages, e.g. en,fr")
+            properties["pages"] = PropertySchema(type: "string", description: "PDF page range, e.g. 1-3 or 1,2,5")
+            properties["dpi"] = PropertySchema(type: "integer", description: "PDF rasterization DPI", defaultValue: "200")
+            properties["fast"] = PropertySchema(type: "boolean", description: "Faster, lower-accuracy recognition", defaultValue: "false")
+        case "notes":
+            properties["name"] = PropertySchema(type: "string", description: "Note title (read/append/delete)")
+            properties["title"] = PropertySchema(type: "string", description: "Note title for create")
+            properties["body"] = PropertySchema(type: "string", description: "Note body text or HTML")
+            properties["folder"] = PropertySchema(type: "string", description: "Notes folder")
+            properties["limit"] = PropertySchema(type: "integer", description: "Max notes to list", defaultValue: "50")
+        case "files":
+            properties["path"] = PropertySchema(type: "string", description: "Target path (list/tree/search/info/rename/mkdir/delete/compress)")
+            properties["from"] = PropertySchema(type: "string", description: "Source path (copy/move)")
+            properties["to"] = PropertySchema(type: "string", description: "Destination path (copy/move/extract)")
+            properties["input"] = PropertySchema(type: "string", description: "Archive path for extract")
+            properties["query"] = PropertySchema(type: "string", description: "Search query (substring or regex)")
+            properties["name"] = PropertySchema(type: "string", description: "New name for rename")
+            properties["ext"] = PropertySchema(type: "string", description: "Restrict search to a file extension")
+            properties["sort"] = PropertySchema(type: "string", description: "List sort key", enumValues: ["name", "size", "date"])
+            properties["depth"] = PropertySchema(type: "integer", description: "Max tree depth", defaultValue: "3")
+            properties["max"] = PropertySchema(type: "integer", description: "Max results/entries")
+            properties["regex"] = PropertySchema(type: "boolean", description: "Treat search query as regex", defaultValue: "false")
+            properties["content"] = PropertySchema(type: "boolean", description: "Search file contents (grep)", defaultValue: "false")
+            properties["all"] = PropertySchema(type: "boolean", description: "Include hidden entries", defaultValue: "false")
+            properties["permanent"] = PropertySchema(type: "boolean", description: "Permanently delete instead of Trash", defaultValue: "false")
+        case "finder":
+            properties["path"] = PropertySchema(type: "string", description: "Target path (reveal/open/set-view/info/trash)")
+            properties["view"] = PropertySchema(type: "string", description: "View mode for set-view", enumValues: ["icon", "list", "column", "gallery"])
+            properties["name"] = PropertySchema(type: "string", description: "Volume name for eject")
         default:
             break
         }
